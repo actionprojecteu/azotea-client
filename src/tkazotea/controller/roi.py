@@ -69,13 +69,16 @@ def reshapeRect(filename, rect):
         # Get the real RAW dimensions instead
         with rawpy.imread(filename) as img:
             imageHeight, imageWidth = img.raw_image.shape
+        imageHeight = imageHeight //2 # From raw dimensions without debayering
+        imageWidth =  imageWidth //2  # to dimensions we actually handle
         width, height = rect.dimensions()
-        x = (imageWidth//2 -  width)//2
-        y = (imageHeight//2 - height)//2
-        rect += Point(x,y)  # Shift ROI using this point
+        center=Point(imageWidth//2,imageHeight//2)
+        x1 = (imageWidth  -  width)//2
+        y1 = (imageHeight - height)//2
+        rect += Point(x1,y1)  # Shift ROI using this (x1,y1) point
         result = rect.to_dict()
         result['display_name'] = str(rect)
-        result['comment'] = _("Automatic centered ROI for {0}").format(str(exif.get('Image Model')))
+        result['comment'] = _("ROI for {0}, centered at P={1}, width={2}, height={3}").format(str(exif.get('Image Model')),center,width,height)
         return result
 
 
