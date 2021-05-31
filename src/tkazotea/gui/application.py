@@ -332,8 +332,12 @@ class MainFrame(ttk.Frame):
         lframe1.pack(side=tk.TOP, fill=tk.BOTH, pady=10)
 
         roicombo = ROICombo(lframe1, text=_("Region of interest"), command=self.onROIComboSelection)
-        roicombo.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        roicombo.pack(side=tk.LEFT,fill=tk.X, padx=5, pady=5)
         self.ROICombo = roicombo
+
+        self.ROIComment = roiCommentVar = tk.StringVar()
+        roicomment = tk.Label(lframe1, textvariable=roiCommentVar)
+        roicomment.pack(side=tk.RIGHT,fill=tk.X, padx=5, pady=5)
 
         lframe2 = tk.Frame(lframe)
         lframe2.pack(side=tk.TOP, fill=tk.BOTH, pady=10)

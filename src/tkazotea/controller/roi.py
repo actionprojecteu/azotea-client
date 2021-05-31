@@ -133,6 +133,7 @@ class ROIController:
             # Also shows default ROI
             if self.default_details:
                 self.view.mainArea.ROICombo.set(self.default_details)
+                self.view.mainArea.ROIComment.set(self.default_details['comment'])
                 if preferences:
                     preferences.roiFrame.detailsResp(self.default_details)
 
