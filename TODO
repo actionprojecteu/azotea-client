@@ -1,0 +1,115 @@
+
+
+
+INMEDIATO
+=========
+
+* Falla el constraint check de borra imagenes/medidas.
+
+* generar el wheel
+
+
+MEDIO PLAZO
+===========
+
+* Conectarse a un servidor web y publicar las medidas
+
+* Agrupar las porperties por tematicas:
+[camera]
+cabera_id
+debug_level
+[observer]
+
+* Utilidad de patches de BD, interactiva
+ from_v01_to_v02.sql
+ from_v02_yo_v03.sql
+  en el about, decir qué version de BD está
+
+* Bucle for roi in rois:
+  procesar estadisticas (como soporte a tener uchas rois por imagen)
+
+
+* ROI, definicion interactiva
+  - cuadro de dialogo con canvas
+
+* Boton de ver imagen al ver la ROI
+
+
+* soporte para FITS
+  - opciones de camara (bias, etc.)
+  - proceso de registro
+
+* backup y restore de la BD usando SQL
+
+* Atajos de Teclado
+
+* ¿probar los iter() en las transacciones?
+
+* Multiidioma y  Localizacion en español
+
+* TextWidget para ver los log
+   - como se añaden observadores nuevos a twisted
+   - como se inserta texto en el Text
+   - Como se muestra/oculta esta cosa
+
+* Tab "Miscelanea": poner posiblemente las reglas para los cuadros oscuros
+  Cuadroroscuro:
+  - o por cabecera
+  - o por prefijo de fichero
+  - o por sufijo de fichero
+
+
+CHANGELOG
+=========
+
+LINKS interesantes
+===================
+* TKINTER reference
+https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/index.html
+
+* HOIME variable in windows
+https://superuser.com/questions/607105/is-the-home-environment-variable-normally-set-in-windows
+
+* Como embeber el backed de matploblibe n mi propio canvas
+https://pythonprogramming.net/how-to-embed-matplotlib-graph-tkinter-gui/
+
+* Como usar el GETTEXT y los *.po
+https://phrase.com/blog/posts/translate-python-gnu-gettext/
+
+* Cargar y escalar imagen
+ - How to create an image from an numpy array
+ beware of numy and PIL indexing !
+  https://stackoverflow.com/questions/2659312/how-do-i-convert-a-numpy-array-to-and-display-an-image
+
+* Rectangulo pintarlo en la imagen para reposicioenamiento
+- Para crear un rectangulo en un canvas y moverlo
+https://pythonprogramming.altervista.org/moving-a-rectangle-on-the-canvas-in-tkinter/?doing_wp_cron=1620111178.4584701061248779296875
+
+* Campo angular 
+¿se calcula desde el EXIF o hay que hacer un form para eso?
+https://clarkvision.com/articles/platescale/
+
+* Iconos
+https://commons.wikimedia.org/wiki/Tango_icons
+
+
+Jupyter y los virtual envs
+https://janakiev.com/blog/jupyter-virtual-envs/
+
+Tkinter y los combobox
+https://www.manejandodatos.es/2014/10/la-odisea-de-trabajar-con-combobox-en-tkinter/
+
+https://towardsdatascience.com/raw-image-processing-in-python-238e5d582761
+
+https://docstore.mik.ua/orelly/perl3/tk/ch02_01.htm
+
+EXIF standard tags
+https://www.awaresystems.be/imaging/tiff/tifftags/privateifd/exif.html
+
+Using GetText
+https://inventwithpython.com/blog/2014/12/20/translate-your-python-3-program-with-the-gettext-module/
+
+
+ RawPy
+rgb_base_linear = raw_base.postprocess(output_color=rawpy.ColorSpace.raw, gamma=(1, 1),
+                                       user_wb=[1.0, 1.0, 1.0, 1.0], no_auto_bright=True)
