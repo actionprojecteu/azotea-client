@@ -369,28 +369,28 @@ class MainFrame(ttk.Frame):
         ltree.heading('#3', text=_("Exposure"))
         ltree.column('#3', stretch=tk.YES, width=80, anchor='center')
       
-        ltree.heading('#4', text="\u03BC(R)")
+        ltree.heading('#4', text="R1")
         ltree.column('#4', stretch=tk.YES, width=80, anchor='center')
 
-        ltree.heading('#5', text="\u03C3^2(R)")
+        ltree.heading('#5', text="G2")
         ltree.column('#5', stretch=tk.YES, width=80, anchor='center')
 
-        ltree.heading('#6', text="\u03BC(G1)")
+        ltree.heading('#6', text="G3")
         ltree.column('#6', stretch=tk.YES, width=80, anchor='center')
 
-        ltree.heading('#7', text="\u03C3^2(G1)")
+        ltree.heading('#7', text="B4")
         ltree.column('#7', stretch=tk.YES, width=80, anchor='center')
 
-        ltree.heading('#8', text="\u03BC(G2)")
+        ltree.heading('#8', text="\u03C3^2 R1")
         ltree.column('#8', stretch=tk.YES, width=80, anchor='center')
 
-        ltree.heading('#9', text="\u03BC^2(G2)")
+        ltree.heading('#9', text="\u03C3^2 G2")
         ltree.column('#9', stretch=tk.YES, width=80, anchor='center')
 
-        ltree.heading('#10', text="\u03BC(B)")
+        ltree.heading('#10', text="\u03C3^2 G3")
         ltree.column('#10', stretch=tk.YES, width=80, anchor='center')
 
-        ltree.heading('#11', text="\u03C3^2(B)")
+        ltree.heading('#11', text="\u03C3^2 B4")
         ltree.column('#11', stretch=tk.YES, width=80, anchor='center')
 
 
@@ -446,13 +446,14 @@ class MainFrame(ttk.Frame):
                 'widget_time',
                 'exptime',
                 'aver_signal_R',
-                'vari_signal_R',
                 'aver_signal_G1',
-                'vari_signal_G1',
                 'aver_signal_G2',
-                'vari_signal_G2',
                 'aver_signal_B',
-                'vari_signal_B')
+                'vari_signal_R',
+                'vari_signal_G1',
+                'vari_signal_G2',
+                'vari_signal_B',
+                )
             ]
         )
         self.diid +=  1
