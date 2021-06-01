@@ -163,9 +163,11 @@ class ImageController:
     @inlineCallbacks
     def begin(self):
         self._abort = False
-        self.work_dir = yield self.doCheckDefaults()
-        if self.work_dir:
-            yield self.doRegister(self.work_dir)
+        ok = yield self.doCheckDefaults()
+        if ok:
+            work_dir = self.view.openDirectoryDialog()
+            if work_dir:
+                yield self.doRegister(work_dir)
 
     # We assign the default optics here
     @inlineCallbacks
@@ -228,10 +230,9 @@ class ImageController:
             error_list = '\n'.join(errors)
             message = _("Can't register. These things are missing:\n{0}").format(error_list)
             self.view.messageBoxError(who=_("Register"),message=message)
-            returnValue(None)
+            returnValue(False)
         else:
-            path = self.view.openDirectoryDialog()
-            returnValue(path)
+            returnValue(True)
     
 
     # ---------------------- OBSERVER ----------------------------------------------
