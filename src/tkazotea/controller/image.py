@@ -167,7 +167,16 @@ class ImageController:
         if ok:
             work_dir = self.view.openDirectoryDialog()
             if work_dir:
-                yield self.doRegister(work_dir)
+                with os.scandir(work_dir) as it:
+                    dirs  = [ entry.path for entry in it if entry.is_dir()  ]
+                    files = [ entry.path for entry in it if entry.is_file() ]
+                if dirs:
+                    if files:
+                        log.warn("Ignoring files in {wd}", wd=work_dir)
+                    for work_dir in sorted(dirs, reverse=True):
+                        yield self.doRegister(work_dir)
+                else:
+                    yield self.doRegister(work_dir)
 
     # We assign the default optics here
     @inlineCallbacks
