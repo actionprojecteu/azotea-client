@@ -58,6 +58,8 @@ from tkazotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RA
 NAMESPACE = 'CTRL '
 DEF_TSTAMP = '%Y-%m-%dT%H:%M:%S'
 
+PUBLISH_PAGE_SIZE = 500
+
 # RGGB => R = [x=0,y=0], G1 = [x=1,y=0], G2 = [x=0,y=1], B = [x=1,y=1]
 # BGGR => R = [x=1,y=1], G1 = [x=1,y=0], G2 = [x=0,y=1], B = [x=0,y=0]
 # GRBG => R = [x=1,y=0], G1 = [x=0,y=0], G2 = [x=1,y=1], B = [x=0,y=1]
@@ -208,6 +210,7 @@ class SkyBackgroundController:
         pub.subscribe(self.onDeleteReq, 'sky_brightness_delete_req')
         pub.subscribe(self.onAbortReq,  'sky_brightness_abort_stats_req')
         pub.subscribe(self.onExportReq, 'sky_brightness_csv_req')
+        pub.subscribe(self.onPublishReq,'sky_brightness_publish_req')
 
     def onAbortReq(self):
         self._abort = True
@@ -280,7 +283,7 @@ class SkyBackgroundController:
             errors.append( _("- No default ROI selected.") )
         if errors:
             error_list = '\n'.join(errors)
-            message = _("Can't process. These things are missing:\n{0}").format(error_list)
+            message = _("These things are missing:\n{0}").format(error_list)
             self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
             result = False
         returnValue(result)
@@ -305,7 +308,7 @@ class SkyBackgroundController:
             errors.append( _("- No default observer selected.") )
         if errors:
             error_list = '\n'.join(errors)
-            message = _("Can't process. These things are missing:\n{0}").format(error_list)
+            message = _("These things are missing:\n{0}").format(error_list)
             self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
             result = False
         returnValue(result)
@@ -395,4 +398,58 @@ class SkyBackgroundController:
             message = _("No images to process")
             self.view.messageBoxWarn(who=_("Sky backround statistics"),message=message)
         self.view.statusBar.clear()
+
+
+    # Check here credentials and URL
+    @inlineCallbacks
+    def doCheckDefaultsPublish(self):
+        result = True
+        errors = list()
+        default_observer_id, default_observer_details = yield self.observerCtrl.getDefault()
+        if default_observer_id:
+            self.observer_id = int(default_observer_id)
+        else:
+            self.observer_id = None
+            errors.append( _("- No default observer selected.") )
+        if errors:
+            error_list = '\n'.join(errors)
+            message = _("These things are missing:\n{0}").format(error_list)
+            self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
+            result = False
+        returnValue(result)
+
+
+    @inlineCallbacks
+    def onPublishReq(self):
+        self._abort = False
+        result = yield self.doCheckDefaultsPublish()
+        if result:
+            total = yield self.sky.getPublishingCount({'observer_id': self.observer_id})
+            if total == 0:
+                message = _("No Sky Brightness measurements to publish")
+                self.view.messageBoxInfo(who=_("Sky Background Processor"),message=message)
+            else:
+                message = _("Publishing {0} measurements.\nThis may take a while").format(total)
+                accepted = self.view.messageBoxAcceptCancel(who=_("Sky Background Processor"), message=message)
+                if accepted:
+                    yield doPublish(total)
+
+    @inlineCallbacks
+    def doPublish(self, total):
+        filter_dict = {'observer_id': self.observer_id}
+        N = total // PUBLISH_PAGE_SIZE
+        N = N + 1 if (total % PUBLISH_PAGE_SIZE) != 0 else N
+        for page in range(N):
+            filter_dict['limit']  = PUBLISH_PAGE_SIZE
+            filter_dict['offset'] = page * PUBLISH_PAGE_SIZE
+            result = yield publishAll(filter_dict)
+            log.info("PUBLISH page {page}, limit {limit}, size of result = {size}", page=page, limit=PUBLISH_PAGE_SIZE, size=len(result))
+
+
+
+
+           
+
+
+    
            

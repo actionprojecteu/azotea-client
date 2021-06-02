@@ -146,6 +146,7 @@ class MenuBar(ttk.Frame):
         file_menu = tk.Menu(menu_bar, tearoff=False)
         file_menu.add_command(label=_("Load images..."), state=tk.NORMAL, command=self.onMenuImageLoad)
         file_menu.add_command(label=_('Export to CSV...'), state=tk.NORMAL, command=self.onMenuGenerateCSV)
+        file_menu.add_command(label=_('Publish Measurements...'), state=tk.NORMAL, command=self.onMenuPublish)
         file_menu.add_separator()
         file_menu.add_command(label=_("Quit"), command=self.quit)
         menu_bar.add_cascade(label=_("File"), menu=file_menu)
@@ -206,6 +207,9 @@ class MenuBar(ttk.Frame):
     def onMenuGenerateCSV(self):
         dateFilter = DateFilterDialog(self, command=self.getExportDate)
         dateFilter.grab_set()
+
+    def onMenuPublish(self):
+        pub.sendMessage('sky_brightness_publish_req')
 
     def getExportDate(self, date):
         pub.sendMessage('sky_brightness_csv_req', date=date)

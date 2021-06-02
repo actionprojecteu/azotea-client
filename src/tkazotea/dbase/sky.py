@@ -502,4 +502,64 @@ class SkyBrightness:
             txn.execute(sql, filter_dict)
             return txn.fetchall()
         return self._pool.runInteraction(_exportLatestMonth, filter_dict)
+
+
+    def getPublishingCount(self, filter_dict):
+        def _getPublishingCount(txn, filter_dict):
+            sql = '''
+            SELECT COUNT(*)
+            FROM sky_brightness_t AS s
+            JOIN observer_t AS o USING(observer_id)
+            WHERE s.observer_id = :observer_id
+            AND s.published = 0;
+            '''
+            self.log.debug(sql)
+            txn.execute(sql, filter_dict)
+            return txn.fetchone()[0]
+        return self._pool.runInteraction(_getPublishingCount, filter_dict)
+
+
+    def updatePublishingCount(self, filter_dict):
+        def _updatePublishingCount(txn, filter_dict):
+            sql = '''
+            UPDATE sky_brightness_t
+            SET published = 1
+            WHERE observer_id = :observer_id
+            AND published = 0;
+            '''
+            self.log.debug(sql)
+            txn.execute(sql, filter_dict)
+            return txn.fetchone()[0]
+        return self._pool.runInteraction(_updatePublishingCount, filter_dict)
+
+
+    def publishAll(self, filter_dict):
+        def _publishAll(txn, filter_dict):
+            sql = '''
+            SELECT
+            s.date_id, s.time_id,
+            o.surname, o.family_name, o.acronym, o.affiliation, o.acronym, o.valid_since, o.valid_until, o.valid_state,
+            l.site_name, l.location, l.public_long, l.public_lat, l.utc_offset,
+            c.model, c.bias, c.extension, c.header_type, c.bayer_pattern, c.width, c.length,
+            r.x1, r.y1, r.x2, r.y2, r.display_name, r.comment,
+            i.name, i.directory, i.hash, i.iso, i.gain, i.exptime, i.focal_length, i.f_number, i.session,  
+            s.aver_signal_R,  s.vari_signal_R,  s.aver_signal_G1, s.vari_signal_G1, 
+            s.aver_signal_G2, s.vari_signal_G2, s.aver_signal_B,  s.vari_signal_B
+            FROM sky_brightness_t AS s
+            JOIN roi_t      AS r USING(roi_id)
+            JOIN image_t    AS i USING(image_id)
+            JOIN camera_t   AS c USING(camera_id)
+            JOIN observer_t AS o USING(observer_id)
+            JOIN location_t AS l USING(location_id)
+            WHERE s.observer_id = :observer_id
+            AND   s.published = 0
+            ORDER BY s.date_id ASC, s.time_id ASC
+            LIMIT :limit OFFSET :offset;
+            '''
+            self.log.debug(sql)
+            txn.execute(sql, filter_dict)
+            return txn.fetchall()
+        return self._pool.runInteraction(_publishAll, filter_dict)
+
+
     
