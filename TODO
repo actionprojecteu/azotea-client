@@ -4,10 +4,21 @@
 INMEDIATO
 =========
 
-* Falla el constraint check de borra imagenes/medidas.
-
-* generar el wheel
-
+* Publicacionde medidas
+  - Pestaña de Preferencias > Publicacion con 
+    * login
+    * password (oculto)
+    * repetir password
+    * URL
+    * Botones de Salvar y Limpiar
+  - properyies [publishing]
+   * incluir URL
+  - BD
+    - getPublisingCount
+    - queryPublisihing paginadas con parametros offset y limit
+  - Controlador
+    - progress bar en relacion al numero de HTTP post a hacer
+    - avisar de que va a tardar un rato (si hay que hacer > 2 peticiones HTTPS)
 
 MEDIO PLAZO
 ===========
