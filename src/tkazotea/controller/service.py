@@ -43,6 +43,8 @@ from tkazotea.controller.roi         import ROIController
 from tkazotea.controller.miscelanea  import MiscelaneaController
 from tkazotea.controller.image       import ImageController
 from tkazotea.controller.sky         import SkyBackgroundController
+from tkazotea.controller.publishing  import PublishingController
+
 
 # ----------------
 # Module constants
@@ -148,27 +150,36 @@ class GraphicalService(Service):
                 parent       = self, 
                 view         = self.application, 
                 model        = self.dbaseService.dao,
+            ),
+            PublishingController(
+                parent       = self, 
+                view         = self.application, 
+                model        = self.dbaseService.dao,
             )
         )
         # Dirty monkey patching
+        # patch ApplicationController
         self.controllers[0].cameraCtrl    = self.controllers[1]
         self.controllers[0].observerCtrl  = self.controllers[2]
         self.controllers[0].locationCtrl  = self.controllers[3]
         self.controllers[0].roiCtrl       = self.controllers[4]
         self.controllers[0].imageCtrl     = self.controllers[6]
 
-        self.controllers[-2].cameraCtrl   = self.controllers[1]
-        self.controllers[-2].observerCtrl = self.controllers[2]
-        self.controllers[-2].locationCtrl = self.controllers[3]
+        # patch ImageController
+        self.controllers[-3].cameraCtrl   = self.controllers[1]
+        self.controllers[-3].observerCtrl = self.controllers[2]
+        self.controllers[-3].locationCtrl = self.controllers[3]
 
-        self.controllers[-1].observerCtrl = self.controllers[2]
-        self.controllers[-1].roiCtrl      = self.controllers[4]
+        # patch SkyBackgroundController
+        self.controllers[-2].observerCtrl = self.controllers[2]
+        self.controllers[-2].roiCtrl      = self.controllers[4]
 
         for controller in self.controllers[1:]:
             controller.start()        
 
         tksupport.install(self.application)
         self.task.start(3, now=False) # call every T seconds
+        # Start application controller a bit later
         reactor.callLater(0, self.controllers[0].start)
         
 

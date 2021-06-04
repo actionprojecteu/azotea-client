@@ -36,6 +36,7 @@ from tkazotea.gui.preferences.location import LocationFrame
 from tkazotea.gui.preferences.camera import CameraFrame
 from tkazotea.gui.preferences.roi import ROIFrame
 from tkazotea.gui.preferences.miscelanea import MiscelaneaFrame
+from tkazotea.gui.preferences.publishing import PublishingFrame
 
 
 # ----------------
@@ -70,6 +71,7 @@ class Preferences(tk.Toplevel):
         self.cameraFrame.start()
         self.roiFrame.start()
         self.miscelaneaFrame.start()
+        self.publishingFrame.start()
 
     def close(self):
         self._owner.preferences = None
@@ -139,14 +141,19 @@ class Preferences(tk.Toplevel):
         )
         roi_frame.pack(fill='both', expand=True)
         notebook.add(roi_frame, text=_("ROI"))
+
+        publish_frame = PublishingFrame(notebook)
+        publish_frame.pack(fill='both', expand=True)
+        notebook.add(publish_frame, text=_("Publishing"))
         
         misc_frame = MiscelaneaFrame(notebook)
         misc_frame.pack(fill='both', expand=True)
         notebook.add(misc_frame, text=_("Miscelanea"))
 
-        self.notebook = notebook
-        self.observerFrame = obs_frame
-        self.locationFrame = loc_frame
-        self.cameraFrame = cam_frame
-        self.roiFrame = roi_frame
+        self.notebook        = notebook
+        self.observerFrame   = obs_frame
+        self.locationFrame   = loc_frame
+        self.cameraFrame     = cam_frame
+        self.roiFrame        = roi_frame
+        self.publishingFrame = publish_frame
         self.miscelaneaFrame = misc_frame

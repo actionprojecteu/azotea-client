@@ -54,7 +54,7 @@ log = Logger(namespace=NAMESPACE)
 # ------------------------
 
 
-class MiscelaneaController:
+class PublishingController:
     
     def __init__(self, parent, view, model):
         self.parent = parent
@@ -63,18 +63,18 @@ class MiscelaneaController:
         setLogLevel(namespace=NAMESPACE, levelStr='info')
     
     def start(self):
-        log.info('starting Miscelanea Controller')
-        pub.subscribe(self.onDetailsReq, 'misc_details_req')
-        pub.subscribe(self.onSaveReq,    'misc_save_req')
-        pub.subscribe(self.onDeleteReq,  'misc_delete_req')
+        log.info('starting Publishing Controller')
+        pub.subscribe(self.onDetailsReq, 'publishing_details_req')
+        pub.subscribe(self.onSaveReq,    'publishing_save_req')
+        pub.subscribe(self.onDeleteReq,  'publishing_delete_req')
 
     @inlineCallbacks
     def onDetailsReq(self):
         try:
-            log.debug('onDetailsReq() fetching optics from config_t')
-            optics_opts = yield self.model.config.loadSection(section='optics')
-            log.info('onDetailsReq() optics = {o}',o=optics_opts)
-            self.view.menuBar.preferences.miscelaneaFrame.detailsResp(optics_opts)
+            log.info('onDetailsReq() fetching publishing from config_t')
+            publishing_opts = yield self.model.config.loadSection(section='publishing')
+            log.info('onDetailsReq() publishing = {p}',p=publishing_opts)
+            self.view.menuBar.preferences.publishingFrame.detailsResp(publishing_opts)
         except Exception as e:
             log.failure('{e}',e=e)
 
@@ -82,10 +82,10 @@ class MiscelaneaController:
     @inlineCallbacks
     def onSaveReq(self, data):
         try:
-            log.debug('onSaveReq() saving {data} defaults to config_t', data=data)
-            pub.sendMessage('images_set_default_optics_req', data=data)
-            log.debug('onSaveReq() saved {data} defaults to config_t', data=data)
-            self.view.menuBar.preferences.miscelaneaFrame.saveOkResp()
+            log.info('onSaveReq() saving {data} defaults to config_t', data=data)
+            yield self.model.config.saveSection('publishing', data)
+            log.info('onSaveReq() saved {data} defaults to config_t', data=data)
+            self.view.menuBar.preferences.publishingFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
 
@@ -93,12 +93,12 @@ class MiscelaneaController:
     @inlineCallbacks
     def onDeleteReq(self, data):
         try:
-            log.debug('onDeleteReq() deleting entries from config_t given by {data}', data=data)
-            count = yield self.model.config.deleteSection('optics',data)
-            log.debug('onDeleteReq() set config entries to NULL', data=data)
+            log.info('onDeleteReq() deleting entries from config_t given by {data}', data=data)
+            count = yield self.model.config.deleteSection('publishing',data)
+            log.info('onDeleteReq() set config entries to NULL', data=data)
             yield self.onDetailsReq()
         except Exception as e:
             log.failure('{e}',e=e)
-            self.view.menuBar.preferences.miscelaneaFrame.deleteErrorResponse(count)
-        self.view.menuBar.preferences.miscelaneaFrame.deleteOkResponse(count)
+            self.view.menuBar.preferences.publishingFrame.deleteErrorResponse(count)
+        self.view.menuBar.preferences.publishingFrame.deleteOkResponse(count)
 
