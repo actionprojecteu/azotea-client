@@ -35,7 +35,10 @@ VALUES ('optics', 'f_number', NULL);
 -- Publishing section
 
 INSERT INTO config_t(section, property, value) 
-VALUES ('publishing', 'login', NULL);
+VALUES ('publishing', 'url', NULL);
+
+INSERT INTO config_t(section, property, value) 
+VALUES ('publishing', 'username', NULL);
 
 INSERT INTO config_t(section, property, value) 
 VALUES ('publishing', 'password', NULL);

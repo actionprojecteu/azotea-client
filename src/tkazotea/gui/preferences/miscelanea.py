@@ -141,6 +141,7 @@ class MiscelaneaFrame(ttk.Frame):
     # response to misc_delete_req
     def deleteOkResponse(self, count):
         self._control['del'].configure(state='enabled')
+        self._blankForm()
 
     # response to misc_delete_req
     def deleteErrorResponse(self, count):

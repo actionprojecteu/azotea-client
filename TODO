@@ -4,6 +4,10 @@
 INMEDIATO
 =========
 
+<<<<<<< HEAD
+* Probar la generacion del megaexport
+* Falla el constraint check de borra imagenes/medidas.
+=======
 * Publicacionde medidas
   - Pestaña de Preferencias > Publicacion con 
     * login
@@ -19,6 +23,7 @@ INMEDIATO
   - Controlador
     - progress bar en relacion al numero de HTTP post a hacer
     - avisar de que va a tardar un rato (si hay que hacer > 2 peticiones HTTPS)
+>>>>>>> 4e5869814c1e2fc7e6a5d621f10b5f1fad92bbf7
 
 MEDIO PLAZO
 ===========
