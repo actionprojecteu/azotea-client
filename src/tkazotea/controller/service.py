@@ -174,6 +174,9 @@ class GraphicalService(Service):
         self.controllers[-2].observerCtrl = self.controllers[2]
         self.controllers[-2].roiCtrl      = self.controllers[4]
 
+        # patch PublishingController
+        self.controllers[-1].observerCtrl = self.controllers[2]
+
         for controller in self.controllers[1:]:
             controller.start()        
 

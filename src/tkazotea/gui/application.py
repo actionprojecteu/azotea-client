@@ -209,7 +209,7 @@ class MenuBar(ttk.Frame):
         dateFilter.grab_set()
 
     def onMenuPublish(self):
-        pub.sendMessage('sky_brightness_publish_req')
+        pub.sendMessage('publishing_publish_req')
 
     def getExportDate(self, date):
         pub.sendMessage('sky_brightness_csv_req', date=date)
