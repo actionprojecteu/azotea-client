@@ -13,10 +13,11 @@ AUTHOR_EMAIL = 'rafael08@ucm.es'
 DESCRIPTION  = 'Graphical Front-End',
 LICENSE      = 'MIT'
 KEYWORDS     = 'Music'
-URL          = 'https://github.com/astrorafael/tkazotea/'
+URL          = 'https://github.com/astrorafael/azotea-client/'
 DEPENDENCIES = [
     'numpy',      # Basic dependency
     'twisted',    # Basic dependency
+    'treq',       # like requests, Twisted style 
     'pypubsub',   # Publish/Subscribe support Model/View/Controller
     'rawpy',      # Reads RAW faile formats (from libRaw)
     'exifread',   # Reads EXIF headers only

@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS observer_t
     valid_since     TEXT,
     valid_until     TEXT,
     valid_state     TEXT,              -- Either 'Current' or 'Expired'
+    UNIQUE(family_name,surname,affiliation,acronym,valid_since,valid_until,valid_state)
     PRIMARY KEY(observer_id)
 );
 
@@ -67,19 +68,21 @@ CREATE TABLE IF NOT EXISTS location_t
     public_long     REAL,             -- Public, randomized longitude in decimal degrees
     public_lat      REAL,             -- Public, randomized latitude in decimal degrees
     utc_offset      REAL,             -- time zone as offset from UTC. i.e. GMT+1 = +1
+    UNIQUE(site_name,location),
     PRIMARY KEY(location_id)
 );
 
 CREATE TABLE IF NOT EXISTS camera_t
 (
     camera_id           INTEGER,
-    model               TEXT UNIQUE,  -- Camera Model (taken from EXIF data)
+    model               TEXT,         -- Camera Model (taken from EXIF data)
     bias                INTEGER,      -- default bias, to be replicated in all channels if we canno read ir from EXIR
     extension           TEXT,         -- File extension procuced by a camera (i.e. *.NEF)
     header_type         TEXT,         -- Either 'EXIF' or 'FITS'
     bayer_pattern       TEXT,         -- Either "RGGB", "BGGR", "GRGB" , "GBGR"
     width               INTEGER DEFAULT 0, -- Number of raw columns, without debayering
     length              INTEGER DEFAULT 0, -- Number of raw rows, without debayering
+    UNIQUE(model),
     PRIMARY KEY(camera_id)
 );
 

@@ -163,9 +163,38 @@ class ImageController:
     @inlineCallbacks
     def begin(self):
         self._abort = False
-        self.work_dir = yield self.doCheckDefaults()
-        if self.work_dir:
-            yield self.doRegister(self.work_dir)
+        ok = yield self.doCheckDefaults()
+        if ok:
+            work_dir = self.view.openDirectoryDialog()
+            if work_dir:
+                with os.scandir(work_dir) as it:
+                    dirs  = [ entry.path for entry in it if entry.is_dir()  ]
+                    files = [ entry.path for entry in it if entry.is_file() ]
+                if dirs:
+                    if files:
+                        log.warn("Ignoring files in {wd}", wd=work_dir)
+                    i = 0; N_Files = 0
+                    for work_dir in sorted(dirs, reverse=True):
+                        result = yield self.doRegister(work_dir)
+                        if not result:
+                            break
+                        j, M_Files = result
+                        i += j
+                        N_Files += M_Files
+                else:
+                    result = yield self.doRegister(work_dir)
+                    if result:
+                        i, N_Files = result
+                
+                if N_Files:
+                    message = _("Registration: {0}/{1} images complete").format(i,N_Files)
+                    self.view.messageBoxInfo(who=_("Register"),message=message)
+                else:
+                    extension = '*' + self.extension
+                    message = _("No images found with the filter {0}").format(extension)
+                    self.view.messageBoxWarn(who=_("Register"),message=message)
+                self.view.statusBar.clear()
+
 
     # We assign the default optics here
     @inlineCallbacks
@@ -228,10 +257,9 @@ class ImageController:
             error_list = '\n'.join(errors)
             message = _("Can't register. These things are missing:\n{0}").format(error_list)
             self.view.messageBoxError(who=_("Register"),message=message)
-            returnValue(None)
+            returnValue(False)
         else:
-            path = self.view.openDirectoryDialog()
-            returnValue(path)
+            returnValue(True)
     
 
     # ---------------------- OBSERVER ----------------------------------------------
@@ -242,14 +270,13 @@ class ImageController:
         if os.path.basename(directory) == '':
             directory = directory[:-1]
         log.debug('Directory is {dir}.',dir=directory)
-
         extension = '*' + self.extension
-
         # AQUI EMPIEZA LO SERIO
         self.view.mainArea.clearImageDataView()
         session = int(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S'))
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
+        i = 0
         bayer = self.bayer_pattern
         log.debug('Found {n} candidates matching filter {ext}.',n=N_Files, ext=extension)
         for i, filepath in enumerate(file_list):
@@ -302,10 +329,5 @@ class ImageController:
                 continue
             else:
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
-        if N_Files:
-            message = _("Registration: {0}/{1} images complete").format(i+1,N_Files)
-            self.view.messageBoxInfo(who=_("Register"),message=message)
-        else:
-            message = _("No images found with the filter {0}").format(extension)
-            self.view.messageBoxWarn(who=_("Register"),message=message)
-        self.view.statusBar.clear()
+        returnValue((i+1, N_Files))
+        
