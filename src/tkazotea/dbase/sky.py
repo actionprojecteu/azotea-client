@@ -436,10 +436,6 @@ class SkyBrightness:
             return txn.fetchall()
         return self._pool.runInteraction(_exportLatestNight, filter_dict)
 
-
-    
-
-
     def exportLatestMonth(self, filter_dict):
         def _exportLatestMonth(txn, filter_dict):
             sql = '''
