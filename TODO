@@ -3,27 +3,13 @@
 
 INMEDIATO
 =========
-
-<<<<<<< HEAD
+* ¿Validacion? _tkinter.TclError: expected floating-point number but got "39,6928888889"
 * Probar la generacion del megaexport
 * Falla el constraint check de borra imagenes/medidas.
-=======
 * Publicacionde medidas
-  - Pestaña de Preferencias > Publicacion con 
-    * login
-    * password (oculto)
-    * repetir password
-    * URL
-    * Botones de Salvar y Limpiar
-  - properyies [publishing]
-   * incluir URL
-  - BD
-    - getPublisingCount
-    - queryPublisihing paginadas con parametros offset y limit
   - Controlador
     - progress bar en relacion al numero de HTTP post a hacer
     - avisar de que va a tardar un rato (si hay que hacer > 2 peticiones HTTPS)
->>>>>>> 4e5869814c1e2fc7e6a5d621f10b5f1fad92bbf7
 
 MEDIO PLAZO
 ===========
