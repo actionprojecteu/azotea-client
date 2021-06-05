@@ -98,7 +98,7 @@ class LocationController:
     @inlineCallbacks
     def onListReq(self):
         try:
-            log.info('onListReq() fetching all unique entries from location_t')
+            log.debug('onListReq() fetching all unique entries from location_t')
             info = yield self.model.loadAllNK()
             self.view.mainArea.locationCombo.fill(info)
             preferences = self.view.menuBar.preferences

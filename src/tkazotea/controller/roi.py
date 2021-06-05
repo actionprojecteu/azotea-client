@@ -124,7 +124,7 @@ class ROIController:
     @inlineCallbacks
     def onListReq(self):
         try:
-            log.info('onListReq() fetching all unique entries from roi_t')
+            log.debug('onListReq() fetching all unique entries from roi_t')
             info = yield self.model.loadAllNK()
             self.view.mainArea.ROICombo.fill(info)
             preferences = self.view.menuBar.preferences

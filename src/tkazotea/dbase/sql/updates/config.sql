@@ -21,7 +21,7 @@ VALUES ( 'tables', 'camera_t', 'info');
 INSERT OR REPLACE INTO config_t(section, property, value) 
 VALUES ( 'tables', 'image_t', 'info');
 INSERT OR REPLACE INTO config_t(section, property, value) 
-VALUES ( 'tables', 'roi_t', 'debug');
+VALUES ( 'tables', 'roi_t', 'info');
 INSERT OR REPLACE INTO config_t(section, property, value) 
 VALUES ( 'tables', 'sky_brightness_t', 'info');
 

@@ -528,6 +528,14 @@ class SkyBrightness:
             return txn.fetchone()[0]
         return self._pool.runInteraction(_updatePublishingCount, filter_dict)
 
+    pub_column_names = ('date_id','time_id',
+        'surname','family_name','acronym','affiliation','valid_since','valid_until','valid_state',
+        'site_name','location','public_long','public_lat','utc_offset',
+        'model','bias','extension','header_type','bayer_pattern','width','length',
+        'x1','y1','x2','y2','display_name','comment',
+        'name','directory','hash','iso','gain','exptime','focal_length','f_number','session',
+        'aver_signal_R','vari_signal_R','aver_signal_G1','vari_signal_G1',
+        'aver_signal_G2','vari_signal_G2','aver_signal_B','vari_signal_B')
 
     def publishAll(self, filter_dict):
         def _publishAll(txn, filter_dict):
@@ -554,7 +562,7 @@ class SkyBrightness:
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
-            return txn.fetchall()
+            return [ dict(zip(self.pub_column_names,row)) for row in txn.fetchall()]
         return self._pool.runInteraction(_publishAll, filter_dict)
 
 

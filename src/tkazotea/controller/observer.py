@@ -99,7 +99,7 @@ class ObserverController:
     @inlineCallbacks
     def onListReq(self):
         try:
-            log.info('onListReq() fetching all unique entries from observer_t')
+            log.debug('onListReq() fetching all unique entries from observer_t')
             info = yield self.model.loadAllNK()
             self.view.mainArea.observerCombo.fill(info)
             preferences = self.view.menuBar.preferences

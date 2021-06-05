@@ -163,7 +163,7 @@ class CameraController:
             self.default_id = info['camera_id']
             if self.default_id:
                 self.default_details = yield self.model.loadById(info)
-                log.info("getDefault() CAMERA LOADED DETAILS {d}",d=self.default_details)
+                log.debug("getDefault() CAMERA LOADED DETAILS {d}",d=self.default_details)
         returnValue((self.default_id,  self.default_details))
        
 
@@ -182,7 +182,7 @@ class CameraController:
     @inlineCallbacks
     def onListReq(self):
         try:
-            log.info('onListReq() fetching all unique entries from camera_t')
+            log.debug('onListReq() fetching all unique entries from camera_t')
             info = yield self.model.loadAllNK()
             self.view.mainArea.cameraCombo.fill(info)
             preferences = self.view.menuBar.preferences
