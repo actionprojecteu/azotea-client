@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS observer_t
     valid_since     TEXT,
     valid_until     TEXT,
     valid_state     TEXT,              -- Either 'Current' or 'Expired'
-    UNIQUE(family_name,surname,affiliation,acronym,valid_since,valid_until,valid_state)
+    UNIQUE(family_name,surname,affiliation,acronym,valid_since,valid_until)
     PRIMARY KEY(observer_id)
 );
 
