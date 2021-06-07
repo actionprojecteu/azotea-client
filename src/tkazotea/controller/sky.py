@@ -58,8 +58,6 @@ from tkazotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RA
 NAMESPACE = 'CTRL '
 DEF_TSTAMP = '%Y-%m-%dT%H:%M:%S'
 
-PUBLISH_PAGE_SIZE = 500
-
 # RGGB => R = [x=0,y=0], G1 = [x=1,y=0], G2 = [x=0,y=1], B = [x=1,y=1]
 # BGGR => R = [x=1,y=1], G1 = [x=1,y=0], G2 = [x=0,y=1], B = [x=0,y=0]
 # GRBG => R = [x=1,y=0], G1 = [x=0,y=0], G2 = [x=1,y=1], B = [x=0,y=1]

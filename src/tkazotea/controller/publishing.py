@@ -41,6 +41,8 @@ from tkazotea.logger  import setLogLevel
 # Support for internationalization
 _ = gettext.gettext
 
+PUBLISH_PAGE_SIZE = 50
+
 NAMESPACE = 'CTRL '
 
 # -----------------------
@@ -98,7 +100,7 @@ class PublishingController:
             log.info('onSaveReq() saving {data} defaults to config_t', data=data)
             self.default_username = {'username': data['username']}
             self.default_password = {'password': data['password']}
-            self.default_url      = {'url': data['usrl']}
+            self.default_url      = {'url': data['url']}
             yield self.model.config.saveSection('publishing', data)
             log.info('onSaveReq() saved {data} defaults to config_t', data=data)
             self.view.menuBar.preferences.publishingFrame.saveOkResp()
@@ -170,7 +172,7 @@ class PublishingController:
                 message = _("Publishing {0} measurements.\nThis may take a while").format(total)
                 accepted = self.view.messageBoxAcceptCancel(who=_("Publishing Processor"), message=message)
                 if accepted:
-                    yield doPublish(total)
+                    yield self.doPublish(total)
 
 
     @inlineCallbacks
@@ -181,8 +183,9 @@ class PublishingController:
         for page in range(N):
             filter_dict['limit']  = PUBLISH_PAGE_SIZE
             filter_dict['offset'] = page * PUBLISH_PAGE_SIZE
-            result = yield publishAll(filter_dict)
+            result = yield self.sky.publishAll(filter_dict)
             log.info("PUBLISH page {page}, limit {limit}, size of result = {size}", page=page, limit=PUBLISH_PAGE_SIZE, size=len(result))
+            log.info("PUBLISH page {page}, result = {result}", page=page, result=result)
 
 
 

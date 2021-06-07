@@ -542,7 +542,7 @@ class SkyBrightness:
             sql = '''
             SELECT
             s.date_id, s.time_id,
-            o.surname, o.family_name, o.acronym, o.affiliation, o.acronym, o.valid_since, o.valid_until, o.valid_state,
+            o.surname, o.family_name, o.acronym, o.affiliation, o.valid_since, o.valid_until, o.valid_state,
             l.site_name, l.location, l.public_long, l.public_lat, l.utc_offset,
             c.model, c.bias, c.extension, c.header_type, c.bayer_pattern, c.width, c.length,
             r.x1, r.y1, r.x2, r.y2, r.display_name, r.comment,
