@@ -66,9 +66,9 @@ class PublishingController:
         self.config = model.config
         self.observerCtrl = None
         self._abort = False
-        self.default_username = None
-        self.default_password = None
-        self.default_url      = None
+        self.username = None
+        self.password = None
+        self.url      = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.start()
 
@@ -88,6 +88,8 @@ class PublishingController:
         try:
             log.info('onDetailsReq() fetching publishing from config_t')
             publishing_opts = yield self.model.config.loadSection(section='publishing')
+            del publishing_opts['page_size']
+            del publishing_opts['tps']
             log.info('onDetailsReq() publishing = {p}',p=publishing_opts)
             self.view.menuBar.preferences.publishingFrame.detailsResp(publishing_opts)
         except Exception as e:
@@ -98,9 +100,9 @@ class PublishingController:
     def onSaveReq(self, data):
         try:
             log.info('onSaveReq() saving {data} defaults to config_t', data=data)
-            self.default_username = {'username': data['username']}
-            self.default_password = {'password': data['password']}
-            self.default_url      = {'url': data['url']}
+            self.username = {'username': data['username']}
+            self.password = {'password': data['password']}
+            self.url      = {'url'     : data['url']}
             yield self.model.config.saveSection('publishing', data)
             log.info('onSaveReq() saved {data} defaults to config_t', data=data)
             self.view.menuBar.preferences.publishingFrame.saveOkResp()
@@ -121,16 +123,15 @@ class PublishingController:
         self.view.menuBar.preferences.publishingFrame.deleteOkResponse(count)
 
 
-    # We assign the default publishing options here
     @inlineCallbacks
     def getDefault(self):
-        if not self.default_username:
-            self.default_username = yield self.config.load('publishing','username')
-        if not self.default_password:
-            self.default_password = yield self.config.load('publishing','password')
-        if not self.default_url:
-            self.default_url = yield self.config.load('publishing','url')
-        returnValue((self.default_username,  self.default_password, self.default_url))
+        if not self.username:
+            publishing_opts = yield self.config.loadSection('publishing')
+            self.username  = publishing_opts['username']
+            self.password  = publishing_opts['password']
+            self.url       = publishing_opts['url']
+            self.delay     = 1/float(publishing_opts['tps'])
+            self.page_size = int(publishing_opts['page_size'])
 
 
 
@@ -139,17 +140,18 @@ class PublishingController:
     def doCheckDefaults(self):
         result = True
         errors = list()
+        yield self.getDefault()
         default_observer_id, default_observer_details = yield self.observerCtrl.getDefault()
         if default_observer_id:
             self.observer_id = int(default_observer_id)
         else:
             self.observer_id = None
             errors.append( _("- No default observer selected.") )
-        if not self.default_username:
+        if not self.username:
             errors.append( _("- No default publishing username defined.") )
-        if not self.default_password:
+        if not self.password:
             errors.append( _("- No default publishing password defined.") )
-        if not self.default_url:
+        if not self.url:
             errors.append( _("- No default publishing URL defined.") )
         if errors:
             error_list = '\n'.join(errors)
@@ -178,14 +180,16 @@ class PublishingController:
     @inlineCallbacks
     def doPublish(self, total):
         filter_dict = {'observer_id': self.observer_id}
-        N = total // PUBLISH_PAGE_SIZE
-        N = N + 1 if (total % PUBLISH_PAGE_SIZE) != 0 else N
+        delay     = self.delay
+        page_size = self.page_size
+        N = total // page_size
+        N = N + 1 if (total % page_size) != 0 else N
         for page in range(N):
-            filter_dict['limit']  = PUBLISH_PAGE_SIZE
-            filter_dict['offset'] = page * PUBLISH_PAGE_SIZE
+            filter_dict['limit']  = page_size
+            filter_dict['offset'] = page * page_size
             result = yield self.sky.publishAll(filter_dict)
-            log.info("PUBLISH page {page}, limit {limit}, size of result = {size}", page=page, limit=PUBLISH_PAGE_SIZE, size=len(result))
-            log.info("PUBLISH page {page}, result = {result}", page=page, result=result)
+            log.info("PUBLISH page {page}, limit {limit}, size of result = {size}", page=page, limit=page_size, size=len(result))
+          
 
 
 

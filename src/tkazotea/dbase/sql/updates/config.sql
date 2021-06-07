@@ -5,9 +5,9 @@
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 
-INSERT INTO config_t(section, property, value) 
+INSERT OR REPLACE INTO config_t(section, property, value) 
 VALUES ('publishing', 'page_size', 50);
-INSERT INTO config_t(section, property, value) 
+INSERT OR REPLACE INTO config_t(section, property, value) 
 VALUES ('publishing', 'tps', 1);
 
 -- -------------
