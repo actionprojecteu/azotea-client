@@ -215,7 +215,7 @@ class PublishingController:
                 break
             else:
                 log.info("{http} {status}",http=response.version, status=response.phrase)
-                if 200 <= response.code <= 299:
+                if not (200 <= response.code <= 299):
                     failed = True; message = _("Server HTTP response code {0} was not acceptable").format(response.code)
                     break
                 time.sleep(self.delay)

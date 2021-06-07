@@ -569,7 +569,7 @@ class SkyBrightness:
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
-            result = [dict(zip(self.pub_column_names,row)) for row in txn.fetchall()]
+            result = (dict(zip(self.pub_column_names,row)) for row in txn.fetchall())
             return list(map(toBase64, result))
         return self._pool.runInteraction(_publishAll, filter_dict)
 
