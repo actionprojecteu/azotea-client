@@ -9,6 +9,7 @@
 # System wide imports
 # -------------------
 
+import base64
 import sqlite3
 import datetime
 
@@ -537,7 +538,13 @@ class SkyBrightness:
         'aver_signal_R','vari_signal_R','aver_signal_G1','vari_signal_G1',
         'aver_signal_G2','vari_signal_G2','aver_signal_B','vari_signal_B')
 
+
     def publishAll(self, filter_dict):
+
+        def toBase64(aDict):
+            aDict['hash'] = base64.b64encode(aDict['hash']).decode('ascii')
+            return aDict
+
         def _publishAll(txn, filter_dict):
             sql = '''
             SELECT
@@ -562,7 +569,8 @@ class SkyBrightness:
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
-            return [ dict(zip(self.pub_column_names,row)) for row in txn.fetchall()]
+            result = [dict(zip(self.pub_column_names,row)) for row in txn.fetchall()]
+            return list(map(toBase64, result))
         return self._pool.runInteraction(_publishAll, filter_dict)
 
 

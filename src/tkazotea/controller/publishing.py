@@ -12,6 +12,7 @@
 import os
 import sys
 import math
+import time
 import gettext
 
 # ---------------
@@ -22,10 +23,13 @@ from twisted.logger   import Logger
 from twisted.internet import  reactor, defer
 from twisted.internet.defer import inlineCallbacks, returnValue
 
+from twisted.internet.error import ConnectionRefusedError
+
 # -------------------
 # Third party imports
 # -------------------
 
+import treq
 from pubsub import pub
 
 #--------------
@@ -55,6 +59,14 @@ log = Logger(namespace=NAMESPACE)
 # Module Utility Functions
 # ------------------------
 
+class PublishingError(Exception):
+    '''Server response code was not acceptable'''
+    def __str__(self):
+        s = self.__doc__
+        if self.args:
+            s = ' {0}: {1}'.format(s, str(self.args[0]))
+        s = '{0}.'.format(s)
+        return s
 
 class PublishingController:
     
@@ -180,6 +192,7 @@ class PublishingController:
     @inlineCallbacks
     def doPublish(self, total):
         filter_dict = {'observer_id': self.observer_id}
+        failed = False
         delay     = self.delay
         page_size = self.page_size
         N = total // page_size
@@ -189,6 +202,30 @@ class PublishingController:
             filter_dict['offset'] = page * page_size
             result = yield self.sky.publishAll(filter_dict)
             log.info("PUBLISH page {page}, limit {limit}, size of result = {size}", page=page, limit=page_size, size=len(result))
+            auth = (self.username, self.password)
+            try:
+                response = yield treq.post(self.url, auth=auth, json=result, timeout=30)
+            except ConnectionRefusedError as e:
+                log.failure("Exception => {e}",e=str(e))
+                failed = True; message = _("Connection refused.")
+                break
+            except Exception as e:
+                log.failure("General Catcher. Exception {t}: {e}",t=type(e), e=str(e))
+                failed = True; message = str(e)
+                break
+            else:
+                log.info("{http} {status}",http=response.version, status=response.phrase)
+                if 200 <= response.code <= 299:
+                    failed = True; message = _("Server HTTP response code {0} was not acceptable").format(response.code)
+                    break
+                time.sleep(self.delay)
+        if not failed:
+            log.info("All went good. Updating publishing state for observer id {o}",o=self.observer_id)
+            yield self.sky.updatePublishingCount(filter_dict)
+        else:
+            self.view.messageBoxError(who=_("Publishing Processor"), message=message)
+
+
           
 
 
