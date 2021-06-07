@@ -1,12 +1,17 @@
---------------------------------------------------------
--- Miscelaneous data to be inserted at database creation
---------------------------------------------------------
+------------------------------------------------------
+-- Miscelanea data to be inserted at database creation
+------------------------------------------------------
 
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 
+INSERT INTO config_t(section, property, value) 
+VALUES ('publishing', 'page_size', 50);
+INSERT INTO config_t(section, property, value) 
+VALUES ('publishing', 'tps', 1);
+
 -- -------------
--- SQL infoging
+-- SQL debuggong
 -- -------------
 
 -- Per-table SQL Debugging

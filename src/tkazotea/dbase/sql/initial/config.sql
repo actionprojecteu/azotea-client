@@ -44,7 +44,10 @@ INSERT INTO config_t(section, property, value)
 VALUES ('publishing', 'password', NULL);
 
 INSERT INTO config_t(section, property, value) 
-VALUES ('publishing', 'url', NULL);
+VALUES ('publishing', 'page_size', 50);
+
+INSERT INTO config_t(section, property, value) 
+VALUES ('publishing', 'tps', 1);
 
 -- Per-table SQL Debugging
 INSERT INTO config_t(section, property, value) 
