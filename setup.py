@@ -7,12 +7,12 @@ import versioneer
 # Default description in markdown
 LONG_DESCRIPTION = open('README.md').read()
 
-PKG_NAME     = 'tkazotea'
+PKG_NAME     = 'azotea-client'
 AUTHOR       = 'Rafael Gonzalez'
 AUTHOR_EMAIL = 'rafael08@ucm.es'
 DESCRIPTION  = 'AZOTEA Graphical Front-End',
 LICENSE      = 'MIT'
-KEYWORDS     = 'Music'
+KEYWORDS     = ['Light Pollution','Astronomy']
 URL          = 'https://github.com/astrorafael/azotea-client/'
 DEPENDENCIES = [
     'numpy',      # Basic dependency
