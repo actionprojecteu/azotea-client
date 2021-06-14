@@ -15,6 +15,7 @@
 # -------------------
 
 import gettext
+import platform
 import tkinter as tk
 from   tkinter import ttk
 import tkinter.filedialog
@@ -142,6 +143,13 @@ class MenuBar(ttk.Frame):
         menu_bar = tk.Menu(self.master)
         self.master.config(menu=menu_bar)
 
+        # On OSX, you cannot put commands on the root menu. 
+        # Apple simply doesn't allow it. 
+        # You can only put other menus (cascades).
+        if platform.system() == 'Darwin':
+            root_menu_bar = menu_bar
+            menu_bar = tk.Menu(menu_bar)
+
         # File submenu
         file_menu = tk.Menu(menu_bar, tearoff=False)
         file_menu.add_command(label=_("Load images..."), state=tk.NORMAL, command=self.onMenuImageLoad)
@@ -167,6 +175,10 @@ class MenuBar(ttk.Frame):
         about_menu = tk.Menu(menu_bar, tearoff=False)
         about_menu.add_command(label=_("Version"), command=self.onMenuAboutVersion)
         menu_bar.add_cascade(label=_("About"), menu=about_menu)
+
+        # Completes the hack for OSX by cascading our menu bar
+        if platform.system() == 'Darwin':
+            root_menu_bar.add_cascade(label='AZOTEA', menu=menu_bar)
         
 
     def quit(self):
