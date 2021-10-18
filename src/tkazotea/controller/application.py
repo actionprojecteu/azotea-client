@@ -82,10 +82,7 @@ class ApplicationController:
         self.view.menuBar.doAbout(version)
 
     @inlineCallbacks
-    def start(self):
-        log.info('starting Application Controller')
-        pub.subscribe(self.quit,  'file_quit')
-        pub.subscribe(self.onDatabaseVersionReq, 'database_version_req') 
+    def onCheckPreferencesReq(self):
         # Do some checking
         obs_id, tmp = yield self.observerCtrl.getDefault()
         loc_id, tmp = yield self.locationCtrl.getDefault()
@@ -105,7 +102,27 @@ class ApplicationController:
             self.view.start()
 
 
+    @inlineCallbacks
+    def onSaveConsentReq(self):
+        yield self.model.config.save(section='global', property='agree', value='Yes')
+        yield self.onCheckPreferencesReq()
 
+
+    @inlineCallbacks
+    def start(self):
+        log.info('starting Application Controller')
+        pub.subscribe(self.quit,  'file_quit')
+        pub.subscribe(self.onDatabaseVersionReq, 'database_version_req')
+        pub.subscribe(self.onCheckPreferencesReq, 'check_preferences_req')
+        pub.subscribe(self.onSaveConsentReq, 'save_consent_req')
+        consent  = yield self.model.config.load(section='global', property='agree')
+        log.info("CONSENT = {c}", c=consent)
+        if not consent:
+            self.view.openConsentDialog()
+        else:
+            pub.sendMessage('check_preferences_req')
+
+       
 
        
     

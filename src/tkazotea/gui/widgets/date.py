@@ -72,6 +72,7 @@ class DateFilterDialog(tk.Toplevel):
         self._date_fmt = date_fmt
         self._title = title
         self.build()
+        self.grab_set()
         self.onRadioButton()
         
         

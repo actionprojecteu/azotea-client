@@ -64,6 +64,7 @@ class Preferences(tk.Toplevel):
         super().__init__(*args, **kwargs)
         self._owner = owner
         self.build()
+        self.grab_set()
 
     def start(self):
         self.observerFrame.start()

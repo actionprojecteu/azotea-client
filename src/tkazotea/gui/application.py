@@ -45,10 +45,11 @@ from tkazotea.logger import setLogLevel
 from tkazotea.gui.widgets.contrib import ToolTip
 from tkazotea.gui.widgets.combos  import ROICombo, CameraCombo, ObserverCombo, LocationCombo
 from tkazotea.gui.widgets.about import AboutDialog
+from tkazotea.gui.widgets.consent import ConsentDialog
 from tkazotea.gui.widgets.date import DateFilterDialog
 from tkazotea.gui.preferences import Preferences
 
-from tkazotea import __version__, ABOUT_DESC_TXT, ABOUT_ACK_TXT, ABOUT_IMG, ABOUT_ICONS
+from tkazotea import __version__, ABOUT_DESC_TXT, ABOUT_ACK_TXT, ABOUT_IMG, ABOUT_ICONS, CONSENT_TXT
 
 # ----------------
 # Module constants
@@ -123,8 +124,16 @@ class Application(tk.Tk):
             initialfile      = filename,
             parent           = self,
             )
-            
 
+    def openConsentDialog(self):
+        consent = ConsentDialog(
+            title     = _("Consent Form"),
+            text_path = CONSENT_TXT,
+            accept_event = 'save_consent_req',
+            reject_event = 'file_quit',
+
+        )
+        
 
 class MenuBar(ttk.Frame):
 
@@ -195,7 +204,7 @@ class MenuBar(ttk.Frame):
             img_path   = ABOUT_IMG, 
             logos_list = ABOUT_ICONS,
         )
-        about.grab_set()
+
 
     def onMenuAboutVersion(self):
         pub.sendMessage('database_version_req')
@@ -203,7 +212,6 @@ class MenuBar(ttk.Frame):
     def onMenuPreferences(self):
         preferences = Preferences(self)
         self.preferences = preferences
-        preferences.grab_set()
         preferences.start()
 
     def onMenuImageLoad(self):
@@ -214,11 +222,9 @@ class MenuBar(ttk.Frame):
 
     def onMenuDeleteMeasurements(self):
         dateFilter = DateFilterDialog(self, command=self.getDeleteSkyDate)
-        dateFilter.grab_set()
 
     def onMenuGenerateCSV(self):
         dateFilter = DateFilterDialog(self, command=self.getExportDate)
-        dateFilter.grab_set()
 
     def onMenuPublish(self):
         pub.sendMessage('publishing_publish_req')

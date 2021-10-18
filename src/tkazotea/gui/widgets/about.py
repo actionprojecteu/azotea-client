@@ -70,6 +70,7 @@ class AboutDialog(tk.Toplevel):
         self._logos_list = logos_list
         self._ncols = ncols
         self.build()
+        self.grab_set()
         
     def build(self):
         self.title(self._title)

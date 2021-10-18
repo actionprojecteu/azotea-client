@@ -64,5 +64,9 @@ ABOUT_ICONS = (
 	('ACTION PROJECT EU', resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'action64.png'))),
 )
 
+# Consent form resources configuration
+
+CONSENT_TXT = resource_filename(__name__, os.path.join('gui', 'resources', 'consent', 'descr.txt'))
+
 del get_versions
 del name

@@ -1,0 +1,6 @@
+By clicking on the 'Accept' button below you explicitely give us consent to gather:
+- your name and surname.
+- your affiliation (i.e. amateur club name or institution). 
+These will only be used to publish observation data in Open Data repositories 
+(i.e. Zenodo) and give credit to the participant citizen scientists. 
+Otherwise, click the 'Reject' button.
