@@ -1,6 +1,10 @@
-By clicking on the 'Accept' button below you explicitely give us consent to gather:
+By clicking on the 'Accept' button below you explicitely give Universidad Complutense de Madrid consent to gather:
 - your name and surname.
-- your affiliation (i.e. amateur club name or institution). 
-These will only be used to publish observation data in Open Data repositories 
-(i.e. Zenodo) and give credit to the participant citizen scientists. 
-Otherwise, click the 'Reject' button.
+- your affiliation (i.e. amateur club name or institution).
+- your observatory approximate location.
+The observatory coordinates will be further randomized up to 2 Km of precision.
+These data will be kept in a file whose owner is Universidad Complutense de Madrid and will not be used for other
+purpòse than to give credit to the participants' observations. You can rectify or ask to delete your data by writting at the following address: ainhoasa@ucm.es
+
+If you do not agree, please click on the 'Reject' button.
+
