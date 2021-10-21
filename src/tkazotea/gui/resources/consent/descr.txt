@@ -4,7 +4,7 @@ By clicking on the 'Accept' button below you explicitely give Universidad Complu
 - your observatory approximate location.
 The observatory coordinates will be further randomized up to 2 Km of precision.
 These data will be kept in a file whose owner is Universidad Complutense de Madrid and will not be used for other
-purpòse than to give credit to the participants' observations. You can rectify or ask to delete your data by writting at the following address: ainhoasa@ucm.es
+purpose than to give credit to the participants' observations. You can rectify or ask to delete your data by writting at the following address: ainhoasa@ucm.es
 
 If you do not agree, please click on the 'Reject' button.
 

@@ -23,6 +23,7 @@ from   tkinter import ttk
 # -------------------
 
 from pubsub import pub
+import PIL
 
 # ---------------
 # Twisted imports
@@ -57,10 +58,11 @@ log  = Logger(namespace=NAMESPACE)
 
 class ConsentDialog(tk.Toplevel):
 
-    def __init__(self, title, text_path, accept_event, reject_event, *args, **kwargs):
+    def __init__(self, title, text_path, logo_path, accept_event, reject_event, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._title = title
         self._text_path = text_path
+        self._logo_path = logo_path
         self._accept_event = accept_event
         self._reject_event = reject_event
         self.build()
@@ -72,7 +74,7 @@ class ConsentDialog(tk.Toplevel):
     def build(self):
         self.title(self._title)
         # TOP superframe
-        top_frame = ttk.LabelFrame(self, borderwidth=2, relief=tk.GROOVE, text=_('Your consent is needed'))
+        top_frame = ttk.LabelFrame(self, borderwidth=2, relief=tk.GROOVE, text=_('PLEASE, READ THIS FIRST !'))
         top_frame.pack(side=tk.TOP, expand=True, fill=tk.X, padx=5, pady=5)
         # Bottom frame
         bottom_frame = ttk.Frame(self,  borderwidth=2, relief=tk.GROOVE)
@@ -83,7 +85,14 @@ class ConsentDialog(tk.Toplevel):
         button = ttk.Button(bottom_frame, text=_("Reject"), command=self.onRejectButton)
         button.pack(side=tk.RIGHT, padx=10, pady=5)
         # Text & scrollbars widgets
-        text = tk.Text(top_frame, height=6, width=84)
+        text = tk.Text(top_frame, height=18, width=65)
+
+        img = PIL.ImageTk.PhotoImage(PIL.Image.open(self._logo_path))
+        icon = ttk.Label(self, image = img)
+        icon.photo = img
+
+        text.window_create(tk.END,window = icon)
+
         text.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=10, pady=10)
         vsb = ttk.Scrollbar(top_frame, orient=tk.VERTICAL, command=text.yview)
         vsb.pack(side=tk.RIGHT,  fill=tk.Y)
@@ -107,4 +116,10 @@ class ConsentDialog(tk.Toplevel):
         with open(self._text_path) as fd:
             lines = fd.readlines()
         return ' '.join(lines)
+
+    def loadIcon(self, parent, path):
+        img = PIL.ImageTk.PhotoImage(PIL.Image.open(path))
+        icon = ttk.Label(parent, image = img)
+        icon.photo = img
+        return icon
 

@@ -24,7 +24,6 @@ import tkinter.filedialog
 # -------------------
 
 import PIL
-from PIL import ImageTk
 
 # ---------------
 # Twisted imports

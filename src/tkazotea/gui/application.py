@@ -49,7 +49,7 @@ from tkazotea.gui.widgets.consent import ConsentDialog
 from tkazotea.gui.widgets.date import DateFilterDialog
 from tkazotea.gui.preferences import Preferences
 
-from tkazotea import __version__, ABOUT_DESC_TXT, ABOUT_ACK_TXT, ABOUT_IMG, ABOUT_ICONS, CONSENT_TXT
+from tkazotea import __version__, ABOUT_DESC_TXT, ABOUT_ACK_TXT, ABOUT_IMG, ABOUT_ICONS, CONSENT_TXT, CONSENT_UCM
 
 # ----------------
 # Module constants
@@ -129,6 +129,7 @@ class Application(tk.Tk):
         consent = ConsentDialog(
             title     = _("Consent Form"),
             text_path = CONSENT_TXT,
+            logo_path = CONSENT_UCM,
             accept_event = 'save_consent_req',
             reject_event = 'file_quit',
 

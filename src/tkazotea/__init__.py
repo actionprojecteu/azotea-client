@@ -67,6 +67,7 @@ ABOUT_ICONS = (
 # Consent form resources configuration
 
 CONSENT_TXT = resource_filename(__name__, os.path.join('gui', 'resources', 'consent', 'descr.txt'))
+CONSENT_UCM = resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'ucm64.png'))
 
 del get_versions
 del name
