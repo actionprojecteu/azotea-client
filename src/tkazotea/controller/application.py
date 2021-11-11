@@ -97,7 +97,7 @@ class ApplicationController:
         fn  = yield self.model.config.load(section='optics',   property='f_number')
         if not all((obs_id, loc_id ,cam_id, roi_id ,fl['focal_length'],fn['f_number'])):
             message = "First time execution\nPlease adjust preferences!"
-            self.view.messageBoxWarn(who='Startup', message=message)
+            pub.sendMessage('view_messageBoxWarn',who='Startup', message=message)
         else:
             self.view.start()
 

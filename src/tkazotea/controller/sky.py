@@ -393,7 +393,7 @@ class SkyBackgroundController:
             self.view.messageBoxInfo(who=_("Sky backround statistics"),message=message)
         else:
             message = _("No images to process")
-            self.view.messageBoxWarn(who=_("Sky backround statistics"),message=message)
+            pub.sendMessage('view_messageBoxWarn',who=_("Sky backround statistics"),message=message)
         self.view.statusBar.clear()
 
 

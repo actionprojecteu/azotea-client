@@ -25,6 +25,7 @@ from twisted.internet.defer import inlineCallbacks
 # Third party imports
 # -------------------
 
+from pubsub import pub
 
 #--------------
 # local imports
@@ -79,12 +80,36 @@ class GraphicalService(Service):
         super().__init__()
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.task    = task.LoopingCall(self.heartBeat)
-    
+        
+        # Subscribe all events that request a View to do something
+        pub.subscribe(self.messageBoxInfo, 'view_messageBoxInfo')
+        pub.subscribe(self.messageBoxError, 'view_messageBoxError')
+        pub.subscribe(self.messageBoxWarn, 'view_messageBoxWarn')
+        pub.subscribe(self.messageBoxAcceptCancel, 'view_messageBoxAcceptCancel')
+
+
     @inlineCallbacks
     def quit(self):
          yield self.parent.stopService()
          reactor.stop()
 
+
+    # --------
+    # View API
+    # Route to GUI all view requests from controllers
+    # --------
+
+    def messageBoxInfo(self, who, message):
+        self.application.messageBoxInfo(who, message)
+
+    def messageBoxError(self, who, message):
+        self.application.messageBoxError(who, message)
+
+    def messageBoxWarn(self, who, message):
+        self.application.messageBoxWarn(who, message)
+
+    def messageBoxAcceptCancel(self, who, message):
+        self.application.messageBoxAcceptCancel(who, message)
 
     # -----------
     # Service API

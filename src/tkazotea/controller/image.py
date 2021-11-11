@@ -192,7 +192,7 @@ class ImageController:
                 else:
                     extension = '*' + self.extension
                     message = _("No images found with the filter {0}").format(extension)
-                    self.view.messageBoxWarn(who=_("Register"),message=message)
+                    pub.sendMessage('view_messageBoxWarn',who=_("Register"),message=message)
                 self.view.statusBar.clear()
 
 
