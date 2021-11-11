@@ -20,7 +20,7 @@ import gettext
 
 from twisted.logger   import Logger
 from twisted.internet import  reactor, defer
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 # -------------------
 # Third party imports
@@ -79,7 +79,6 @@ class MiscelaneaController:
             log.failure('{e}',e=e)
 
 
-    @inlineCallbacks
     def onSaveReq(self, data):
         try:
             log.debug('onSaveReq() saving {data} defaults to config_t', data=data)

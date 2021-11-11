@@ -25,7 +25,7 @@ from sqlite3 import IntegrityError
 
 from twisted.logger   import Logger
 from twisted.internet import  reactor, defer
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
 # -------------------
@@ -203,7 +203,7 @@ class ImageController:
             self.default_focal_length = yield self.config.load('optics','focal_length')
         if not self.default_f_number:
             self.default_f_number = yield self.config.load('optics','f_number')
-        returnValue((self.default_focal_length,  self.default_f_number))
+        return((self.default_focal_length,  self.default_f_number))
 
 
     @inlineCallbacks
@@ -257,9 +257,9 @@ class ImageController:
             error_list = '\n'.join(errors)
             message = _("Can't register. These things are missing:\n{0}").format(error_list)
             self.view.messageBoxError(who=_("Register"),message=message)
-            returnValue(False)
+            return(False)
         else:
-            returnValue(True)
+            return(True)
     
 
     # ---------------------- OBSERVER ----------------------------------------------
@@ -300,7 +300,7 @@ class ImageController:
             if row['header_type'] == FITS_HEADER_TYPE:
                 message = _("Unsupported header type {0} for the time being").format(header_type)
                 self.view.messageBoxError(who=_("Register"),message=message)
-                returnValue(None)
+                return(None)
             else:
                 try:
                     yield deferToThread(expensiveEXIFOperation, filepath, row)
@@ -308,14 +308,14 @@ class ImageController:
                     log.failure('{e}', e=e)
                     message = _("{0}: Error in MD5 computation or EXIF metadata reading").format(row['name'])
                     self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
-                    returnValue(None)
+                    return(None)
             new_camera = yield self.model.camera.lookup(row)
             if not new_camera:
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
                 message = _("Camera model {0} not found in the database").format(row['model'])
                 log.warn(message)
                 self.view.messageBoxError(who=_("Register"),message=message)
-                returnValue(None)
+                return(None)
             log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
             row['camera_id'] = int(new_camera['camera_id'])
             try:
@@ -329,5 +329,5 @@ class ImageController:
                 continue
             else:
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
-        returnValue((i+1, N_Files))
+        return((i+1, N_Files))
         

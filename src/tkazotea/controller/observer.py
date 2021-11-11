@@ -20,7 +20,7 @@ import gettext
 
 from twisted.logger   import Logger
 from twisted.internet import  reactor, defer
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
 # -------------------
@@ -93,7 +93,7 @@ class ObserverController:
             self.default_id = info['observer_id']
             if self.default_id:
                 self.default_details = yield self.model.loadById(info)
-        returnValue((self.default_id,  self.default_details))
+        return((self.default_id,  self.default_details))
        
 
     @inlineCallbacks

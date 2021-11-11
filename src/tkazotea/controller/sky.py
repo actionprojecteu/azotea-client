@@ -28,7 +28,7 @@ from sqlite3 import IntegrityError
 
 from twisted.logger   import Logger
 from twisted.internet import  reactor, defer
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
 # -------------------
@@ -283,7 +283,7 @@ class SkyBackgroundController:
             message = _("These things are missing:\n{0}").format(error_list)
             self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
             result = False
-        returnValue(result)
+        return(result)
 
 
     @inlineCallbacks
@@ -308,7 +308,7 @@ class SkyBackgroundController:
             message = _("These things are missing:\n{0}").format(error_list)
             self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
             result = False
-        returnValue(result)
+        return(result)
 
 
 
@@ -383,7 +383,7 @@ class SkyBackgroundController:
             except Exception as e:
                 log.failure('{e}', e=e)
                 self.view.statusBar.update( _("SKY BACKGROUND"), row['name'], (100*i//N_stats), error=True)
-                returnValue(None)
+                return(None)
             else:
                 self.view.statusBar.update( _("SKY BACKGROUND"), row['name'], (100*i//N_stats), error=False)
                 yield self.sky.save(row)

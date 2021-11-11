@@ -21,7 +21,7 @@ import gettext
 
 from twisted.logger   import Logger
 from twisted.internet import  reactor, defer
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from twisted.internet.error import ConnectionRefusedError
 
@@ -170,7 +170,7 @@ class PublishingController:
             message = _("These things are missing:\n{0}").format(error_list)
             self.view.messageBoxError(who=_("Publishing Processor"),message=message)
             result = False
-        returnValue(result)
+        return(result)
 
 
     @inlineCallbacks

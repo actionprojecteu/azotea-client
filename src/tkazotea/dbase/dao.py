@@ -19,7 +19,7 @@ from twisted.enterprise import adbapi
 
 
 from twisted.internet import reactor, task, defer
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
 #--------------
