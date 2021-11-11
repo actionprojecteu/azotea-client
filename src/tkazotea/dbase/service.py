@@ -66,7 +66,7 @@ def getPool(*args, **kargs):
 def open_database(dbase_path):
     '''Creates a Database file if not exists and returns a connection'''
     output_dir = os.path.dirname(dbase_path)
-    if output_dir == '':
+    if not output_dir:
         output_dir = os.getcwd()
     os.makedirs(output_dir, exist_ok=True)
     if not os.path.exists(dbase_path):
