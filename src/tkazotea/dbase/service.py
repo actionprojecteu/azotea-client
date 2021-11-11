@@ -66,6 +66,8 @@ def getPool(*args, **kargs):
 def open_database(dbase_path):
     '''Creates a Database file if not exists and returns a connection'''
     output_dir = os.path.dirname(dbase_path)
+    if output_dir == '':
+        output_dir = os.getcwd()
     os.makedirs(output_dir, exist_ok=True)
     if not os.path.exists(dbase_path):
         with open(dbase_path, 'w') as f:
@@ -154,10 +156,10 @@ class DatabaseService(Service):
     # Service name
     NAME = NAMESPACE
 
-    def __init__(self, **kargs):
+    def __init__(self, path, **kargs):
         super().__init__()   
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        self.path = None
+        self.path = path
         self.pool = None
         self.preferences = None
         self.getPoolFunc = getPool
@@ -174,7 +176,6 @@ class DatabaseService(Service):
     # ------------
 
     def startService(self):
-        self.path = os.path.join(os.getcwd(), DATABASE_FILE)
         log.info("starting Database Service on {database}", database=self.path)
         connection = open_database(self.path)
         create_database(connection, SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR, SQL_TEST_STRING)

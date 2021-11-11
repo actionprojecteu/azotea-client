@@ -1,4 +1,6 @@
-
+MAS INMEDIATO TODAVIA
+=====================
+tarducir todas las llamadas self.view.xxx() e eventos sendMessage(xxx, data=dict())
 
 
 INMEDIATO

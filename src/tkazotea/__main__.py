@@ -53,7 +53,7 @@ def createParser():
     parser.add_argument('--version', action='version', version='{0} {1}'.format(name, __version__))
     parser.add_argument('--console', action='store_true',  help='log to console.')
     parser.add_argument('--log-file', type=str, default=None, action='store', metavar='<log file>', help='log to file')
-    parser.add_argument('--dbase',    type=str, default="azotea.db", action='store', metavar='<SQLite database>', help='SQLite database to operate upon')
+    parser.add_argument('--dbase',    type=str, default="azotea.db", action='store', metavar='<SQLite database path>', help='SQLite database to operate upon')
     parser.add_argument('--no-gui',  action='store_true',  help='No GUI. Execute in batch mode.')
     parser.add_argument('--work-dir', type=str, default=None, action='store', metavar='<log file>', help='log to file')
   
@@ -71,7 +71,7 @@ startLogging(
 
 application = service.Application("azotea")
 
-dbaseService = DatabaseService()
+dbaseService = DatabaseService(options.dbase)
 dbaseService.setName(DatabaseService.NAME)
 dbaseService.setServiceParent(application)
 
