@@ -1,6 +1,6 @@
 MAS INMEDIATO TODAVIA
 =====================
-tarducir todas las llamadas self.view.xxx() e eventos sendMessage(xxx, data=dict())
+tarducir todas las llamadas self.view.xxx() a llamadas al self.parent (que es el servicio gráfico)
 
 
 INMEDIATO
