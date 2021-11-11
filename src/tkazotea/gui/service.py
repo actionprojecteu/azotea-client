@@ -11,7 +11,6 @@
 
 import os
 import sys
-import argparse
 
 # ---------------
 # Twisted imports
@@ -31,8 +30,8 @@ from twisted.internet.defer import inlineCallbacks
 # local imports
 # -------------
 
-from tkazotea import __version__
-from tkazotea.logger  import startLogging, setLogLevel
+
+from tkazotea.logger  import setLogLevel
 from tkazotea.dbase.service   import DatabaseService
 from tkazotea.gui.application import Application
 from tkazotea.controller.application import ApplicationController
@@ -62,15 +61,7 @@ log = Logger(namespace=NAMESPACE)
 # Module Utility Functions
 # ------------------------
 
-def createParser():
-    # create the top-level parser
-    name = os.path.split(os.path.dirname(sys.argv[0]))[-1]
-    parser    = argparse.ArgumentParser(prog=name, description='AZOTEA GUI')
 
-    # Global options
-    parser.add_argument('--version', action='version', version='{0} {1}'.format(name, __version__))
-    parser.add_argument('--console', action='store_true',  help='log to console.')
-    return parser
 
 
 # --------------
@@ -86,8 +77,6 @@ class GraphicalService(Service):
 
     def __init__(self, **kargs):
         super().__init__()
-        self.options = createParser().parse_args(sys.argv[1:])
-        startLogging(console=self.options.console)
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.task    = task.LoopingCall(self.heartBeat)
     
