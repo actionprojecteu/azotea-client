@@ -281,7 +281,7 @@ class SkyBackgroundController:
         if errors:
             error_list = '\n'.join(errors)
             message = _("These things are missing:\n{0}").format(error_list)
-            self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
+            pub.sendMessage('view_messageBoxError',who=_("Sky Background Processor"),message=message)
             result = False
         return(result)
 
@@ -306,7 +306,7 @@ class SkyBackgroundController:
         if errors:
             error_list = '\n'.join(errors)
             message = _("These things are missing:\n{0}").format(error_list)
-            self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
+            pub.sendMessage('view_messageBoxError',who=_("Sky Background Processor"),message=message)
             result = False
         return(result)
 
