@@ -168,7 +168,7 @@ class PublishingController:
         if errors:
             error_list = '\n'.join(errors)
             message = _("These things are missing:\n{0}").format(error_list)
-            pub.sendMessage('view_messageBoxError',message=message, who=_("Publishing Processor"))
+            self.parent.messageBoxError(message=message, who=_("Publishing Processor"))
             result = False
         return(result)
 
@@ -184,7 +184,7 @@ class PublishingController:
                 self.view.messageBoxInfo(who=_("Publishing Processor"),message=message)
             else:
                 message = _("Publishing {0} measurements.\nThis may take a while").format(total)
-                accepted = pub.sendMessage('view_messageBoxAcceptCancel',message=message, who=_("Publishing Processor"))
+                accepted = self.parent.messageBoxAcceptCancel(message=message, who=_("Publishing Processor"))
                 if accepted:
                     yield self.doPublish(total)
 
@@ -223,7 +223,7 @@ class PublishingController:
             log.info("All went good. Updating publishing state for observer id {o}",o=self.observer_id)
             yield self.sky.updatePublishingCount(filter_dict)
         else:
-            pub.sendMessage('view_messageBoxError',who=_("Publishing Processor"), message=message)
+            self.parent.messageBoxError(who=_("Publishing Processor"), message=message)
 
 
           

@@ -80,12 +80,6 @@ class GraphicalService(Service):
         super().__init__()
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.task    = task.LoopingCall(self.heartBeat)
-        
-        # Subscribe all events that request a View to do something
-        pub.subscribe(self.messageBoxInfo, 'view_messageBoxInfo')
-        pub.subscribe(self.messageBoxError, 'view_messageBoxError')
-        pub.subscribe(self.messageBoxWarn, 'view_messageBoxWarn')
-        pub.subscribe(self.messageBoxAcceptCancel, 'view_messageBoxAcceptCancel')
 
 
     @inlineCallbacks

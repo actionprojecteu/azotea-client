@@ -174,10 +174,10 @@ class CameraController:
         old_info = yield self.model.load(info)    # lookup by model
         if not old_info:
             message = _("Camera not in database!")
-            pub.sendMessage('view_messageBoxWarn',who='Preferences', message=message)
+            self.parent.messageBoxWarn(who='Preferences', message=message)
         self.view.menuBar.preferences.cameraFrame.updateCameraInfoFromImage(info)
         if warning:
-            pub.sendMessage('view_messageBoxWarn',who='Preferences', message=warning)
+            self.parent.messageBoxWarn(who='Preferences', message=warning)
 
     @inlineCallbacks
     def onListReq(self):
