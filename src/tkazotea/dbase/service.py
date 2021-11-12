@@ -182,7 +182,7 @@ class DatabaseService(Service):
     # ------------
 
     def startService(self):
-        log.info("starting Database Service on {database}", database=self.path)
+        log.info("Starting Database Service on {database}", database=self.path)
         connection = open_database(self.path)
         create_database(connection, SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR, SQL_TEST_STRING)
         levels  = read_debug_levels(connection)

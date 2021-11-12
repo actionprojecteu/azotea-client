@@ -29,7 +29,8 @@ from twisted.application import service
 from tkazotea import __version__
 from tkazotea.logger  import startLogging
 from tkazotea.gui.service import GraphicalService
-from tkazotea.dbase.service      import DatabaseService
+from tkazotea.batch.service import BatchService
+from tkazotea.dbase.service import DatabaseService
 
 
 # ----------------
@@ -79,7 +80,10 @@ if not options.no_gui:
 	guiService = GraphicalService()
 	guiService.setName(GraphicalService.NAME)
 	guiService.setServiceParent(application)
-
+else:
+    batchService = BatchService(options.work_dir)
+    batchService.setName(BatchService.NAME)
+    batchService.setServiceParent(application)
 
 # Start the ball rolling
 service.IService(application).startService()
