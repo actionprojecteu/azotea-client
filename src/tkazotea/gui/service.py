@@ -88,23 +88,6 @@ class GraphicalService(Service):
          reactor.stop()
 
 
-    # --------
-    # View API
-    # Route to GUI all view requests from controllers
-    # --------
-
-    def messageBoxInfo(self, who, message):
-        self.application.messageBoxInfo(who, message)
-
-    def messageBoxError(self, who, message):
-        self.application.messageBoxError(who, message)
-
-    def messageBoxWarn(self, who, message):
-        self.application.messageBoxWarn(who, message)
-
-    def messageBoxAcceptCancel(self, who, message):
-        self.application.messageBoxAcceptCancel(who, message)
-
     # -----------
     # Service API
     # -----------

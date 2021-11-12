@@ -192,7 +192,7 @@ class ImageController:
                 else:
                     extension = '*' + self.extension
                     message = _("No images found with the filter {0}").format(extension)
-                    self.parent.messageBoxWarn(who=_("Register"),message=message)
+                    self.view.messageBoxWarn(who=_("Register"),message=message)
                 self.view.statusBar.clear()
 
 
@@ -256,7 +256,7 @@ class ImageController:
         if errors:
             error_list = '\n'.join(errors)
             message = _("Can't register. These things are missing:\n{0}").format(error_list)
-            self.parent.messageBoxError(who=_("Register"),message=message)
+            self.view.messageBoxError(who=_("Register"),message=message)
             return(False)
         else:
             return(True)
@@ -299,7 +299,7 @@ class ImageController:
             row['session'] = session
             if row['header_type'] == FITS_HEADER_TYPE:
                 message = _("Unsupported header type {0} for the time being").format(header_type)
-                self.parent.messageBoxError(who=_("Register"),message=message)
+                self.view.messageBoxError(who=_("Register"),message=message)
                 return(None)
             else:
                 try:
@@ -314,7 +314,7 @@ class ImageController:
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
                 message = _("Camera model {0} not found in the database").format(row['model'])
                 log.warn(message)
-                self.parent.messageBoxError(who=_("Register"),message=message)
+                self.view.messageBoxError(who=_("Register"),message=message)
                 return(None)
             log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
             row['camera_id'] = int(new_camera['camera_id'])
