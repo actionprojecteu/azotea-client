@@ -35,15 +35,15 @@ from pubsub import pub
 from tkazotea.logger  import setLogLevel
 from tkazotea.dbase.service   import DatabaseService
 from tkazotea.gui.application import Application
-from tkazotea.controller.application import ApplicationController
-from tkazotea.controller.camera      import CameraController
-from tkazotea.controller.observer    import ObserverController
-from tkazotea.controller.location    import LocationController
-from tkazotea.controller.roi         import ROIController
-from tkazotea.controller.miscelanea  import MiscelaneaController
-from tkazotea.controller.image       import ImageController
-from tkazotea.controller.sky         import SkyBackgroundController
-from tkazotea.controller.publishing  import PublishingController
+from tkazotea.gui.controller.application import ApplicationController
+from tkazotea.gui.controller.camera      import CameraController
+from tkazotea.gui.controller.observer    import ObserverController
+from tkazotea.gui.controller.location    import LocationController
+from tkazotea.gui.controller.roi         import ROIController
+from tkazotea.gui.controller.miscelanea  import MiscelaneaController
+from tkazotea.gui.controller.image       import ImageController
+from tkazotea.gui.controller.sky         import SkyBackgroundController
+from tkazotea.gui.controller.publishing  import PublishingController
 
 
 # ----------------
