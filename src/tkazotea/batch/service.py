@@ -37,6 +37,8 @@ from pubsub import pub
 # -------------
 
 from tkazotea.logger import setLogLevel
+from tkazotea.dbase.service   import DatabaseService
+from tkazotea.batch.controller.image  import ImageController
 
 # ----------------
 # Module constants
@@ -79,6 +81,16 @@ class BatchService(Service):
             self.quit()
         else:
             super().startService()
+            self.dbaseService = self.parent.getServiceNamed(DatabaseService.NAME)
+            self.controllers = (
+                ImageController(
+                    parent   = self, 
+                    work_dir = self.work_dir, 
+                    model    = self.dbaseService.dao,
+                ),
+            )
+            reactor.callLater(0, self.controllers[0].start)
+
         
 
     def stopService(self):
