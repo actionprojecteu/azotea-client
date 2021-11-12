@@ -72,10 +72,6 @@ class ApplicationController:
         self.view = view
         setLogLevel(namespace=NAMESPACE, levelStr='info')
 
-    
-    def quit(self):
-        '''Returns a Deferred'''
-        return self.parent.quit()
 
     def onDatabaseVersionReq(self):
         version = self.model.version
@@ -111,7 +107,6 @@ class ApplicationController:
     @inlineCallbacks
     def start(self):
         log.info('starting Application Controller')
-        pub.subscribe(self.quit,  'file_quit')
         pub.subscribe(self.onDatabaseVersionReq, 'database_version_req')
         pub.subscribe(self.onCheckPreferencesReq, 'check_preferences_req')
         pub.subscribe(self.onSaveConsentReq, 'save_consent_req')

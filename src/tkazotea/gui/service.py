@@ -21,11 +21,7 @@ from twisted.internet import  tksupport, reactor, defer, task
 from twisted.application.service import Service
 from twisted.internet.defer import inlineCallbacks
 
-# -------------------
-# Third party imports
-# -------------------
 
-from pubsub import pub
 
 #--------------
 # local imports
@@ -80,13 +76,6 @@ class GraphicalService(Service):
         super().__init__()
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.task    = task.LoopingCall(self.heartBeat)
-
-
-    @inlineCallbacks
-    def quit(self):
-         yield self.parent.stopService()
-         reactor.stop()
-
 
     # -----------
     # Service API
@@ -178,18 +167,10 @@ class GraphicalService(Service):
         
 
     def stopService(self):
-        log.info('stopping Graphical User Interface Service')
+        log.info('Stopping Graphical User Interface Service')
         self.task.stop()
         return super().stopService()
 
-
-    # -----------------
-    # Configuration API
-    # -----------------
-
-    def configure(self, **kwargs):
-        '''Configuration from command line arguments'''
-        pass
 
     # ---------
     # Heartbeat

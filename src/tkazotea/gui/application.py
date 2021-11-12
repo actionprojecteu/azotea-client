@@ -79,8 +79,8 @@ class Application(tk.Tk):
         self.build()
         
     def quit(self):
-        pub.sendMessage('file_quit')
         self.destroy()
+        pub.sendMessage('file_quit')
 
     def start(self):
         self.menuBar.start()
@@ -132,7 +132,6 @@ class Application(tk.Tk):
             logo_path = CONSENT_UCM,
             accept_event = 'save_consent_req',
             reject_event = 'file_quit',
-
         )
         
 

@@ -28,6 +28,12 @@ from twisted.internet import reactor, task, defer
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
+# -------------------
+# Third party imports
+# -------------------
+
+from pubsub import pub
+
 #--------------
 # local imports
 # -------------
@@ -181,6 +187,7 @@ class DatabaseService(Service):
         create_database(connection, SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR, SQL_TEST_STRING)
         levels  = read_debug_levels(connection)
         version = read_database_version(connection)
+        pub.subscribe(self.quit,  'file_quit')
         # Remainder Service initialization
         super().startService()
         connection.commit()
@@ -192,24 +199,20 @@ class DatabaseService(Service):
 
 
     def stopService(self):
-        #self.closePool()
         log.info("Stopping Database Service")
-        return super().stopService()
+        self.closePool()
+        try:
+            reactor.stop()
+        except Exception as e:
+            reactor.callLater(0, reactor.stop)
 
-
-    # -----------------
-    # Configuration API
-    # -----------------
-
-    def configure(self, **kwargs):
-        '''Configuration from command line arguments'''
-        pass
 
     # ---------------
     # OPERATIONAL API
     # ---------------
 
-    
+    def quit(self):
+        reactor.callLater(0, self.parent.stopService)
 
     # =============
     # Twisted Tasks
@@ -224,13 +227,13 @@ class DatabaseService(Service):
 
     def openPool(self):
         # setup the connection pool for asynchronouws adbapi
-        log.info("Opening a DB Connection to {conn!s}", conn=self.path)
+        log.info("Opening DB Connection to {conn!s}", conn=self.path)
         self.pool  = self.getPoolFunc(self.path)
-        log.info("Opened a DB Connection to {conn!s}", conn=self.path)
+        log.debug("Opened DB Connection to {conn!s}", conn=self.path)
 
 
     def closePool(self):
         '''setup the connection pool for asynchronouws adbapi'''
-        log.info("Closing a DB Connection to {conn!s}", conn=self.path)
+        log.info("Closing DB Connection to {conn!s}", conn=self.path)
         self.pool.close()
-        log.info("Closed a DB Connection to {conn!s}", conn=self.path)
+        log.debug("Closed DB Connection to {conn!s}", conn=self.path)
