@@ -131,4 +131,4 @@ dmypy.json
 # Other stuff
 src/*.db
 src/*.bak
-
+images/

@@ -9,6 +9,12 @@
 # System wide imports
 # -------------------
 
+# ---------------
+# Twisted imports
+# ---------------
+
+from twisted.logger   import Logger
+
 #--------------
 # local imports
 # -------------
@@ -17,9 +23,13 @@
 # Module constants
 # ----------------
 
+NAMESPACE = 'CTRL '
+
 # -----------------------
 # Module global variables
 # -----------------------
+
+log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions

@@ -11,6 +11,13 @@
 
 import re
 
+
+#--------------
+# local imports
+# -------------
+
+from azotea.utils import NAMESPACE, log
+
 # ----------------------
 # Module utility classes
 # ----------------------
