@@ -5,4 +5,4 @@
 # See the LICENSE file for details
 # ----------------------------------------------------------------------
 
-python3 -m tkazotea "$@"
+python3 -m azotea "$@"

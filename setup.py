@@ -43,18 +43,18 @@ CLASSIFIERS  = [
 
 
 PACKAGE_DATA = {
-    'tkazotea.dbase': [
+    'azotea.dbase': [
         'sql/*.sql',
         'sql/initial/*.sql',
         'sql/updates/*.sql',
     ],
-    'tkazotea.gui': [
+    'azotea.gui': [
         'resources/img/*.*',
         'resources/about/*.*',
     ],
 }
 
-SCRIPTS = ["scripts/tkazotea"]
+SCRIPTS = ["scripts/azotea"]
 
 DATA_FILES  = []
 

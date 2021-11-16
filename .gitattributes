@@ -1,2 +1,2 @@
 src/_version.py export-subst
-src/tkazotea/_version.py export-subst
+src/azotea/_version.py export-subst
