@@ -44,6 +44,8 @@ from azotea.batch.controller.camera   import CameraController
 from azotea.batch.controller.observer import ObserverController
 from azotea.batch.controller.location import LocationController
 from azotea.batch.controller.roi      import ROIController
+from azotea.batch.controller.publishing import PublishingController
+
 
 # ----------------
 # Module constants
@@ -70,12 +72,13 @@ class BatchService(Service):
     # Service name
     NAME = NAMESPACE
 
-    def __init__(self, work_dir, export_opt, csv_dir, **kargs):
+    def __init__(self, work_dir, export_opt, csv_dir, pub_flag, **kargs):
         super().__init__()   
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.work_dir = work_dir
         self.export_opt = export_opt
         self.csv_dir = csv_dir
+        self.pub_flag = pub_flag
 
     #------------
     # Service API
@@ -122,19 +125,28 @@ class BatchService(Service):
                     model    = self.dbaseService.dao,
                     config   = self.dbaseService.dao.config,
                     csv_dir  = self.csv_dir,
+                    pub_flag = self.pub_flag,
                     export_type = self.export_opt,
+                ),
+                PublishingController(
+                    parent   = self, 
+                    model    = self.dbaseService.dao,
+                    config   = self.dbaseService.dao.config,
                 ),
         )
         # Dirty monkey patching
         
         # # patch ImageController
-        self.controllers[-2].cameraCtrl   = self.controllers[0]
-        self.controllers[-2].observerCtrl = self.controllers[1]
-        self.controllers[-2].locationCtrl = self.controllers[2]
+        self.controllers[-3].cameraCtrl   = self.controllers[0]
+        self.controllers[-3].observerCtrl = self.controllers[1]
+        self.controllers[-3].locationCtrl = self.controllers[2]
 
-        # # patch SkyBackgroundController
+        # patch SkyBackgroundController
+        self.controllers[-2].observerCtrl = self.controllers[1]
+        self.controllers[-2].roiCtrl      = self.controllers[2]
+
+        # patch PublishingController
         self.controllers[-1].observerCtrl = self.controllers[1]
-        self.controllers[-1].roiCtrl      = self.controllers[2]
 
         for controller in self.controllers:
             controller.start()        

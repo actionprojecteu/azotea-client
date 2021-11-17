@@ -58,12 +58,13 @@ class SkyBackgroundController:
 
     NAME = NAMESPACE
     
-    def __init__(self, parent, config, model, export_type, csv_dir):
+    def __init__(self, parent, config, model, export_type, csv_dir, pub_flag):
         self.parent = parent
         self.model  = model
         self.sky    = model.sky
         self.image  = model.image
         self.roi    = model.roi 
+        self.pub_flag = pub_flag
         self.config = config
         self.export_type = export_type
         self.csv_dir    = csv_dir
@@ -88,6 +89,8 @@ class SkyBackgroundController:
         result = yield self.doCheckDefaults()
         if result:
             yield self.doStats()
+        else:
+            pub.sendMessage('file_quit')
 
 
     @inlineCallbacks
@@ -95,6 +98,8 @@ class SkyBackgroundController:
         result = yield self.doCheckDefaultsExport()
         if result:
             yield self.doExport(date)
+        else:
+            pub.sendMessage('file_quit')
 
 
     # -------
@@ -190,7 +195,10 @@ class SkyBackgroundController:
                 row = map(postprocess, enumerate(row))
                 writer.writerow(row)
         log.info("Export {what} complete: {path}", what=self.export_type, path=path)
-        pub.sendMessage('file_quit')
+        if self.pub_flag:
+            pub.sendMessage('publishing_publish_req')
+        else:
+            pub.sendMessage('file_quit')
 
 
 
@@ -236,5 +244,7 @@ class SkyBackgroundController:
         if self.export_type and self.csv_dir:
             log.info("Sky Background Processor: Generating CSV file")
             self.triggerExport()
+        elif self.pub_flag:
+            pub.sendMessage('publishing_publish_req')
         else:
             pub.sendMessage('file_quit')

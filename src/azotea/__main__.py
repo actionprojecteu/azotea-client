@@ -86,8 +86,9 @@ if not options.no_gui:
 else:
     work_dir     = options.work_dir
     export_opt   = options.csv_export_type
-    csv_dir     = options.csv_dir
-    batchService = BatchService(work_dir, export_opt, csv_dir)
+    csv_dir      = options.csv_dir
+    pub_flag     = options.publish
+    batchService = BatchService(work_dir, export_opt, csv_dir, pub_flag)
     batchService.setName(BatchService.NAME)
     batchService.setServiceParent(application)
 
