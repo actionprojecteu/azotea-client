@@ -188,7 +188,6 @@ class SkyBackgroundController:
             'roi_id'     : self.roi_id,
         }
         roi_dict = yield self.roi.loadById({'roi_id': self.roi_id})
-        log.info("ROI DICT = {r}",r=roi_dict)
         rect = Rect.from_dict(roi_dict)
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)
