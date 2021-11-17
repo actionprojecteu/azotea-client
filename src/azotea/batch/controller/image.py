@@ -213,6 +213,7 @@ class ImageController:
             try:
                 yield self.image.save(row)
             except sqlite3.IntegrityError as e:
+                log.warn("Possible duplicate image: {name}",name=row['name'])
                 yield self.image.fixDirectory(row)
                 log.debug('Fixed directory for {name}', name=row['name'])
                 log.info("Register: Loading {n} [{p}%]", n=row['name'], p=(100*i//N_Files) )

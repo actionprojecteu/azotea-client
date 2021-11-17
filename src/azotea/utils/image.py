@@ -11,6 +11,7 @@
 
 import datetime
 import hashlib
+import binascii
 from fractions import Fraction
 
 # ---------------------
@@ -52,7 +53,7 @@ def hashfunc(filepath):
         while len(block) > 0:
             file_hash.update(block)
             block = f.read(BLOCK_SIZE)
-    return file_hash.digest()
+    return binascii.hexlify(file_hash.digest())
 
 
 def exif_metadata(filename, row):
@@ -99,6 +100,6 @@ def toDateTime(tstamp):
 
 def expensiveEXIFOperation(filepath, row):
     log.debug('Computing {row.name} MD5 hash', row=row)
-    row['hash'] = hash(filepath)
+    row['hash'] = hashfunc(filepath)
     log.debug('Loading {row.name} EXIF metadata', row=row)
     row = exif_metadata(filepath, row)
