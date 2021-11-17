@@ -88,7 +88,7 @@ class BatchService(Service):
         log.info("Starting Batch Service with images directory {wd}", wd=self.images_dir)
         if self.images_dir is None:
             log.error("No images directory")
-            pub.sendMessage('file_quit')
+            pub.sendMessage('file_quit', exit_code = 1)
             return
         
         super().startService()
@@ -160,8 +160,6 @@ class BatchService(Service):
     # OPERATIONAL API
     # ---------------
 
-    def quit(self):
-        pub.sendMessage('file_quit')
 
     # =============
     # Twisted Tasks

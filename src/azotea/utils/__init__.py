@@ -31,7 +31,8 @@ NAMESPACE = 'CTRL '
 
 log = Logger(namespace=NAMESPACE)
 
-_exit_status_code = 0
+# Assume bad result unless we set it to ok
+_exit_status_code = 1
 
 # ------------------------
 # Module Utility Functions
@@ -40,8 +41,11 @@ _exit_status_code = 0
 def get_status_code():
     return _exit_status_code
 
+
 def set_status_code(code):
+    global _exit_status_code
     _exit_status_code = code
+
 
 def chop(string, sep=None):
     '''Chop a list of strings, separated by sep and 

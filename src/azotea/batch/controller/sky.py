@@ -90,7 +90,7 @@ class SkyBackgroundController:
         if result:
             yield self.doStats()
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -99,7 +99,7 @@ class SkyBackgroundController:
         if result:
             yield self.doExport(date)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     # -------
@@ -198,7 +198,7 @@ class SkyBackgroundController:
         if self.pub_flag:
             pub.sendMessage('publishing_publish_req')
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('file_quit', exit_code = 0)
 
 
 
@@ -247,4 +247,4 @@ class SkyBackgroundController:
         elif self.pub_flag:
             pub.sendMessage('publishing_publish_req')
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('file_quit', exit_code = 0)

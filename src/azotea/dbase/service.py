@@ -40,6 +40,7 @@ from pubsub import pub
 
 from azotea import SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR
 
+from azotea.utils import set_status_code
 from azotea.logger import setLogLevel
 from azotea.dbase.dao import DataAccesObject
 from azotea.dbase import NAMESPACE, log 
@@ -191,7 +192,7 @@ class DatabaseService(Service):
         connection.commit()
         connection.close()
         if self.create_only:
-            quit()
+            self.quit(1)
         else:
             self.openPool()
             self.dao = DataAccesObject(self.pool, *levels)
@@ -205,6 +206,7 @@ class DatabaseService(Service):
         try:
             reactor.stop()
         except Exception as e:
+            set_status_code(255)
             reactor.callLater(0, reactor.stop)
 
 
@@ -212,7 +214,8 @@ class DatabaseService(Service):
     # OPERATIONAL API
     # ---------------
 
-    def quit(self):
+    def quit(self, exit_code = 0):
+        set_status_code(exit_code)
         reactor.callLater(0, self.parent.stopService)
 
     # =============

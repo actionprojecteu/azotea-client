@@ -1,13 +1,7 @@
 MAS INMEDIATO TODAVIA
 =====================
 
-Me he quedado en el registro de imagen con el controlador portado de image
-
-PACKAGE utils/__init__.py con lo que tenía de utils + :
-- utilidades de camara
-- utilidades de gráficos
-
-Parece que habrá que portar una version reducida de los controladores de camara, roi, location, observer y misc
+file_quit con parametros en el controlador especial
 
 
 INMEDIATO

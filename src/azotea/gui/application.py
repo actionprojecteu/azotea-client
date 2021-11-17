@@ -80,7 +80,7 @@ class Application(tk.Tk):
         
     def quit(self):
         self.destroy()
-        pub.sendMessage('file_quit')
+        pub.sendMessage('file_quit', exit_code=0)
 
     def start(self):
         self.menuBar.start()
@@ -192,7 +192,7 @@ class MenuBar(ttk.Frame):
 
     def quit(self):
         '''This halts completely the main Twisted loop'''
-        pub.sendMessage('file_quit')
+        pub.sendMessage('file_quit', exit_code=0)
 
     def doAbout(self, db_version):
         version = _("Version {0}\nDatabase version {1}").format(__version__, db_version)

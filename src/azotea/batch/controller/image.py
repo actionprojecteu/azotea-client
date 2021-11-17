@@ -75,7 +75,7 @@ class ImageController:
         ok = yield self.doCheckDefaults()
         if not ok:
             log.error("Missing default values")
-            pub.sendMessage('file_quit')
+            pub.sendMessage('file_quit', exit_code = 1)
             return
         images_dir = self.images_dir
         with os.scandir(images_dir) as it:

@@ -124,7 +124,7 @@ class PublishingController:
                 log.info("Publishing Processor: Publishing {total} measurements. This may take a while", total=total)
                 yield self.doPublish(total)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -161,9 +161,11 @@ class PublishingController:
         if not failed:
             log.info("All went good. Updating publishing state for observer id {o}",o=self.observer_id)
             yield self.sky.updatePublishingCount(filter_dict)
+            exit_code = 0
         else:
             log.error("Publishing Processor: {message}", message=message)
-        pub.sendMessage('file_quit')
+            exit_code = 1
+        pub.sendMessage('file_quit', exit_code = exit_code)
 
 
 
