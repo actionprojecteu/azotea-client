@@ -69,7 +69,6 @@ class ImageController:
         self.config = config
         self.default_focal_length = None
         self.default_f_number = None
-        self._abort = False
         self.work_dir = work_dir
         setLogLevel(namespace=NAMESPACE, levelStr='info')
          
@@ -77,7 +76,6 @@ class ImageController:
     @inlineCallbacks  
     def start(self):
         log.info('Starting Register Controller')
-        self._abort = False
         ok = yield self.doCheckDefaults()
         if not ok:
             log.error("Missing default values")
@@ -106,6 +104,7 @@ class ImageController:
                 i, N_Files = result
         if N_Files:
             log.info("Register: {i}/{N} images complete", i=i, N=N_Files)
+            pub.sendMessage("sky_brightness_stats_req")
         else:
             extension = '*' + self.extension
             log.warn("Register: No images found with the filter {ext}",ext=extension)
@@ -184,8 +183,6 @@ class ImageController:
         bayer = self.bayer_pattern
         log.debug('Found {n} candidates matching filter {ext}.',n=N_Files, ext=extension)
         for i, filepath in enumerate(file_list):
-            if self._abort:
-                break
             row = {
                 'name'        : os.path.basename(filepath), 
                 'directory'   : os.path.dirname(filepath),
@@ -202,7 +199,6 @@ class ImageController:
                 continue
             row['session'] = session
             if row['header_type'] == FITS_HEADER_TYPE:
-                message = "Unsupported header type {0} for the time being".format(header_type)
                 log.error("Register: Unsupported header type {h} for the time being",h=header_type) 
                 return(None)
             else:

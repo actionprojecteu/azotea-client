@@ -66,7 +66,7 @@ class SkyBackgroundController:
     
     def __init__(self, parent, config, model):
         self.parent = parent
-        self.model = model
+        self.model  = model
         self.sky    = model.sky
         self.image  = model.image
         self.roi    = model.roi 
@@ -75,15 +75,11 @@ class SkyBackgroundController:
         self.roiCtrl      = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.start()
-        self._abort = False
            
     def start(self):
         log.info('starting Sky Background Controller')
         pub.subscribe(self.onStatsReq,  'sky_brightness_stats_req')
         pub.subscribe(self.onExportReq, 'sky_brightness_csv_req')
-
-    def onAbortReq(self):
-        self._abort = True
  
     # -----------------------
     # Subscriptions from View
@@ -91,7 +87,6 @@ class SkyBackgroundController:
 
     @inlineCallbacks
     def onStatsReq(self):
-        self._abort = False
         result = yield self.doCheckDefaults()
         if result:
             yield self.doStats()
@@ -99,7 +94,6 @@ class SkyBackgroundController:
 
     @inlineCallbacks
     def onExportReq(self, date):
-        self._abort = False
         result = yield self.doCheckDefaultsExport()
         if result:
             yield self.doExport(date)
@@ -119,7 +113,7 @@ class SkyBackgroundController:
         if errors:
             error_list = '\n'.join(errors)
             message = _("These things are missing:\n{0}").format(error_list)
-            self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
+            log.error("Sky Background Processor: {m}", m=message)
             result = False
         return(result)
 
@@ -144,7 +138,7 @@ class SkyBackgroundController:
         if errors:
             error_list = '\n'.join(errors)
             message = _("These things are missing:\n{0}").format(error_list)
-            self.view.messageBoxError(who=_("Sky Background Processor"),message=message)
+            log.error("Sky Background Processor: {m}", m=message)
             result = False
         return(result)
 
@@ -199,8 +193,6 @@ class SkyBackgroundController:
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)
         for i, (image_id,) in enumerate(image_id_list):
-            if self._abort:
-                break
             name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
             w_date, w_time = widget_datetime(date_id, time_id) 
             row = {
@@ -220,17 +212,12 @@ class SkyBackgroundController:
                 yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
             except Exception as e:
                 log.failure('{e}', e=e)
-                self.view.statusBar.update( _("SKY BACKGROUND"), row['name'], (100*i//N_stats), error=True)
+                log.error("Sky Background Processor: {name} [{p}%]", name=row['name'], p=(100*i//N_stats))
                 return(None)
             else:
-                self.view.statusBar.update( _("SKY BACKGROUND"), row['name'], (100*i//N_stats), error=False)
+                log.info("Sky Background Processor: {name} [{p}%]", name=row['name'], p=(100*i//N_stats))
                 yield self.sky.save(row)
-                self.view.mainArea.displaySkyMeasurement(row['name'],row)
         if N_stats:
-            message = _("Sky background: {0}/{1} images computed").format(i+1,N_stats)
-            self.view.messageBoxInfo(who=_("Sky backround statistics"),message=message)
+            log.info("Sky Background Processor: {n}/{d} images processed", n=i+1, d=N_stats)
         else:
-            message = _("No images to process")
-            self.view.messageBoxWarn(who=_("Sky backround statistics"),message=message)
-        self.view.statusBar.clear()
-
+            log.info("Sky Background Processor: No images to process")
