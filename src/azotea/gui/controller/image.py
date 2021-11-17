@@ -104,24 +104,24 @@ class ImageController:
         self._abort = False
         ok = yield self.doCheckDefaults()
         if ok:
-            work_dir = self.view.openDirectoryDialog()
-            if work_dir:
-                with os.scandir(work_dir) as it:
+            images_dir = self.view.openDirectoryDialog()
+            if images_dir:
+                with os.scandir(images_dir) as it:
                     dirs  = [ entry.path for entry in it if entry.is_dir()  ]
                     files = [ entry.path for entry in it if entry.is_file() ]
                 if dirs:
                     if files:
-                        log.warn("Ignoring files in {wd}", wd=work_dir)
+                        log.warn("Ignoring files in {wd}", wd=images_dir)
                     i = 0; N_Files = 0
-                    for work_dir in sorted(dirs, reverse=True):
-                        result = yield self.doRegister(work_dir)
+                    for images_dir in sorted(dirs, reverse=True):
+                        result = yield self.doRegister(images_dir)
                         if not result:
                             break
                         j, M_Files = result
                         i += j
                         N_Files += M_Files
                 else:
-                    result = yield self.doRegister(work_dir)
+                    result = yield self.doRegister(images_dir)
                     if result:
                         i, N_Files = result
                 

@@ -159,20 +159,21 @@ class DatabaseService(Service):
     # Service name
     NAME = NAMESPACE
 
-    def __init__(self, path, **kargs):
+    def __init__(self, path, create_only, **kargs):
         super().__init__()   
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.path = path
         self.pool = None
         self.preferences = None
         self.getPoolFunc = getPool
+        self.create_only = create_only
     
     def foreign_keys(self, flag):
         def _foreign_keys(txn, flag):
             value = "ON" if flag else "OFF"
             sql = f"PRAGMA foreign_keys={value};"
             txn.execute(sql)
-        return self.pool.runInteraction(_foreign_keys, flag)
+        return self.pool.runInteraction(_foreign_keys, flag)    # returns a Deferred
 
     #------------
     # Service API
@@ -189,10 +190,13 @@ class DatabaseService(Service):
         super().startService()
         connection.commit()
         connection.close()
-        self.openPool()
-        self.dao = DataAccesObject(self.pool, *levels)
-        self.dao.version = version
-        return self.foreign_keys(True)
+        if self.create_only:
+            quit()
+        else:
+            self.openPool()
+            self.dao = DataAccesObject(self.pool, *levels)
+            self.dao.version = version
+            self.foreign_keys(True)
 
 
     def stopService(self):

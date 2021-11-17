@@ -77,7 +77,6 @@ class PublishingFrame(ttk.Frame):
        
     def start(self):
          pub.sendMessage('publishing_details_req')
-         log.info("CUCUUUUUU")
 
     def build(self):
         top_frame = ttk.Frame(self)

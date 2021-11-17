@@ -58,14 +58,14 @@ class ImageController:
 
     NAME = NAMESPACE
 
-    def __init__(self, parent, model, config, work_dir):
+    def __init__(self, parent, model, config, images_dir):
         self.parent = parent
         self.model = model
         self.image = model.image
         self.config = config
         self.default_focal_length = None
         self.default_f_number = None
-        self.work_dir = work_dir
+        self.images_dir = images_dir
         setLogLevel(namespace=NAMESPACE, levelStr='info')
          
 
@@ -78,24 +78,24 @@ class ImageController:
             self.parent.quit()
             return
 
-        work_dir = self.work_dir
+        images_dir = self.images_dir
 
-        with os.scandir(work_dir) as it:
+        with os.scandir(images_dir) as it:
                     dirs  = [ entry.path for entry in it if entry.is_dir()  ]
                     files = [ entry.path for entry in it if entry.is_file() ]
         if dirs:
             if files:
-                log.warn("Ignoring files in {wd}", wd=work_dir)
+                log.warn("Ignoring files in {wd}", wd=images_dir)
             i = 0; N_Files = 0
-            for work_dir in sorted(dirs, reverse=True):
-                result = yield self.doRegister(work_dir)
+            for images_dir in sorted(dirs, reverse=True):
+                result = yield self.doRegister(images_dir)
                 if not result:
                     break
                 j, M_Files = result
                 i += j
                 N_Files += M_Files
         else:
-            result = yield self.doRegister(work_dir)
+            result = yield self.doRegister(images_dir)
             if result:
                 i, N_Files = result
         if N_Files:

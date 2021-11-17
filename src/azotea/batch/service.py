@@ -72,10 +72,10 @@ class BatchService(Service):
     # Service name
     NAME = NAMESPACE
 
-    def __init__(self, work_dir, export_opt, csv_dir, pub_flag, **kargs):
+    def __init__(self, images_dir, export_opt, csv_dir, pub_flag, **kargs):
         super().__init__()   
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        self.work_dir = work_dir
+        self.images_dir = images_dir
         self.export_opt = export_opt
         self.csv_dir = csv_dir
         self.pub_flag = pub_flag
@@ -85,9 +85,9 @@ class BatchService(Service):
     # ------------
 
     def startService(self):
-        log.info("Starting Batch Service with working directory {wd}", wd=self.work_dir)
-        if self.work_dir is None:
-            log.error("No working directory")
+        log.info("Starting Batch Service with images directory {wd}", wd=self.images_dir)
+        if self.images_dir is None:
+            log.error("No images directory")
             pub.sendMessage('file_quit')
             return
         
@@ -118,7 +118,7 @@ class BatchService(Service):
                     parent   = self, 
                     model    = self.dbaseService.dao,
                     config   = self.dbaseService.dao.config,
-                    work_dir = self.work_dir, 
+                    images_dir = self.images_dir, 
                 ),
                 SkyBackgroundController(
                     parent   = self, 
