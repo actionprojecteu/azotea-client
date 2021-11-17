@@ -58,7 +58,7 @@ def createParser():
     parser.add_argument('--no-gui',  action='store_true',  help='No GUI. Execute in batch mode.')
     parser.add_argument('--work-dir', type=str, default=None, action='store', metavar='<log file>', help='log to file')
     parser.add_argument('--csv-export-type', type=str, choices=["day", "month", "all"], default=None, help='What to export in CSV')
-    parser.add_argument('--csv-file', type=str, default=None, help='Export CSV file path (optional)')
+    parser.add_argument('--csv-dir', type=str, default=None, help='CSV files base dir (optional)')
 
     return parser
 
@@ -85,8 +85,8 @@ if not options.no_gui:
 else:
     work_dir     = options.work_dir
     export_opt   = options.csv_export_type
-    csv_path     = options.csv_file
-    batchService = BatchService(work_dir, export_opt, csv_path)
+    csv_dir     = options.csv_dir
+    batchService = BatchService(work_dir, export_opt, csv_dir)
     batchService.setName(BatchService.NAME)
     batchService.setServiceParent(application)
 

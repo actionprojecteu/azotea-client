@@ -10,6 +10,7 @@
 # System wide imports
 # -------------------
 
+import os.path
 import csv
 
 # ---------------
@@ -57,7 +58,7 @@ class SkyBackgroundController:
 
     NAME = NAMESPACE
     
-    def __init__(self, parent, config, model, export_type, csv_path):
+    def __init__(self, parent, config, model, export_type, csv_dir):
         self.parent = parent
         self.model  = model
         self.sky    = model.sky
@@ -65,7 +66,7 @@ class SkyBackgroundController:
         self.roi    = model.roi 
         self.config = config
         self.export_type = export_type
-        self.csv_path    = csv_path
+        self.csv_dir    = csv_dir
         self.observerCtrl = None
         self.roiCtrl      = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
@@ -75,10 +76,12 @@ class SkyBackgroundController:
         log.info('starting Sky Background Controller')
         pub.subscribe(self.onStatsReq,  'sky_brightness_stats_req')
         pub.subscribe(self.onExportReq, 'sky_brightness_csv_req')
- 
+
+    
+
     # -----------------------
     # Subscriptions from View
-    # ----------------------
+    # -----------------------
 
     @inlineCallbacks
     def onStatsReq(self):
@@ -92,6 +95,22 @@ class SkyBackgroundController:
         result = yield self.doCheckDefaultsExport()
         if result:
             yield self.doExport(date)
+
+
+    # -------
+    # Helpers
+    # -------
+
+    def triggerExport(self):
+        data = dict()
+        export_type = self.export_type
+        if export_type == 'day':
+            data['method'] = DATE_SELECTION_LATEST_NIGHT
+        elif export_type == 'month':
+            data['method'] = DATE_SELECTION_LATEST_MONTH
+        else: 
+            data['method'] = DATE_SELECTION_ALL
+        pub.sendMessage("sky_brightness_csv_req", data=data)
 
 
     @inlineCallbacks
@@ -122,14 +141,14 @@ class SkyBackgroundController:
             self.roi_id = int(default_roi_id)
         else:
             self.roi_id = None
-            errors.append( _("- No default ROI selected.") )
+            errors.append("- No default ROI selected.")
         default_observer_id, default_observer_details = yield self.observerCtrl.getDefault()
         if default_observer_id:
             self.observer_id = int(default_observer_id)
             self.observer_name = default_observer_details['surname'].replace(' ', '_')
         else:
             self.observer_id = None
-            errors.append( _("- No default observer selected.") )
+            errors.append("- No default observer selected.")
         if errors:
             error_list = '\n'.join(errors)
             message = _("These things are missing:\n{0}").format(error_list)
@@ -161,11 +180,8 @@ class SkyBackgroundController:
             contents = yield self.sky.exportDateRange(filter_dict)
         else:
             log.error("ESTO NO DEBERIA DARSE")
-        path = self.view.saveFileDialog(
-            title     = _("Export CSV File"),
-            extension = '.csv',
-            filename  = filename
-        ) 
+        os.makedirs(self.csv_dir, exist_ok=True)
+        path = os.file.join(self.csv_dir, filename)
         with open(path,'w') as fd:
             writer = csv.writer(fd, delimiter=';')
             writer.writerow(CSV_COLUMNS)
@@ -213,7 +229,8 @@ class SkyBackgroundController:
                 yield self.sky.save(row)
         if N_stats:
             log.info("Sky Background Processor: {n}/{d} images processed", n=i+1, d=N_stats)
-            if self.export_type and self.csv_file:
-                pub.sendMessage("csv_path")
+            if self.export_type and self.csv_dir:
+                self.triggerExport()
         else:
             log.info("Sky Background Processor: No images to process")
+            pub.sendMessage('file_quit')

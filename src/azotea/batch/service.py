@@ -70,12 +70,12 @@ class BatchService(Service):
     # Service name
     NAME = NAMESPACE
 
-    def __init__(self, work_dir, export_opt, csv_path, **kargs):
+    def __init__(self, work_dir, export_opt, csv_dir, **kargs):
         super().__init__()   
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.work_dir = work_dir
         self.export_opt = export_opt
-        self.csv_path = csv_path
+        self.csv_dir = csv_dir
 
     #------------
     # Service API
@@ -121,8 +121,8 @@ class BatchService(Service):
                     parent   = self, 
                     model    = self.dbaseService.dao,
                     config   = self.dbaseService.dao.config,
+                    csv_dir  = self.csv_dir,
                     export_type = self.export_opt,
-                    csv_path    = self.csv_path
                 ),
         )
         # Dirty monkey patching
