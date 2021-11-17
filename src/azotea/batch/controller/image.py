@@ -191,7 +191,7 @@ class ImageController:
             result = yield self.image.load(row)
             if result:
                 log.debug('Skipping already registered {row.name}.', row=row)
-                log.info("Register: Loading {n} [{p}%]", n=row['name'], p=(100*i//N_Files) )
+                log.debug("Register: Loading {n} [{p}%]", n=row['name'], p=(100*i//N_Files) )
                 continue
             row['session'] = session
             if row['header_type'] == FITS_HEADER_TYPE:
