@@ -42,12 +42,11 @@ from azotea import SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR
 
 from azotea.logger import setLogLevel
 from azotea.dbase.dao import DataAccesObject
+from azotea.dbase import NAMESPACE, log 
 
 # ----------------
 # Module constants
 # ----------------
-
-NAMESPACE = 'DBASE'
 
 DATABASE_FILE = 'azotea.db'
 
@@ -56,8 +55,6 @@ SQL_TEST_STRING = "SELECT COUNT(*) FROM image_t"
 # -----------------------
 # Module global variables
 # -----------------------
-
-log = Logger(NAMESPACE)
 
 # ------------------------
 # Module Utility Functions

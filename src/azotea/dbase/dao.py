@@ -29,19 +29,15 @@ from twisted.internet.threads import deferToThread
 from azotea import SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR
 
 from azotea.logger import setLogLevel
-from azotea.dbase import tables, image, sky
+from azotea.dbase import log, NAMESPACE, tables, image, sky
 
 # ----------------
 # Module constants
 # ----------------
 
-NAMESPACE = 'DBASE'
-
 # -----------------------
 # Module global variables
 # -----------------------
-
-log = Logger(NAMESPACE)
 
 # ------------------------
 # Module Utility Functions

@@ -49,7 +49,7 @@ from azotea.batch.controller.roi      import ROIController
 # Module constants
 # ----------------
 
-NAMESPACE = 'BATCH'
+NAMESPACE = 'batch'
 
 # -----------------------
 # Module global variables

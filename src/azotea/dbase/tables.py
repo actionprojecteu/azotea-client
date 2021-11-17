@@ -29,18 +29,15 @@ from azotea.logger import setLogLevel
 # Module constants
 # ----------------
 
-NAMESPACE = 'DBASE'
-
 # Insert variations
 QUERY_INSERT_OR_REPLACE = 1
-INSERT_OR_REPLACE = 2
-INSERT = 3
+INSERT_OR_REPLACE       = 2
+INSERT                  = 3
 
 # -----------------------
 # Module global variables
 # -----------------------
 
-log = Logger(NAMESPACE)
 
 class Table:
 

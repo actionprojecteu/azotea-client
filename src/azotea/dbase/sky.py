@@ -31,8 +31,6 @@ from azotea.dbase.tables import Table, VersionedTable
 # Module constants
 # ----------------
 
-NAMESPACE = 'DBASE'
-
 
 class SkyBrightness:
 
