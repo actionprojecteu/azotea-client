@@ -11,7 +11,6 @@
 
 import datetime
 import hashlib
-import binascii
 from fractions import Fraction
 
 # ---------------------
@@ -53,7 +52,7 @@ def hashfunc(filepath):
         while len(block) > 0:
             file_hash.update(block)
             block = f.read(BLOCK_SIZE)
-    return binascii.hexlify(file_hash.digest())
+    return file_hash.digest()
 
 
 def exif_metadata(filename, row):
