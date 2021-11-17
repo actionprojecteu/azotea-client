@@ -34,6 +34,11 @@ from ._version import get_versions
 FITS_HEADER_TYPE = 'FITS'
 EXIF_HEADER_TYPE = 'EXIF'
 
+DATE_SELECTION_ALL          = 'All'
+DATE_SELECTION_DATE_RANGE   = 'Date range'
+DATE_SELECTION_LATEST_NIGHT = 'Latest night'
+DATE_SELECTION_LATEST_MONTH = 'Latest month'
+
 # -----------------------
 # Module global variables
 # -----------------------

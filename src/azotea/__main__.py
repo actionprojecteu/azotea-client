@@ -57,7 +57,9 @@ def createParser():
     parser.add_argument('--dbase',    type=str, default="azotea.db", action='store', metavar='<SQLite database path>', help='SQLite database to operate upon')
     parser.add_argument('--no-gui',  action='store_true',  help='No GUI. Execute in batch mode.')
     parser.add_argument('--work-dir', type=str, default=None, action='store', metavar='<log file>', help='log to file')
-  
+    parser.add_argument('--csv-export-type', type=str, choices=["day", "month", "all"], default=None, help='What to export in CSV')
+    parser.add_argument('--csv-file', type=str, default=None, help='Export CSV file path (optional)')
+
     return parser
 
 # -------------------
@@ -81,7 +83,10 @@ if not options.no_gui:
 	guiService.setName(GraphicalService.NAME)
 	guiService.setServiceParent(application)
 else:
-    batchService = BatchService(options.work_dir)
+    work_dir     = options.work_dir
+    export_opt   = options.csv_export_type
+    csv_path     = options.csv_file
+    batchService = BatchService(work_dir, export_opt, csv_path)
     batchService.setName(BatchService.NAME)
     batchService.setServiceParent(application)
 

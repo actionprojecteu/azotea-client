@@ -34,7 +34,7 @@ from azotea.logger  import setLogLevel
 from azotea.utils.roi import Rect
 from azotea.utils.sky import CSV_COLUMNS, postprocess, widget_datetime, processImage
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
-from azotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
+from azotea import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 from azotea.batch.controller import NAMESPACE, log
 
 # ----------------
@@ -57,13 +57,15 @@ class SkyBackgroundController:
 
     NAME = NAMESPACE
     
-    def __init__(self, parent, config, model):
+    def __init__(self, parent, config, model, export_type, csv_path):
         self.parent = parent
         self.model  = model
         self.sky    = model.sky
         self.image  = model.image
         self.roi    = model.roi 
         self.config = config
+        self.export_type = export_type
+        self.csv_path    = csv_path
         self.observerCtrl = None
         self.roiCtrl      = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
@@ -211,5 +213,7 @@ class SkyBackgroundController:
                 yield self.sky.save(row)
         if N_stats:
             log.info("Sky Background Processor: {n}/{d} images processed", n=i+1, d=N_stats)
+            if self.export_type and self.csv_file:
+                pub.sendMessage("csv_path")
         else:
             log.info("Sky Background Processor: No images to process")
