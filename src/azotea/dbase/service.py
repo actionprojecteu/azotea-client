@@ -173,7 +173,7 @@ class DatabaseService(Service):
             value = "ON" if flag else "OFF"
             sql = f"PRAGMA foreign_keys={value};"
             txn.execute(sql)
-        return self.pool.runInteraction(_foreign_keys, flag)    # returns a Deferred
+        return self.pool.runInteraction(_foreign_keys, flag)
 
     #------------
     # Service API

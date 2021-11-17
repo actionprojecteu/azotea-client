@@ -31,9 +31,17 @@ NAMESPACE = 'CTRL '
 
 log = Logger(namespace=NAMESPACE)
 
+_exit_status_code = 0
+
 # ------------------------
 # Module Utility Functions
 # ------------------------
+
+def get_status_code():
+    return _exit_status_code
+
+def set_status_code(code):
+    _exit_status_code = code
 
 def chop(string, sep=None):
     '''Chop a list of strings, separated by sep and 
@@ -42,3 +50,5 @@ def chop(string, sep=None):
     if len(chopped) == 1 and chopped[0] == '':
     	chopped = []
     return chopped
+
+

@@ -27,6 +27,7 @@ from twisted.application import service
 # -------------
 
 from azotea import __version__
+from azotea.utils import get_status_code
 from azotea.logger  import startLogging
 from azotea.gui.service import GraphicalService
 from azotea.batch.service import BatchService
@@ -101,3 +102,4 @@ elif options.batch:
 # Start the ball rolling
 service.IService(application).startService()
 reactor.run()
+sys.exit(get_status_code())
