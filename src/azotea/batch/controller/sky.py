@@ -35,26 +35,19 @@ from azotea.utils.roi import Rect
 from azotea.utils.sky import CSV_COLUMNS, postprocess, widget_datetime, processImage
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
+from azotea.batch.controller import NAMESPACE, log
 
 # ----------------
 # Module constants
 # ----------------
 
-NAMESPACE = 'CTRL '
-
 # -----------------------
 # Module global variables
 # -----------------------
 
-# Support for internationalization
-
-log = Logger(namespace=NAMESPACE)
-
 # ------------------------
 # Module Utility Functions
 # ------------------------
-
-
 
 # --------------
 # Module Classes

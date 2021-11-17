@@ -13,7 +13,6 @@
 # Twisted imports
 # ---------------
 
-from twisted.logger   import Logger
 from twisted.internet.defer import inlineCallbacks
 
 # -------------------
@@ -27,20 +26,15 @@ from twisted.internet.defer import inlineCallbacks
 
 from azotea.logger  import setLogLevel
 from azotea.utils.camera import image_analyze_exif
+from azotea.batch.controller import NAMESPACE, log
 
 # ----------------
 # Module constants
 # ----------------
 
-# Support for internationalization
-
-NAMESPACE = 'CTRL '
-
 # -----------------------
 # Module global variables
 # -----------------------
-
-log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions

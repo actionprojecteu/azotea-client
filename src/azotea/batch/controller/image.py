@@ -35,20 +35,16 @@ from pubsub import pub
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.logger  import setLogLevel
 from azotea.utils.image import hashfunc, exif_metadata, toDateTime, expensiveEXIFOperation
+from azotea.batch.controller import NAMESPACE, log
+
 
 # ----------------
 # Module constants
 # ----------------
 
-NAMESPACE = 'CTRL '
-
 # -----------------------
 # Module global variables
 # -----------------------
-
-# Support for internationalization
-
-log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions

@@ -25,18 +25,15 @@ from twisted.internet.defer import inlineCallbacks
 # -------------
 
 from azotea.logger  import setLogLevel
+from azotea.batch.controller import NAMESPACE, log
 
 # ----------------
 # Module constants
 # ----------------
 
-NAMESPACE = 'CTRL '
-
 # -----------------------
 # Module global variables
 # -----------------------
-
-log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions
