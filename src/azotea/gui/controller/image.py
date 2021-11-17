@@ -261,7 +261,7 @@ class ImageController:
                 yield self.image.save(row)
                 self.view.mainArea.displayImageData(row['name'],row)
             except IntegrityError as e:
-                #log.warn('Image with the same MD5 hash in the data base for {row}', row=row)
+                log.warn("Possible duplicate image: {name}",name=row['name'])
                 yield self.image.fixDirectory(row)
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
                 log.debug('Fixed directory for {name}', name=row['name'])
