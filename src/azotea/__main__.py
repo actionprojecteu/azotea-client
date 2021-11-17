@@ -57,8 +57,9 @@ def createParser():
     parser.add_argument('--dbase',    type=str, default="azotea.db", action='store', metavar='<SQLite database path>', help='SQLite database to operate upon')
     parser.add_argument('--no-gui',  action='store_true',  help='No GUI. Execute in batch mode.')
     parser.add_argument('--work-dir', type=str, default=None, action='store', metavar='<log file>', help='log to file')
-    parser.add_argument('--csv-export-type', type=str, choices=["day", "month", "all"], default=None, help='What to export in CSV')
+    parser.add_argument('--csv-export-type', type=str, choices=["day", "month", "all"], default=None, help='What to export/publish in CSV')
     parser.add_argument('--csv-dir', type=str, default=None, help='CSV files base dir (optional)')
+    parser.add_argument('--publish', action='store_true',  help='Also publish results to server')
 
     return parser
 

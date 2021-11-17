@@ -102,15 +102,16 @@ class SkyBackgroundController:
     # -------
 
     def triggerExport(self):
+        log.info("")
         data = dict()
         export_type = self.export_type
         if export_type == 'day':
-            data['method'] = DATE_SELECTION_LATEST_NIGHT
+            data['date_selection'] = DATE_SELECTION_LATEST_NIGHT
         elif export_type == 'month':
-            data['method'] = DATE_SELECTION_LATEST_MONTH
+            data['date_selection'] = DATE_SELECTION_LATEST_MONTH
         else: 
-            data['method'] = DATE_SELECTION_ALL
-        pub.sendMessage("sky_brightness_csv_req", data=data)
+            data['date_selection'] = DATE_SELECTION_ALL
+        pub.sendMessage("sky_brightness_csv_req", date=data)
 
 
     @inlineCallbacks
@@ -181,14 +182,15 @@ class SkyBackgroundController:
         else:
             log.error("ESTO NO DEBERIA DARSE")
         os.makedirs(self.csv_dir, exist_ok=True)
-        path = os.file.join(self.csv_dir, filename)
+        path = os.path.join(self.csv_dir, filename)
         with open(path,'w') as fd:
             writer = csv.writer(fd, delimiter=';')
             writer.writerow(CSV_COLUMNS)
             for row in contents:
                 row = map(postprocess, enumerate(row))
                 writer.writerow(row)
-        log.info("Export complete to {path}",path=path)
+        log.info("Export {what} complete: {path}", what=self.export_type, path=path)
+        pub.sendMessage('file_quit')
 
 
 
@@ -229,8 +231,10 @@ class SkyBackgroundController:
                 yield self.sky.save(row)
         if N_stats:
             log.info("Sky Background Processor: {n}/{d} images processed", n=i+1, d=N_stats)
-            if self.export_type and self.csv_dir:
-                self.triggerExport()
         else:
             log.info("Sky Background Processor: No images to process")
+        if self.export_type and self.csv_dir:
+            log.info("Sky Background Processor: Generating CSV file")
+            self.triggerExport()
+        else:
             pub.sendMessage('file_quit')
