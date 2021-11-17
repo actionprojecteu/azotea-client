@@ -50,7 +50,7 @@ from azotea.utils import NAMESPACE, log, chop
 from azotea.utils.roi import Point, Rect
 from azotea.logger  import startLogging, setLogLevel
 from azotea.error import IncorrectTimestampError
-from azotea.gui import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
+from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 
 

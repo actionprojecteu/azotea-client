@@ -10,24 +10,13 @@
 # System wide imports
 # -------------------
 
-import os
-import sys
 import csv
-import math
-import glob
-import hashlib
-import gettext
-import datetime
-
-from fractions import Fraction
-from sqlite3 import IntegrityError
 
 # ---------------
 # Twisted imports
 # ---------------
 
 from twisted.logger   import Logger
-from twisted.internet import  reactor, defer
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
@@ -36,20 +25,14 @@ from twisted.internet.threads import deferToThread
 # -------------------
 
 from pubsub import pub
-import numpy as np
-import exifread
-import rawpy
 
 #--------------
 # local imports
 # -------------
 
-from azotea import __version__
-from azotea.utils import chop
-from azotea.utils.roi import Point, Rect
+from azotea.logger  import setLogLevel
+from azotea.utils.roi import Rect
 from azotea.utils.sky import CSV_COLUMNS, postprocess, widget_datetime, processImage
-from azotea.logger  import startLogging, setLogLevel
-from azotea.error import IncorrectTimestampError
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 
@@ -64,7 +47,6 @@ NAMESPACE = 'CTRL '
 # -----------------------
 
 # Support for internationalization
-_ = gettext.gettext
 
 log = Logger(namespace=NAMESPACE)
 
@@ -82,14 +64,13 @@ class SkyBackgroundController:
 
     NAME = NAMESPACE
     
-    def __init__(self, parent, view, model):
+    def __init__(self, parent, config, model):
         self.parent = parent
         self.model = model
-        self.view = view
         self.sky    = model.sky
         self.image  = model.image
         self.roi    = model.roi 
-        self.config = model.config
+        self.config = config
         self.observerCtrl = None
         self.roiCtrl      = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
@@ -99,8 +80,6 @@ class SkyBackgroundController:
     def start(self):
         log.info('starting Sky Background Controller')
         pub.subscribe(self.onStatsReq,  'sky_brightness_stats_req')
-        pub.subscribe(self.onDeleteReq, 'sky_brightness_delete_req')
-        pub.subscribe(self.onAbortReq,  'sky_brightness_abort_stats_req')
         pub.subscribe(self.onExportReq, 'sky_brightness_csv_req')
 
     def onAbortReq(self):
@@ -116,41 +95,6 @@ class SkyBackgroundController:
         result = yield self.doCheckDefaults()
         if result:
             yield self.doStats()
-
-
-    @inlineCallbacks
-    def onDeleteReq(self, date):
-        observer_id, tmp = yield self.observerCtrl.getDefault()
-        filter_dict = {'observer_id': observer_id}
-        date_selection = date['date_selection']
-        if date_selection == DATE_SELECTION_ALL:
-            count = yield self.sky.countAll(filter_dict)
-            message = _("Deleting {0} images").format(count)
-            accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
-            if accepted:
-                yield self.sky.deleteAll(filter_dict)
-        elif date_selection == DATE_SELECTION_LATEST_NIGHT:
-            count = yield self.sky.getLatestNightCount(filter_dict)
-            message = _("Deleting {0} images").format(count)
-            accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
-            if accepted:
-                yield self.sky.deleteLatestNight(filter_dict)
-        elif date_selection == DATE_SELECTION_LATEST_MONTH:
-            count = yield self.sky.getLatestMonthCount(filter_dict)
-            message = _("Deleting {0} images").format(count)
-            accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
-            if accepted:
-                yield self.sky.deleteLatestMonth(filter_dict)
-        elif date_selection == DATE_SELECTION_DATE_RANGE:
-            filter_dict['start_date_id'] = int(date['start_date'])
-            filter_dict['end_date_id']   = int(date['end_date'])
-            count = yield self.sky.getDateRangeCount(filter_dict)
-            message = _("Deleting {0} images").format(count)
-            accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
-            if accepted:
-                yield self.sky.deleteDateRange(filter_dict)
-        else:
-            pass
 
 
     @inlineCallbacks
@@ -290,8 +234,3 @@ class SkyBackgroundController:
             self.view.messageBoxWarn(who=_("Sky backround statistics"),message=message)
         self.view.statusBar.clear()
 
-
-    
-
-    
-           

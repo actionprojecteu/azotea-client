@@ -31,6 +31,9 @@ from ._version import get_versions
 # Module constants
 # ----------------
 
+FITS_HEADER_TYPE = 'FITS'
+EXIF_HEADER_TYPE = 'EXIF'
+
 # -----------------------
 # Module global variables
 # -----------------------

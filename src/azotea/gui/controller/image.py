@@ -45,7 +45,7 @@ from azotea.utils.roi import Point, Rect
 from azotea.utils.image import hashfunc, exif_metadata, toDateTime, expensiveEXIFOperation
 from azotea.logger  import startLogging, setLogLevel
 from azotea.error import IncorrectTimestampError
-from azotea.gui import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
+from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 
 # ----------------
 # Module constants

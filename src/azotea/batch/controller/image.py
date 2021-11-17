@@ -10,21 +10,15 @@
 # -------------------
 
 import os
-import sys
 import glob
-import hashlib
-import gettext
 import datetime
-
-from fractions import Fraction
-from sqlite3 import IntegrityError
+import sqlite3
 
 # ---------------
 # Twisted imports
 # ---------------
 
 from twisted.logger   import Logger
-from twisted.internet import  reactor, defer
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
 
@@ -33,19 +27,14 @@ from twisted.internet.threads import deferToThread
 # -------------------
 
 from pubsub import pub
-import exifread
-import rawpy
 
 #--------------
 # local imports
 # -------------
 
-from azotea import __version__
-from azotea.utils.roi import Point, Rect
+from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
+from azotea.logger  import setLogLevel
 from azotea.utils.image import hashfunc, exif_metadata, toDateTime, expensiveEXIFOperation
-from azotea.logger  import startLogging, setLogLevel
-from azotea.error import IncorrectTimestampError
-from azotea.gui import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 
 # ----------------
 # Module constants
@@ -58,16 +47,12 @@ NAMESPACE = 'CTRL '
 # -----------------------
 
 # Support for internationalization
-_ = gettext.gettext
 
 log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions
 # ------------------------
-
-
-
 
 # --------------
 # Module Classes
@@ -77,11 +62,11 @@ class ImageController:
 
     NAME = NAMESPACE
 
-    def __init__(self, parent, model, work_dir):
+    def __init__(self, parent, model, config, work_dir):
         self.parent = parent
         self.model = model
         self.image = model.image
-        self.config = model.config
+        self.config = config
         self.default_focal_length = None
         self.default_f_number = None
         self._abort = False
@@ -120,11 +105,10 @@ class ImageController:
             if result:
                 i, N_Files = result
         if N_Files:
-            self.log.info("Register: {i}/{N} images complete", i=i, N=N_Files)
+            log.info("Register: {i}/{N} images complete", i=i, N=N_Files)
         else:
             extension = '*' + self.extension
-            self.log.warn("Register: No images found with the filter {ext}",ext=extension)
-        self.view.statusBar.clear()
+            log.warn("Register: No images found with the filter {ext}",ext=extension)
 
 
     # We assign the default optics here
@@ -145,34 +129,35 @@ class ImageController:
         default_camera_id,   default_camera   = yield self.cameraCtrl.getDefault()
         default_observer_id, default_observer = yield self.observerCtrl.getDefault()
         default_location_id, default_location = yield self.locationCtrl.getDefault()
+        default_focal_length, default_f_number= yield self.getDefault()
      
         if default_camera_id:
-            self.camera_id = int(default_camera_id)
+            self.camera_id     = int(default_camera_id)
             self.extension     = default_camera['extension']
             self.header_type   = default_camera['header_type']
             self.bayer_pattern = default_camera['bayer_pattern']
             self.global_bias   = default_camera['bias']
         else:
             self.camera_id = None
-            errors.append( _("- No default camera selected.") )
+            errors.append( "- No default camera selected.")
 
         if not self.default_focal_length:
-            errors.append( _("- No default focal length defined.") )
+            errors.append( "- No default focal length defined.")
 
         if not self.default_f_number:
-            errors.append( _("- No default f/ number defined.") )
+            errors.append( "- No default f/ number defined.")
 
         if default_observer_id:
             self.observer_id = int(default_observer_id)
         else:
             self.observer_id = None
-            errors.append( _("- No default observer defined.") )
+            errors.append( "- No default observer defined.")
 
         if default_location_id:
             self.location_id = int(default_location_id)
         else:
             self.location_id = None
-            errors.append( _("- No default location defined.") )
+            errors.append( "- No default location defined.") 
 
         if errors:
             for err in errors:
@@ -217,7 +202,7 @@ class ImageController:
                 continue
             row['session'] = session
             if row['header_type'] == FITS_HEADER_TYPE:
-                message = _("Unsupported header type {0} for the time being").format(header_type)
+                message = "Unsupported header type {0} for the time being".format(header_type)
                 log.error("Register: Unsupported header type {h} for the time being",h=header_type) 
                 return(None)
             else:
@@ -238,7 +223,7 @@ class ImageController:
             try:
                 yield self.image.save(row)
                 #self.view.mainArea.displayImageData(row['name'],row)
-            except IntegrityError as e:
+            except sqlite3.IntegrityError as e:
                 #log.warn('Image with the same MD5 hash in the data base for {row}', row=row)
                 yield self.image.fixDirectory(row)
                 log.debug('Fixed directory for {name}', name=row['name'])

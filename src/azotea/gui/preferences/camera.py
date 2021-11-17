@@ -43,7 +43,7 @@ from azotea.utils.roi import Point
 from azotea.gui.widgets.contrib import ToolTip, LabelInput
 from azotea.gui.widgets.combos import CameraCombo
 from azotea.gui.preferences.base import PreferencesBaseFrame
-from azotea.gui import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
+from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 
 # ----------------
 # Module constants
