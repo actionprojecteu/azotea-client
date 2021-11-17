@@ -75,14 +75,12 @@ class ImageController:
         ok = yield self.doCheckDefaults()
         if not ok:
             log.error("Missing default values")
-            self.parent.quit()
+            pub.sendMessage('file_quit')
             return
-
         images_dir = self.images_dir
-
         with os.scandir(images_dir) as it:
-                    dirs  = [ entry.path for entry in it if entry.is_dir()  ]
-                    files = [ entry.path for entry in it if entry.is_file() ]
+            dirs  = [ entry.path for entry in it if entry.is_dir()  ]
+            files = [ entry.path for entry in it if entry.is_file() ]
         if dirs:
             if files:
                 log.warn("Ignoring files in {wd}", wd=images_dir)
@@ -177,7 +175,7 @@ class ImageController:
         N_Files = len(file_list)
         i = 0
         bayer = self.bayer_pattern
-        log.debug('Found {n} candidates matching filter {ext}.',n=N_Files, ext=extension)
+        log.info('Found {n} candidates matching filter {ext} in directory {dir}.',n=N_Files, ext=extension, dir=directory)
         for i, filepath in enumerate(file_list):
             row = {
                 'name'        : os.path.basename(filepath), 
@@ -214,9 +212,7 @@ class ImageController:
             row['camera_id'] = int(new_camera['camera_id'])
             try:
                 yield self.image.save(row)
-                #self.view.mainArea.displayImageData(row['name'],row)
             except sqlite3.IntegrityError as e:
-                #log.warn('Image with the same MD5 hash in the data base for {row}', row=row)
                 yield self.image.fixDirectory(row)
                 log.debug('Fixed directory for {name}', name=row['name'])
                 log.info("Register: Loading {n} [{p}%]", n=row['name'], p=(100*i//N_Files) )
