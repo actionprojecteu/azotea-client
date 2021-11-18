@@ -70,7 +70,7 @@ class ObserverController:
         try:
             log.info('Versioned insert to observer_t: {data}', data=data)
             yield self.model.save(data)
-            log.info('Getting id from observer_t')
+            log.debug('Getting id from observer_t')
             info_id = yield self.model.lookup(data)
             log.info('Setting default observer in configuration section as id = {id}',id=info_id)
             yield self.config.saveSection('observer',info_id)

@@ -75,7 +75,7 @@ class CameraController:
         try:
             log.info('Insert/replace to camera_t: {data}', data=data)
             yield self.model.save(data)
-            log.info('Getting id from camera_t')
+            log.debug('Getting id from camera_t')
             info_id = yield self.model.lookup(data)
             log.info('Setting default camera in configuration section as id = {id}',id=info_id)
             yield self.config.saveSection('camera',info_id)
