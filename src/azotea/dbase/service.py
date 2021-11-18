@@ -192,7 +192,7 @@ class DatabaseService(Service):
         connection.commit()
         connection.close()
         if self.create_only:
-            self.quit(1)
+            self.quit(exit_code=0)
         else:
             self.openPool()
             self.dao = DataAccesObject(self.pool, *levels)
@@ -206,7 +206,7 @@ class DatabaseService(Service):
         try:
             reactor.stop()
         except Exception as e:
-            set_status_code(255)
+            set_status_code(1)
             reactor.callLater(0, reactor.stop)
 
 

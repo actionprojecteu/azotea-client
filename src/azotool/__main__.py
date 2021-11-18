@@ -114,6 +114,25 @@ def createParser():
     camcre.add_argument('--width',        type=int, default=0, help="Number of raw columns, with no debayering")
     camcre.add_argument('--length',       type=int, default=0, help="Number of raw rows, with no debayering")
 
+    # -------------------------------------
+    # Create second level parsers for 'roi'
+    # -------------------------------------
+
+    subparser = parser_roi.add_subparsers(dest='subcommand')
+
+    roicre = subparser.add_parser('create',  help="Create a new region of interest in the database")
+    
+    group = roicre.add_mutually_exclusive_group(required=True)
+    group.add_argument('--from-image',  type=str, default=None, action='store', metavar='<image file path>', help='create camera by inspecting an image')
+    group.add_argument('--as-given',    action='store_true', help='create camera by adding further parameters')
+    
+    # additional argumnets with the --as-given option
+    roicre.add_argument('--x1',      type=int, default=None, help="Starting pixel column")
+    roicre.add_argument('--y1',      type=int, default=None, help="Starting pixel row")
+    roicre.add_argument('--x2',      type=int, default=None, help='Ending pixel column')
+    roicre.add_argument('--y2',      type=int, default=None, help="Ending pixel row")
+    roicre.add_argument('--comment', type=str, default=None, help="Additional region comment")
+
     return parser
 
 # -------------------

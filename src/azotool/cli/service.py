@@ -77,31 +77,24 @@ class CommandService(Service):
 
     def startService(self):
         log.info("Starting Command Service")
-        
         super().startService()
         self.dbaseService = self.parent.getServiceNamed(DatabaseService.NAME)
         self.controllers = (
             ObserverController(
-                parent = self, 
                 model  = self.dbaseService.dao.observer,
                 config = self.dbaseService.dao.config,
             ),
             LocationController(
-                parent = self, 
                 model  = self.dbaseService.dao.location,
                 config = self.dbaseService.dao.config,
             ),
             CameraController(
-                parent = self, 
                 model  = self.dbaseService.dao.camera,
                 config = self.dbaseService.dao.config,
             ),
         )
-        for controller in self.controllers:
-            controller.start()    
-        self.main()    
+        self.main()
         
-
     def stopService(self):
         log.info("Stopping Command Service")
         

@@ -53,18 +53,11 @@ from azotea.utils.camera import image_analyze_exif
 
 class CameraController:
 
-    def __init__(self, parent, model, config):
-        self.parent = parent
+    def __init__(self, model, config):
         self.model  = model
         self.config = config
-        self.default_id = None
-        self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.createReq,  'camera_create_req')
-
-    def start(self):
-        log.info('starting Camera Controller')
-
 
     @inlineCallbacks
     def createReq(self, options):

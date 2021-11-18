@@ -58,13 +58,14 @@ log  = Logger(namespace=NAMESPACE)
 
 class ConsentDialog(tk.Toplevel):
 
-    def __init__(self, title, text_path, logo_path, accept_event, reject_event, *args, **kwargs):
+    def __init__(self, title, text_path, logo_path, accept_event, reject_event, reject_code, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._title = title
         self._text_path = text_path
         self._logo_path = logo_path
         self._accept_event = accept_event
         self._reject_event = reject_event
+        self._reject_code = reject_code
         self.build()
         self.protocol('WM_DELETE_WINDOW', self.onRejectButton)
         self.attributes('-topmost', True)
@@ -103,7 +104,7 @@ class ConsentDialog(tk.Toplevel):
 
     # Buttons callbacks
     def onRejectButton(self):
-        pub.sendMessage(self._reject_event)
+        pub.sendMessage(self._reject_event, exit_code = self._reject_code)
         self.destroy()
 
      # Buttons callbacks

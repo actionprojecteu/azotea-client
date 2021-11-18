@@ -132,6 +132,7 @@ class Application(tk.Tk):
             logo_path = CONSENT_UCM,
             accept_event = 'save_consent_req',
             reject_event = 'file_quit',
+            recject_code = 126,
         )
         
 
