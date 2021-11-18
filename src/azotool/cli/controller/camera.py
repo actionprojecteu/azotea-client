@@ -18,6 +18,7 @@ import random
 
 from twisted.logger   import Logger
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.threads import deferToThread
 
 # -------------------
 # Third party imports
@@ -31,6 +32,8 @@ from pubsub import pub
 
 from azotea.logger  import setLogLevel
 from azotool.cli   import NAMESPACE, log
+from azotea.utils.camera import image_analyze_exif
+
 
 # ----------------
 # Module constants
@@ -44,22 +47,11 @@ from azotool.cli   import NAMESPACE, log
 # Module Utility Functions
 # ------------------------
 
-def randomize(longitude, latitude):
-        
-    log.info('Randomizing public coordinates')
-    # Includes +- 1Km uncertainty in coordinates
-    delta_long  = random.uniform(-1,1)*(1/6371)*math.cos(math.radians(latitude))
-    delta_lat   = random.uniform(-1,1)*(1/6371)
-    random_long = longitude + math.degrees(delta_long)
-    random_lat  = latitude  + math.degrees(delta_lat)
-    return random_long, random_lat
-
-
 # --------------
 # Module Classes
 # --------------
 
-class LocationController:
+class CameraController:
 
     def __init__(self, parent, model, config):
         self.parent = parent
@@ -68,36 +60,50 @@ class LocationController:
         self.default_id = None
         self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        pub.subscribe(self.createReq,  'location_create_req')
+        pub.subscribe(self.createReq,  'camera_create_req')
 
     def start(self):
-        log.info('starting Location Controller')
+        log.info('starting Camera Controller')
+
 
     @inlineCallbacks
     def createReq(self, options):
-        if options.longitude and options.latitude:
-            random_long, random_lat = randomize(options.longitude, options.latitude)
+        if options.as_given:
+            data = self.createAsGiven(options)
         else:
-            random_long, random_lat = (None, None)
-
-        data = {
-            'site_name'  : ' '.join(options.site_name),
-            'location'   : ' '.join(options.location),
-            'longitude'  : options.longitude,
-            'latitude'   : options.latitude,
-            'public_long': random_long,
-            'public_lat' : random_lat,
-            'utc_offset' : options.utc_offset
-        }
+            data = yield self.createByImage(options.from_image)
         try:
-            log.info('Insert to location_t: {data}', data=data)
+            log.info('Insert/replace to camera_t: {data}', data=data)
             yield self.model.save(data)
-            log.info('Getting id from location_t')
+            log.info('Getting id from camera_t')
             info_id = yield self.model.lookup(data)
-            log.info('Setting default location in configuration section as id = {id}',id=info_id)
-            yield self.config.saveSection('location',info_id)
+            log.info('Setting default camera in configuration section as id = {id}',id=info_id)
+            yield self.config.saveSection('camera',info_id)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('file_quit', exit_code = 1)
         else:
             pub.sendMessage('file_quit')
+
+
+    @inlineCallbacks
+    def createByImage(self, path):
+        info, warning = yield deferToThread(image_analyze_exif, path)
+        old_info = yield self.model.load(info)    # lookup by model
+        if not old_info:
+            log.warn("Camera is not yet in the database")
+        if warning:
+            log.warn("{message}", message=warning)
+        return(info)
+
+    def createAsGiven(self, options):
+        return {
+            'model'        : ' '.join(options.model),
+            'bias'         : options.bias,
+            'extension'    : options.extension,
+            'header_type'  : options.header_type,
+            'bayer_pattern': options.bayer_pattern,
+            'width'        : options.width,
+            'length'       : options.length,
+        }
+        

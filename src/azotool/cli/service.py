@@ -42,6 +42,8 @@ from azotool.cli import log, NAMESPACE
 
 from azotool.cli.controller.observer import ObserverController
 from azotool.cli.controller.location import LocationController
+from azotool.cli.controller.camera   import CameraController
+
 
 # ----------------
 # Module constants
@@ -87,6 +89,11 @@ class CommandService(Service):
             LocationController(
                 parent = self, 
                 model  = self.dbaseService.dao.location,
+                config = self.dbaseService.dao.config,
+            ),
+            CameraController(
+                parent = self, 
+                model  = self.dbaseService.dao.camera,
                 config = self.dbaseService.dao.config,
             ),
         )

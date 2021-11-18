@@ -89,9 +89,30 @@ def createParser():
     loccre = subparser.add_parser('create',  help="Create a new location in the database")
     loccre.add_argument('--site-name',  type=str, nargs='+', required=True, help="Name identifying the place")
     loccre.add_argument('--location',   type=str, nargs='+', required=True, help="City/Town where the site belongs to")
-    loccre.add_argument('--longitude',  type=float, default=None, required=True, help='Site longitude in decimal degrees, negative West')
-    loccre.add_argument('--latitude',   type=float, default=None, required=True, help='Site latitude in decimal degrees, negative South')
+    loccre.add_argument('--longitude',  type=float, default=None, help='Site longitude in decimal degrees, negative West')
+    loccre.add_argument('--latitude',   type=float, default=None, help='Site latitude in decimal degrees, negative South')
     loccre.add_argument('--utc-offset', type=int,   default=0, help='**CAMERA UTC offset!** (if not set in UTC) GMT+1 = +1 ')
+
+    # ----------------------------------------
+    # Create second level parsers for 'camera'
+    # ----------------------------------------
+   
+    subparser = parser_camera.add_subparsers(dest='subcommand')
+
+    camcre = subparser.add_parser('create',  help="Create a new camera in the database")
+    
+    group = camcre.add_mutually_exclusive_group(required=True)
+    group.add_argument('--from-image',  type=str, default=None, action='store', metavar='<image file path>', help='create camera by inspecting an image')
+    group.add_argument('--as-given',    action='store_true', help='create camera by adding further parameters')
+    
+    # additional argumnets with the --as-given option
+    camcre.add_argument('--model',       type=str, nargs='+', default=None, help="Camera Model (taken from EXIF data)")
+    camcre.add_argument('--bias',        type=int, default=None, help="default bias, to be replicated in all channels if we canno read ir from EXIF")
+    camcre.add_argument('--extension',   type=str, default=None, help='File extension procuced by a camera (i.e. .NEF)')
+    camcre.add_argument('--header-type', choices=('EXIF', 'FITS'), default=None,  help="Either 'EXIF' or 'FITS'")
+    camcre.add_argument('--bayer-pattern', choices=('RGGB', 'BGGR','GRGB','GBGR'), default=None, help='Bayer pattern grid')
+    camcre.add_argument('--width',        type=int, default=0, help="Number of raw columns, with no debayering")
+    camcre.add_argument('--length',       type=int, default=0, help="Number of raw rows, with no debayering")
 
     return parser
 
