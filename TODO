@@ -1,8 +1,11 @@
 MAS INMEDIATO TODAVIA
 =====================
 
-file_quit con parametros en el controlador especial
-
+azotool, con Twisted 
+- cli/controllers
+- cli/service.py
+- cli/views?
+- camera y ROI from images
 
 INMEDIATO
 =========
