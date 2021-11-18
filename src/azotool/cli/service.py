@@ -41,6 +41,7 @@ from azotea.dbase.service   import DatabaseService
 from azotool.cli import log, NAMESPACE
 
 from azotool.cli.controller.observer import ObserverController
+from azotool.cli.controller.location import LocationController
 
 # ----------------
 # Module constants
@@ -81,6 +82,11 @@ class CommandService(Service):
             ObserverController(
                 parent = self, 
                 model  = self.dbaseService.dao.observer,
+                config = self.dbaseService.dao.config,
+            ),
+            LocationController(
+                parent = self, 
+                model  = self.dbaseService.dao.location,
                 config = self.dbaseService.dao.config,
             ),
         )

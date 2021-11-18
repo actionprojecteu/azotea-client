@@ -74,13 +74,24 @@ def createParser():
 
     subparser = parser_observer.add_subparsers(dest='subcommand')
 
-    obscre = subparser.add_parser('create',  help="Update email section attributes")
+    obscre = subparser.add_parser('create',  help="Create a new observer in the database")
     obscre.add_argument('--name',        type=str, nargs='+', required=True, help="Observer's name")
     obscre.add_argument('--surname',     type=str, nargs='+', required=True, help="Observer's surname")
     obscre.add_argument('--affiliation', type=str, nargs='+', required=True, help='Complete affiliation name')
     obscre.add_argument('--acronym',     type=str, nargs='+', required=True, help='Affiliation acronym')
-    
-    
+
+    # ------------------------------------------
+    # Create second level parsers for 'location'
+    # ------------------------------------------
+
+    subparser = parser_location.add_subparsers(dest='subcommand')
+
+    loccre = subparser.add_parser('create',  help="Create a new location in the database")
+    loccre.add_argument('--site-name',  type=str, nargs='+', required=True, help="Name identifying the place")
+    loccre.add_argument('--location',   type=str, nargs='+', required=True, help="City/Town where the site belongs to")
+    loccre.add_argument('--longitude',  type=float, default=None, required=True, help='Site longitude in decimal degrees, negative West')
+    loccre.add_argument('--latitude',   type=float, default=None, required=True, help='Site latitude in decimal degrees, negative South')
+    loccre.add_argument('--utc-offset', type=int,   default=0, help='**CAMERA UTC offset!** (if not set in UTC) GMT+1 = +1 ')
 
     return parser
 
