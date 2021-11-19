@@ -32,6 +32,8 @@ from azotea.logger  import startLogging
 from azotea.dbase.service import DatabaseService
 from azotool.cli.service import CommandService
 
+import azotea.consent.form
+
 # ----------------
 # Module constants
 # ----------------
@@ -43,6 +45,8 @@ from azotool.cli.service import CommandService
 # ------------------------
 # Module utility functions
 # ------------------------
+
+
 
 def createParser():
     # create the top-level parser
@@ -62,12 +66,22 @@ def createParser():
 
     subparser = parser.add_subparsers(dest='command')
 
+    parser_consent  = subparser.add_parser('consent', help='consent command')
     parser_observer  = subparser.add_parser('observer', help='observer commands')
     parser_location  = subparser.add_parser('location', help='location commands')
     parser_camera   = subparser.add_parser('camera', help='camera commands')
     parser_roi    = subparser.add_parser('roi', help='roi commands')
     parser_misc = subparser.add_parser('miscelanea', help='miscelanea commands')
    
+    # -----------------------------------------
+    # Create second level parsers for 'consent'
+    # -----------------------------------------
+
+    subparser = parser_consent.add_subparsers(dest='subcommand')
+
+    conform = subparser.add_parser('view',  help="View consent form")
+    conform.add_argument('--agree',    action='store_true', help='Auto-agree conset form')
+    
     # ------------------------------------------
     # Create second level parsers for 'observer'
     # ------------------------------------------
@@ -135,15 +149,43 @@ def createParser():
 
     return parser
 
+
+def handle_agreement(options):
+    connection = azotea.consent.form.get_database_connection(options.dbase)
+    if options.command == 'consent' and options.subcommand == 'view':
+        accepted = azotea.consent.form.check_agreement(connection)
+        if accepted:
+            print("Agreement already acepted")
+            sys.exit(0)
+        else:
+            accepted = azotea.consent.form.view()
+            if accepted:
+                azotea.consent.form.save_agreement(connection)
+                sys.exit(0)
+            else:
+                print("Agreement not accepted")
+                sys.exit(126)
+    else:
+        accepted = azotea.consent.form.check_agreement(connection)
+        if not accepted:
+            print("Agreement not accepted")
+            sys.exit(126)
+
 # -------------------
-# Applcation assembly
+# Booting application
 # -------------------
 
 options = createParser().parse_args(sys.argv[1:])
+handle_agreement(options)
+
 startLogging(
 	console  = options.console,
 	filepath = options.log_file
 )
+
+# -------------------
+# Applcation assembly
+# -------------------
 
 application = service.Application("azotool")
 

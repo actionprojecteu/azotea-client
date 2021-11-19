@@ -1,10 +1,14 @@
-By clicking on the 'Accept' button below you explicitely give Universidad Complutense de Madrid consent to gather:
+UNIVERSIDAD COMPLUTENE DE MADRID
+
+By using this software you explicitely give Universidad Complutense de Madrid consent to gather:
 - your name and surname.
 - your affiliation (i.e. amateur club name or institution).
 - your observatory approximate location.
-The observatory coordinates will be further randomized up to 2 Km of precision.
-These data will be kept in a file whose owner is Universidad Complutense de Madrid and will not be used for other
-purpose than to give credit to the participants' observations. You can rectify or ask to delete your data by writting at the following address: ainhoasa@ucm.es
+
+These data will be kept in a file whose owner is 
+Universidad Complutense de Madrid and will not be used for otherpurpose 
+than to give credit to the participants' observations. 
+You can rectify or ask to delete your data by writting at the following address: ainhoasa@ucm.es
 
 If you do not agree, please click on the 'Reject' button.
 

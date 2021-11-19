@@ -3,16 +3,14 @@ MAS INMEDIATO TODAVIA
  
 * asegurarme que los parametros dados con as given tienen valores validos en la camara y en la roi
 * azotool sky export y azotool sky publish => quitar todo eso del batch 
-* mirar los distintos tipos de codigo de salida
-- 1 como general
-- 126 "Command invoked cannot execute" para el consetimiento informado
-* etapa de consentimiento informado y codigo de salida especial para ello
-* pantalla gui de consentimiento informado, añadir parametro de exit code
+* Repasar el texto de gui.consent form
 * gestion de coordenandas
   - realmente hace falta las pub_* ?
   - flag de randomize
   - refactorizar la GUI con un checkbox de randomize
 * quitar start de los controllers
+* refactorizar los resources del subpaquete GUI => setup.py
+* generacion de CSV, añadir columna version
 
 INMEDIATO
 =========

@@ -41,6 +41,7 @@ from pubsub import pub
 from azotea import SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR
 
 from azotea.utils import set_status_code
+from azotea.utils.database import create_database, create_schema
 from azotea.logger import setLogLevel
 from azotea.dbase.dao import DataAccesObject
 from azotea.dbase import NAMESPACE, log 
@@ -66,49 +67,6 @@ def getPool(*args, **kargs):
     kargs['check_same_thread'] = False
     return adbapi.ConnectionPool("sqlite3", *args, **kargs)
 
-
-def open_database(dbase_path):
-    '''Creates a Database file if not exists and returns a connection'''
-    output_dir = os.path.dirname(dbase_path)
-    if not output_dir:
-        output_dir = os.getcwd()
-    os.makedirs(output_dir, exist_ok=True)
-    if not os.path.exists(dbase_path):
-        with open(dbase_path, 'w') as f:
-            pass
-        log.info("Created database file {0}".format(dbase_path))
-    return sqlite3.connect(dbase_path)
-
-
-def create_database(connection, schema_path, initial_data_dir_path, updates_data_dir, query):
-    created = True
-    cursor = connection.cursor()
-    try:
-        cursor.execute(query)
-    except Exception:
-        created = False
-    if not created:
-        with open(schema_path) as f: 
-            lines = f.readlines() 
-        script = ''.join(lines)
-        connection.executescript(script)
-        log.info("Created data model from {0}".format(os.path.basename(schema_path)))
-        file_list = glob.glob(os.path.join(initial_data_dir_path, '*.sql'))
-        for sql_file in file_list:
-            log.info("Populating data model from {0}".format(os.path.basename(sql_file)))
-            with open(sql_file) as f: 
-                lines = f.readlines() 
-            script = ''.join(lines)
-            connection.executescript(script)
-    else:
-        file_list = glob.glob(os.path.join(updates_data_dir, '*.sql'))
-        for sql_file in file_list:
-            log.info("Applying updates to data model from {0}".format(os.path.basename(sql_file)))
-            with open(sql_file) as f: 
-                lines = f.readlines() 
-            script = ''.join(lines)
-            connection.executescript(script)
-    connection.commit()
 
 def read_database_version(connection):
     cursor = connection.cursor()
@@ -182,8 +140,10 @@ class DatabaseService(Service):
 
     def startService(self):
         log.info("Starting Database Service on {database}", database=self.path)
-        connection = open_database(self.path)
-        create_database(connection, SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR, SQL_TEST_STRING)
+        connection, new_database = create_database(self.path)
+        if new_database:
+            log.info("Created new database file at {f}",f=self.path)
+        create_schema(connection, SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR, SQL_TEST_STRING)
         levels  = read_debug_levels(connection)
         version = read_database_version(connection)
         pub.subscribe(self.quit,  'file_quit')

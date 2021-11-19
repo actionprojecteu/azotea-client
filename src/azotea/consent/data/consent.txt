@@ -1,0 +1,17 @@
+
+UNIVERSIDAD COMPLUTENSE DE MADRID
+=================================
+
+By using this software you explicitely give 
+Universidad Complutense de Madrid consent to gather:
+* your name and surname.
+* your affiliation (i.e. amateur club name or institution).
+* your observatory approximate location.
+
+These data will be kept in a file whose owner is 
+Universidad Complutense de Madrid and will not be used for other
+purpose than to give credit to the participants' observations. 
+You can rectify or ask to delete your data 
+by writting at the following address: ainhoasa@ucm.es
+
+Press the 'y' key then <ENTER> to agree, any other key to disagree.

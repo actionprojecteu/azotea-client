@@ -74,7 +74,7 @@ class CommandService(Service):
     #------------
     # Service API
     # ------------
-
+    
     def startService(self):
         log.info("Starting Command Service")
         super().startService()
@@ -93,8 +93,9 @@ class CommandService(Service):
                 config = self.dbaseService.dao.config,
             ),
         )
+        self.model = self.dbaseService.dao
         self.main()
-        
+
     def stopService(self):
         log.info("Stopping Command Service")
         
@@ -102,6 +103,8 @@ class CommandService(Service):
     # ---------------
     # OPERATIONAL API
     # ---------------
+
+   
 
 
     # =============
@@ -115,6 +118,7 @@ class CommandService(Service):
     # Helper methods
     # ==============
 
+   
     def main(self):
         '''
         Command line entry point
