@@ -72,9 +72,6 @@ def createParser():
     # -----------------------------
 
     parser_batch.add_argument('--images-dir', type=str, default=None, action='store', metavar='<path>', help='Images working directory')
-    parser_batch.add_argument('--csv-export-type', type=str, choices=["day", "month", "all"], default=None, help='(batch) What to export/publish in CSV')
-    parser_batch.add_argument('--csv-dir', type=str, default=None, help='(batch) CSV files base dir (optional)')
-    parser_batch.add_argument('--publish', action='store_true',  help='(batch) Also publish results to server')
 
     return parser
 
@@ -116,10 +113,7 @@ if options.command == 'gui':
 	guiService.setServiceParent(application)
 elif options.command == 'batch':
     images_dir   = options.images_dir
-    export_opt   = options.csv_export_type
-    csv_dir      = options.csv_dir
-    pub_flag     = options.publish
-    batchService = BatchService(images_dir, export_opt, csv_dir, pub_flag)
+    batchService = BatchService(images_dir)
     batchService.setName(BatchService.NAME)
     batchService.setServiceParent(application)
 

@@ -58,16 +58,13 @@ class SkyBackgroundController:
 
     NAME = NAMESPACE
     
-    def __init__(self, parent, config, model, export_type, csv_dir, pub_flag):
+    def __init__(self, parent, config, model):
         self.parent = parent
         self.model  = model
         self.sky    = model.sky
         self.image  = model.image
-        self.roi    = model.roi 
-        self.pub_flag = pub_flag
+        self.roi    = model.roi
         self.config = config
-        self.export_type = export_type
-        self.csv_dir    = csv_dir
         self.observerCtrl = None
         self.roiCtrl      = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
@@ -76,8 +73,6 @@ class SkyBackgroundController:
     def start(self):
         log.info('starting Sky Background Controller')
         pub.subscribe(self.onStatsReq,  'sky_brightness_stats_req')
-        pub.subscribe(self.onExportReq, 'sky_brightness_csv_req')
-
     
 
     # -----------------------
@@ -93,49 +88,9 @@ class SkyBackgroundController:
             pub.sendMessage('file_quit', exit_code = 1)
 
 
-    @inlineCallbacks
-    def onExportReq(self, date):
-        result = yield self.doCheckDefaultsExport()
-        if result:
-            yield self.doExport(date)
-        else:
-            pub.sendMessage('file_quit', exit_code = 1)
-
-
     # -------
     # Helpers
     # -------
-
-    def triggerExport(self):
-        log.info("")
-        data = dict()
-        export_type = self.export_type
-        if export_type == 'day':
-            data['date_selection'] = DATE_SELECTION_LATEST_NIGHT
-        elif export_type == 'month':
-            data['date_selection'] = DATE_SELECTION_LATEST_MONTH
-        else: 
-            data['date_selection'] = DATE_SELECTION_ALL
-        pub.sendMessage("sky_brightness_csv_req", date=data)
-
-
-    @inlineCallbacks
-    def doCheckDefaults(self):
-        result = True
-        errors = list()
-        log.debug('doCheckDefaults()')
-        default_roi_id, tmp = yield self.roiCtrl.getDefault()
-        if default_roi_id:
-            self.roi_id = int(default_roi_id)
-        else:
-            self.roi_id = None
-            errors.append( _("- No default ROI selected.") )
-        if errors:
-            error_list = '\n'.join(errors)
-            message = _("These things are missing:\n{0}").format(error_list)
-            log.error("Sky Background Processor: {m}", m=message)
-            result = False
-        return(result)
 
 
     @inlineCallbacks
@@ -201,6 +156,24 @@ class SkyBackgroundController:
             pub.sendMessage('file_quit', exit_code = 0)
 
 
+    @inlineCallbacks
+    def doCheckDefaults(self):
+        result = True
+        errors = list()
+        log.debug('doCheckDefaults()')
+        default_roi_id, tmp = yield self.roiCtrl.getDefault()
+        if default_roi_id:
+            self.roi_id = int(default_roi_id)
+        else:
+            self.roi_id = None
+            errors.append( _("- No default ROI selected.") )
+        if errors:
+            error_list = '\n'.join(errors)
+            message = _("These things are missing:\n{0}").format(error_list)
+            log.error("Sky Background Processor: {m}", m=message)
+            result = False
+        return(result)
+
 
     @inlineCallbacks
     def doStats(self):
@@ -241,10 +214,4 @@ class SkyBackgroundController:
             log.info("Sky Background Processor: {n}/{d} images processed", n=i+1, d=N_stats)
         else:
             log.info("Sky Background Processor: No images to process")
-        if self.export_type and self.csv_dir:
-            log.info("Sky Background Processor: Generating CSV file")
-            self.triggerExport()
-        elif self.pub_flag:
-            pub.sendMessage('publishing_publish_req')
-        else:
-            pub.sendMessage('file_quit', exit_code = 0)
+        pub.sendMessage('file_quit', exit_code = 0)
