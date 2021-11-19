@@ -170,6 +170,7 @@ def handle_agreement(options):
         if not accepted:
             print("Agreement not accepted")
             sys.exit(126)
+        connection.close()
 
 # -------------------
 # Booting application

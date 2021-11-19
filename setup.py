@@ -51,6 +51,10 @@ PACKAGE_DATA = {
     'azotea.gui': [
         'resources/img/*.*',
         'resources/about/*.*',
+        'resources/consent/*.*',
+    ],
+    'azotea.consent': [
+        'data/*.*',
     ],
 }
 

@@ -37,7 +37,7 @@ from twisted.logger import Logger
 # local imports
 # -------------
 
-from azotea import IMG_ROI
+from azotea.gui import IMG_ROI
 from azotea.utils import chop 
 from azotea.utils.roi import Point, Rect
 from azotea.gui.widgets.contrib import ToolTip, LabelInput

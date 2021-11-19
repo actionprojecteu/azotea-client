@@ -33,6 +33,7 @@ from azotea.gui.service import GraphicalService
 from azotea.batch.service import BatchService
 from azotea.dbase.service import DatabaseService
 
+import azotea.consent.form
 
 # ----------------
 # Module constants
@@ -53,44 +54,67 @@ def createParser():
 
     # Global options
     parser.add_argument('--version', action='version', version='{0} {1}'.format(name, __version__))
-
-    group0 = parser.add_mutually_exclusive_group(required=True)
-    group0.add_argument('--create', action='store_true', help='Create the database and exit')
-    group0.add_argument('--gui', action='store_true',  help='Launch Azotea GUI')
-    group0.add_argument('--batch',  action='store_true', help='launch Azotea in batch mode')
-
     parser.add_argument('--console', action='store_true',  help='log to console.')
     parser.add_argument('--log-file', type=str, default=None, action='store', metavar='<log file>', help='log to file')
     parser.add_argument('--dbase',    type=str, default="azotea.db", action='store', metavar='<SQLite database path>', help='SQLite database to operate upon')
-   
-    parser.add_argument('--images-dir', type=str, default=None, action='store', metavar='<path>', help='Images working directory')
-    parser.add_argument('--csv-export-type', type=str, choices=["day", "month", "all"], default=None, help='(batch) What to export/publish in CSV')
-    parser.add_argument('--csv-dir', type=str, default=None, help='(batch) CSV files base dir (optional)')
-    parser.add_argument('--publish', action='store_true',  help='(batch) Also publish results to server')
+
+    # --------------------------
+    # Create first level parsers
+    # --------------------------
+
+    subparser = parser.add_subparsers(dest='command')
+
+    parser_gui    = subparser.add_parser('gui', help='consent command')
+    parser_batch  = subparser.add_parser('batch', help='observer commands')
+
+    # -----------------------------
+    # Arguments for 'batch' command
+    # -----------------------------
+
+    parser_batch.add_argument('--images-dir', type=str, default=None, action='store', metavar='<path>', help='Images working directory')
+    parser_batch.add_argument('--csv-export-type', type=str, choices=["day", "month", "all"], default=None, help='(batch) What to export/publish in CSV')
+    parser_batch.add_argument('--csv-dir', type=str, default=None, help='(batch) CSV files base dir (optional)')
+    parser_batch.add_argument('--publish', action='store_true',  help='(batch) Also publish results to server')
 
     return parser
 
+
+def handle_agreement(options):
+    if options.command == 'batch':
+        connection = azotea.consent.form.get_database_connection(options.dbase)
+        accepted = azotea.consent.form.check_agreement(connection)
+        if not accepted:
+            print("Agreement not accepted")
+            sys.exit(126)
+        connection.close()
+
 # -------------------
-# Applcation assembly
+# Booting application
 # -------------------
 
 options = createParser().parse_args(sys.argv[1:])
+handle_agreement(options)
+
 startLogging(
 	console  = options.console,
 	filepath = options.log_file
 )
 
+# -------------------
+# Applcation assembly
+# -------------------
+
 application = service.Application("azotea")
 
-dbaseService = DatabaseService(options.dbase, options.create)
+dbaseService = DatabaseService(options.dbase, False)
 dbaseService.setName(DatabaseService.NAME)
 dbaseService.setServiceParent(application)
 
-if options.gui:
+if options.command == 'gui':
 	guiService = GraphicalService()
 	guiService.setName(GraphicalService.NAME)
 	guiService.setServiceParent(application)
-elif options.batch:
+elif options.command == 'batch':
     images_dir   = options.images_dir
     export_opt   = options.csv_export_type
     csv_dir      = options.csv_dir

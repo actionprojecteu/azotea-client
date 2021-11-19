@@ -37,7 +37,7 @@ from twisted.logger import Logger
 # local imports
 # -------------
 
-from azotea import ICONS_DIR
+from azotea.gui import ICONS_DIR
 from azotea.utils import chop
 from azotea.utils.roi import Point
 from azotea.gui.widgets.contrib import ToolTip, LabelInput

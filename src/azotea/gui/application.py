@@ -48,8 +48,7 @@ from azotea.gui.widgets.about import AboutDialog
 from azotea.gui.widgets.consent import ConsentDialog
 from azotea.gui.widgets.date import DateFilterDialog
 from azotea.gui.preferences import Preferences
-
-from azotea import __version__, ABOUT_DESC_TXT, ABOUT_ACK_TXT, ABOUT_IMG, ABOUT_ICONS, CONSENT_TXT, CONSENT_UCM
+from azotea.gui import ABOUT_DESC_TXT, ABOUT_ACK_TXT, ABOUT_IMG, ABOUT_ICONS, CONSENT_TXT, CONSENT_UCM
 
 # ----------------
 # Module constants

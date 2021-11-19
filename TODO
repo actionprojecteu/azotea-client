@@ -9,8 +9,9 @@ MAS INMEDIATO TODAVIA
   - flag de randomize
   - refactorizar la GUI con un checkbox de randomize
 * quitar start de los controllers
-* refactorizar los resources del subpaquete GUI => setup.py
+
 * generacion de CSV, añadir columna version
+
 
 INMEDIATO
 =========

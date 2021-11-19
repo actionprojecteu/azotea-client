@@ -59,23 +59,5 @@ SQL_SCHEMA           = resource_filename(__name__, os.path.join('dbase', 'sql', 
 SQL_INITIAL_DATA_DIR = resource_filename(__name__, os.path.join('dbase', 'sql', 'initial' ))
 SQL_UPDATES_DATA_DIR = resource_filename(__name__, os.path.join('dbase', 'sql', 'updates' ))
 
-ICONS_DIR = resource_filename(__name__, os.path.join('gui', 'resources', 'img' ))
-IMG_ROI     = resource_filename(__name__, os.path.join('gui', 'resources', 'img', 'roi.png'))
-
-# About Widget resources configuration
-ABOUT_DESC_TXT = resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'descr.txt'))
-ABOUT_ACK_TXT  = resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'ack.txt'))
-ABOUT_IMG      = resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'azotea192.png'))
-ABOUT_ICONS = (
-	('Universidad Complutense de Madrid', resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'ucm64.png'))),
-	('GUAIX', resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'guaix60.jpg'))),
-	('ACTION PROJECT EU', resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'action64.png'))),
-)
-
-# Consent form resources configuration
-
-CONSENT_TXT = resource_filename(__name__, os.path.join('gui', 'resources', 'consent', 'descr.txt'))
-CONSENT_UCM = resource_filename(__name__, os.path.join('gui', 'resources', 'about', 'ucm64.png'))
-
 del get_versions
 del name
