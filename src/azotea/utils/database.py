@@ -18,8 +18,6 @@ import sqlite3
 # Third party imports
 # -------------------
 
-from twisted.logger import Logger
-
 #--------------
 # local imports
 # -------------
@@ -29,13 +27,9 @@ from twisted.logger import Logger
 # Module constants
 # ----------------
 
-NAMESPACE = 'dbase'
-
 # -----------------------
 # Module global variables
 # -----------------------
-
-log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions
@@ -67,10 +61,10 @@ def create_schema(connection, schema_path, initial_data_dir_path, updates_data_d
             lines = f.readlines() 
         script = ''.join(lines)
         connection.executescript(script)
-        log.info("Created data model from {0}".format(os.path.basename(schema_path)))
+        #log.info("Created data model from {0}".format(os.path.basename(schema_path)))
         file_list = glob.glob(os.path.join(initial_data_dir_path, '*.sql'))
         for sql_file in file_list:
-            log.info("Populating data model from {0}".format(os.path.basename(sql_file)))
+            #log.info("Populating data model from {0}".format(os.path.basename(sql_file)))
             with open(sql_file) as f: 
                 lines = f.readlines() 
             script = ''.join(lines)
@@ -78,9 +72,10 @@ def create_schema(connection, schema_path, initial_data_dir_path, updates_data_d
     else:
         file_list = glob.glob(os.path.join(updates_data_dir, '*.sql'))
         for sql_file in file_list:
-            log.info("Applying updates to data model from {0}".format(os.path.basename(sql_file)))
+            #log.info("Applying updates to data model from {0}".format(os.path.basename(sql_file)))
             with open(sql_file) as f: 
                 lines = f.readlines() 
             script = ''.join(lines)
             connection.executescript(script)
     connection.commit()
+    return not created, file_list

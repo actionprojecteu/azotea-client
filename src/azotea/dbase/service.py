@@ -143,7 +143,13 @@ class DatabaseService(Service):
         connection, new_database = create_database(self.path)
         if new_database:
             log.info("Created new database file at {f}",f=self.path)
-        create_schema(connection, SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR, SQL_TEST_STRING)
+        just_created, file_list = create_schema(connection, SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR, SQL_TEST_STRING)
+        if just_created:
+            for sql_file in file_list:
+                log.info("Populating data model from {f}", f=os.path.basename(sql_file))
+        else:
+            for sql_file in file_list:
+                log.info("Applying updates to data model from {f}", f=os.path.basename(sql_file))
         levels  = read_debug_levels(connection)
         version = read_database_version(connection)
         pub.subscribe(self.quit,  'file_quit')
