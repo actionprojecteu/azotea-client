@@ -1,7 +1,6 @@
 MAS INMEDIATO TODAVIA
 =====================
  
-* asegurarme que los parametros dados con as given tienen valores validos en la camara y en la roi
 * azotool sky export y azotool sky publish => quitar todo eso del batch 
 * comporobar los parametros x1,y1,x2,y2 , width y heigh de la ROI por lo de las opciones exclusivas
 * idem con la camara y los parametros a capón. Trimming de los espacios en las cadenas nargs=+

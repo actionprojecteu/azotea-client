@@ -86,7 +86,7 @@ class SkyController:
                 date['start_date'] = options.from_date.strftime(EXPORT_INTERNAL_DATE_FMT)
                 date['end_date']   = options.to_date.strftime(EXPORT_INTERNAL_DATE_FMT)
             else:
-                log.error("ESTO NO DEBERIA DARSE 1")
+                raise ValueError("This should never happen")
             yield self.doExport(date)
         except Exception as e:
             log.failure('{e}',e=e)
@@ -135,13 +135,11 @@ class SkyController:
             year, month, day = yield self.sky.getLatestMonth(filter_dict)
             filename = f'{self.observer_name}-{year}{month}{day:02d}.csv'
             contents = yield self.sky.exportLatestMonth(filter_dict)
-        elif date_selection == DATE_SELECTION_DATE_RANGE:
+        else:
             filter_dict['start_date_id'] = int(date['start_date'])
             filter_dict['end_date_id']   = int(date['end_date'])
             filename = f"{self.observer_name}-{date['start_date']}-{date['end_date']}.csv"
             contents = yield self.sky.exportDateRange(filter_dict)
-        else:
-            log.error("ESTO NO DEBERIA DARSE 2")
         os.makedirs(self.csv_dir, exist_ok=True)
         path = os.path.join(self.csv_dir, filename)
         with open(path,'w') as fd:
