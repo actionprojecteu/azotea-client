@@ -80,7 +80,7 @@ class DataAccesObject():
             table               = 'location_t',
             id_column           = 'location_id',
             natural_key_columns = ('site_name','location'), 
-            other_columns       = ('longitude','latitude','public_long','public_lat','utc_offset'),
+            other_columns       = ('longitude','latitude','randomized','utc_offset'),
             insert_mode         = tables.QUERY_INSERT_OR_REPLACE,
             log_level           = loc_dbg,
         )

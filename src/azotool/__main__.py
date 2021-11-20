@@ -109,6 +109,7 @@ def createParser():
     loccre.add_argument('--longitude',  type=float, default=None, help='Site longitude in decimal degrees, negative West')
     loccre.add_argument('--latitude',   type=float, default=None, help='Site latitude in decimal degrees, negative South')
     loccre.add_argument('--utc-offset', type=int,   default=0, help='**CAMERA UTC offset!** (if not set in UTC) GMT+1 = +1 ')
+    loccre.add_argument('--randomize',  action='store_true', default=False, help='randomize a bit the geographical coordinates')
 
     # ----------------------------------------
     # Create second level parsers for 'camera'

@@ -5,11 +5,9 @@ MAS INMEDIATO TODAVIA
 * probar los 4 exports con azotool
 * ¿ azotool sky publish ?
 * gestion de coordenandas
-  - realmente hace falta las pub_* ?
-  - columna randomized INTEGER
-  - flag --randomize
   - refactorizar la GUI con un checkbox de randomize
 * generacion de CSV, añadir columna version
+* refactporizar GUI para mergear los Micecontroller y PublishingController
 * refactorizar el modelo de datos para quitar columnas de id en sky
    - requiere un image_id (maestro/detalle) en sky_t
 

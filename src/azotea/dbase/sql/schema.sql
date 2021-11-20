@@ -63,10 +63,9 @@ CREATE TABLE IF NOT EXISTS location_t
     location_id     INTEGER,
     site_name       TEXT,             -- name identifying the site
     location        TEXT,             -- City/Town where the site belongs to
-    longitude       REAL,             -- True longitude in decimal degrees
-    latitude        REAL,             -- True latitude in decimal degrees
-    public_long     REAL,             -- Public, randomized longitude in decimal degrees
-    public_lat      REAL,             -- Public, randomized latitude in decimal degrees
+    longitude       REAL,             -- Longitude in decimal degrees
+    latitude        REAL,             -- Latitude in decimal degrees
+    randomized      INTEGER,          -- Coordinates are randomized
     utc_offset      REAL,             -- time zone as offset from UTC. i.e. GMT+1 = +1
     UNIQUE(site_name,location),
     PRIMARY KEY(location_id)
