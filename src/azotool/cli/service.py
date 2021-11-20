@@ -40,11 +40,12 @@ from azotea.logger import setLogLevel
 from azotea.dbase.service   import DatabaseService
 from azotool.cli import log, NAMESPACE
 
-from azotool.cli.controller.observer import ObserverController
-from azotool.cli.controller.location import LocationController
-from azotool.cli.controller.camera   import CameraController
-from azotool.cli.controller.sky      import SkyController
-from azotool.cli.controller.roi      import ROIController
+from azotool.cli.controller.observer   import ObserverController
+from azotool.cli.controller.location   import LocationController
+from azotool.cli.controller.camera     import CameraController
+from azotool.cli.controller.sky        import SkyController
+from azotool.cli.controller.roi        import ROIController
+from azotool.cli.controller.publishing import PublishingController
 
 
 # ----------------
@@ -96,6 +97,10 @@ class CommandService(Service):
             ),
             ROIController(
                 model  = self.dbaseService.dao.roi,
+                config = self.dbaseService.dao.config,
+            ),
+            PublishingController(
+                model  = self.dbaseService.dao,
                 config = self.dbaseService.dao.config,
             ),
             SkyController(

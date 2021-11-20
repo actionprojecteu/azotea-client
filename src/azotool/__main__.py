@@ -72,7 +72,8 @@ def createParser():
     parser_camera   = subparser.add_parser('camera', help='camera commands')
     parser_roi    = subparser.add_parser('roi', help='roi commands')
     parser_misc = subparser.add_parser('miscelanea', help='miscelanea commands')
-    parser_sky = subparser.add_parser('sky', help='sky background commands')
+    parser_sky  = subparser.add_parser('sky', help='sky background commands')
+    parser_publ = subparser.add_parser('publishing', help='publishing commands')
    
     # -----------------------------------------
     # Create second level parsers for 'consent'
@@ -167,6 +168,19 @@ def createParser():
     # options for range export
     skyexp.add_argument('--from-date', type=mkdate, default=None, metavar='<YYYY-MM-DD>', help="Start date")
     skyexp.add_argument('--to-date',   type=mkdate, default=None, metavar='<YYYY-MM-DD>', help='End date')
+
+    # ------------------------------------------
+    # Create second level parsers for 'publishing'
+    # ------------------------------------------
+
+    subparser = parser_publ.add_subparsers(dest='subcommand')
+
+    pubcre = subparser.add_parser('create',  help="Create a new observer in the database")
+    pubcre.add_argument('--url',      type=str, required=True, help='Server URL')
+    pubcre.add_argument('--username', type=str, required=True, help="Server username")
+    pubcre.add_argument('--password', type=str, required=True, help="Server password")
+    pubcre.add_argument('--page-size', type=int, default=100, help="Upload paging size")
+    pubcre.add_argument('--tps',       type=int, default=1,   help="Upload transactions per second")
    
     return parser
 
