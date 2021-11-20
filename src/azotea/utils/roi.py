@@ -10,6 +10,7 @@
 # -------------------
 
 import re
+import gettext
 
 # -------------------
 # Third party imports
@@ -23,6 +24,9 @@ import rawpy
 # -------------
 
 from azotea.utils import NAMESPACE, log
+
+# Support for internationalization
+_ = gettext.gettext
 
 # ----------------------
 # Module utility classes
@@ -122,6 +126,6 @@ def reshape_rect(filename, rect):
     rect += Point(x1,y1)  # Shift ROI using this (x1,y1) point
     result = rect.to_dict()
     result['display_name'] = str(rect)
-    result['comment'] = "ROI for {0}, centered at P={1}, width={2}, height={3}".format(str(exif.get('Image Model')),center,width,height)
+    result['comment'] = _("ROI for {0}, centered at P={1}, width={2}, height={3}").format(str(exif.get('Image Model')),center,width,height)
     return result
 
