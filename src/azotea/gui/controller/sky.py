@@ -92,12 +92,8 @@ class SkyBackgroundController:
         self.config = model.config
         self.observerCtrl = None
         self.roiCtrl      = None
-        setLogLevel(namespace=NAMESPACE, levelStr='info')
-        self.start()
         self._abort = False
-           
-    def start(self):
-        log.info('starting Sky Background Controller')
+        setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onStatisticsReq,  'sky_brightness_stats_req')
         pub.subscribe(self.onDeleteReq, 'sky_brightness_delete_req')
         pub.subscribe(self.onAbortReq,  'sky_brightness_abort_stats_req')

@@ -61,9 +61,6 @@ class MiscelaneaController:
         self.model = model
         self.view = view
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-    
-    def start(self):
-        log.info('starting Miscelanea Controller')
         pub.subscribe(self.onDetailsReq, 'misc_details_req')
         pub.subscribe(self.onSaveReq,    'misc_save_req')
         pub.subscribe(self.onDeleteReq,  'misc_delete_req')

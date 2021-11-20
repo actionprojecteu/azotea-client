@@ -71,17 +71,14 @@ class CameraController:
         self.default_id = None
         self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-       
-    def start(self):
-        log.info('starting Camera Controller')
         pub.subscribe(self.onListReq,        'camera_list_req')
         pub.subscribe(self.onDetailsReq,     'camera_details_req')
         pub.subscribe(self.onSaveReq,        'camera_save_req')
         pub.subscribe(self.onSetDefaultReq,  'camera_set_default_req')
         pub.subscribe(self.onDeleteReq,      'camera_delete_req')
         pub.subscribe(self.onChooseImageReq, 'camera_choose_image_req')
-        
 
+        
     @inlineCallbacks
     def getDefault(self):
         if not self.default_id:

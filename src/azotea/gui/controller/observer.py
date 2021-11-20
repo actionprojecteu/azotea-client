@@ -73,10 +73,6 @@ class ObserverController:
         self.default_id = None
         self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        
-
-    def start(self):
-        log.info('starting Observer Controller')
         pub.subscribe(self.onListReq,       'observer_list_req')
         pub.subscribe(self.onDetailsReq,    'observer_details_req')
         pub.subscribe(self.onSaveReq,       'observer_save_req')

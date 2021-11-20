@@ -85,12 +85,10 @@ class ImageController:
         self.default_f_number = None
         self._abort = False
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-           
-    def start(self):
-        log.info('starting Register Controller')
         pub.subscribe(self.begin,  'images_load_req')
         pub.subscribe(self.abort,  'images_abort_load_req')
         pub.subscribe(self.onSetDefaultOpticsReq,  'images_set_default_optics_req')
+       
 
     def abort(self):
         self._abort = True

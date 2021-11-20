@@ -82,10 +82,6 @@ class PublishingController:
         self.password = None
         self.url      = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        self.start()
-
-    def start(self):
-        log.info('starting Publishing Controller')
         pub.subscribe(self.onDetailsReq, 'publishing_details_req')
         pub.subscribe(self.onSaveReq,    'publishing_save_req')
         pub.subscribe(self.onDeleteReq,  'publishing_delete_req')

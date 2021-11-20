@@ -74,15 +74,11 @@ class LocationController:
         self.default_id = None
         self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        
-    def start(self):
-        log.info('starting Location Controller')
         pub.subscribe(self.onListReq,       'location_list_req')
         pub.subscribe(self.onDetailsReq,    'location_details_req')
         pub.subscribe(self.onSaveReq,       'location_save_req')
         pub.subscribe(self.onSetDefaultReq, 'location_set_default_req')
         pub.subscribe(self.onDeleteReq,     'location_set_delete_req')
-        
 
     @inlineCallbacks
     def getDefault(self):

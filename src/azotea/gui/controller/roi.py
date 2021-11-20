@@ -76,17 +76,13 @@ class ROIController:
         self.default_id = None
         self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-    
-   
-    def start(self):
-        log.info('starting ROI Controller')
         pub.subscribe(self.onListReq,         'roi_list_req')
         pub.subscribe(self.onDetailsReq,      'roi_details_req')
         pub.subscribe(self.onSaveReq,         'roi_save_req')
         pub.subscribe(self.onSetDefaultReq,   'roi_set_default_req')
         pub.subscribe(self.onDeleteReq,       'roi_delete_req')
         pub.subscribe(self.onSetAutomaticReq, 'roi_set_automatic_req')
-
+    
 
     @inlineCallbacks
     def getDefault(self):
