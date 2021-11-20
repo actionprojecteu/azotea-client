@@ -43,6 +43,8 @@ from azotool.cli import log, NAMESPACE
 from azotool.cli.controller.observer import ObserverController
 from azotool.cli.controller.location import LocationController
 from azotool.cli.controller.camera   import CameraController
+from azotool.cli.controller.sky      import SkyController
+from azotool.cli.controller.roi      import ROIController
 
 
 # ----------------
@@ -80,6 +82,10 @@ class CommandService(Service):
         super().startService()
         self.dbaseService = self.parent.getServiceNamed(DatabaseService.NAME)
         self.controllers = (
+            CameraController(
+                model  = self.dbaseService.dao.camera,
+                config = self.dbaseService.dao.config,
+            ),
             ObserverController(
                 model  = self.dbaseService.dao.observer,
                 config = self.dbaseService.dao.config,
@@ -88,11 +94,18 @@ class CommandService(Service):
                 model  = self.dbaseService.dao.location,
                 config = self.dbaseService.dao.config,
             ),
-            CameraController(
+            ROIController(
+                model  = self.dbaseService.dao.roi,
+                config = self.dbaseService.dao.config,
+            ),
+            SkyController(
                 model  = self.dbaseService.dao.camera,
                 config = self.dbaseService.dao.config,
             ),
         )
+        # patch SkyBackgroundController
+        self.controllers[-1].observerCtrl = self.controllers[1]
+        self.controllers[-1].roiCtrl      = self.controllers[2]
         self.model = self.dbaseService.dao
         self.main()
 

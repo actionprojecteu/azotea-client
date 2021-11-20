@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS roi_t
     y1               INTEGER,     -- y1 should be y1 <= x2
     x2               INTEGER,
     y2               INTEGER,
-    display_name     TEXT,
+    display_name     TEXT,     -- as NumPy region text, ie. [y1:y2,x1:x2]
     comment          TEXT,     -- Descriptive comment
     UNIQUE(x1,y1,x2,y2),
     PRIMARY KEY(roi_id)

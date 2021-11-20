@@ -27,7 +27,7 @@ from twisted.application import service
 # -------------
 
 from azotea import __version__
-from azotea.utils import get_status_code
+from azotea.utils import get_status_code, mkdate
 from azotea.logger  import startLogging
 from azotea.dbase.service import DatabaseService
 from azotool.cli.service import CommandService
@@ -72,6 +72,7 @@ def createParser():
     parser_camera   = subparser.add_parser('camera', help='camera commands')
     parser_roi    = subparser.add_parser('roi', help='roi commands')
     parser_misc = subparser.add_parser('miscelanea', help='miscelanea commands')
+    parser_sky = subparser.add_parser('sky', help='sky background commands')
    
     # -----------------------------------------
     # Create second level parsers for 'consent'
@@ -140,6 +141,10 @@ def createParser():
     group.add_argument('--from-image',  type=str, default=None, action='store', metavar='<image file path>', help='create camera by inspecting an image')
     group.add_argument('--as-given',    action='store_true', help='create camera by adding further parameters')
     
+    # additional argumnets with the --from-image option
+    roicre.add_argument('--width',      type=int, default=None, help="Width of central rectangle")
+    roicre.add_argument('--height',      type=int, default=None, help="height of central rectangle")
+
     # additional argumnets with the --as-given option
     roicre.add_argument('--x1',      type=int, default=None, help="Starting pixel column")
     roicre.add_argument('--y1',      type=int, default=None, help="Starting pixel row")
@@ -147,6 +152,23 @@ def createParser():
     roicre.add_argument('--y2',      type=int, default=None, help="Ending pixel row")
     roicre.add_argument('--comment', type=str, default=None, help="Additional region comment")
 
+    # ------------------------------------------
+    # Create second level parsers for 'sky'
+    # ------------------------------------------
+
+    subparser = parser_sky.add_subparsers(dest='subcommand')
+
+    skyexp = subparser.add_parser('export',  help="Export to CSV")
+    skyexp.add_argument('--csv-dir', type=str, required=True, action='store', metavar='<csv directory>', help='directory where to place CSV files')
+    group = skyexp.add_mutually_exclusive_group(required=True)
+    group.add_argument('--latest-month', action='store_true', help='Latest month in database')
+    group.add_argument('--latest-day',   action='store_true', help='Latest day in database')
+    group.add_argument('--all',          action='store_true', help='Export all')
+    group.add_argument('--range',        action='store_true', help='Export a date range')
+    # options for range export
+    skyexp.add_argument('--from-date', type=mkdate, default=None, metavar='<YYYY-MM-DD>', help="Start date")
+    skyexp.add_argument('--to-date',   type=mkdate, default=None, metavar='<YYYY-MM-DD>', help='End date')
+   
     return parser
 
 

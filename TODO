@@ -3,13 +3,16 @@ MAS INMEDIATO TODAVIA
  
 * asegurarme que los parametros dados con as given tienen valores validos en la camara y en la roi
 * azotool sky export y azotool sky publish => quitar todo eso del batch 
-* Repasar el texto de gui.consent form
+* comporobar los parametros x1,y1,x2,y2 , width y heigh de la ROI por lo de las opciones exclusivas
+* idem con la camara y los parametros a capón. Trimming de los espacios en las cadenas nargs=+
+* probar la ROI con azotool
+* probar los 4 exports con azotool
+* --publish en azotea batch ¿Tambien nen azotool?
 * gestion de coordenandas
   - realmente hace falta las pub_* ?
+  - columna randomized INTEGER
   - flag de randomize
   - refactorizar la GUI con un checkbox de randomize
-* quitar start de los controllers
-
 * generacion de CSV, añadir columna version
 
 

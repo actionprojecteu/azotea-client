@@ -59,28 +59,6 @@ log = Logger(namespace=NAMESPACE)
 # Module Utility Functions
 # ------------------------
 
-def reshapeRect(filename, rect):
-        log.debug('Loading EXIF metadata from {f}',f=filename)
-        with open(filename, 'rb') as f:
-            exif = exifread.process_file(f, details=False)
-        if not exif:
-            log.warn('Could not open EXIF metadata',filename)
-            return dict()
-        # Get the real RAW dimensions instead
-        with rawpy.imread(filename) as img:
-            imageHeight, imageWidth = img.raw_image.shape
-        imageHeight = imageHeight //2 # From raw dimensions without debayering
-        imageWidth =  imageWidth //2  # to dimensions we actually handle
-        width, height = rect.dimensions()
-        center=Point(imageWidth//2,imageHeight//2)
-        x1 = (imageWidth  -  width)//2
-        y1 = (imageHeight - height)//2
-        rect += Point(x1,y1)  # Shift ROI using this (x1,y1) point
-        result = rect.to_dict()
-        result['display_name'] = str(rect)
-        result['comment'] = _("ROI for {0}, centered at P={1}, width={2}, height={3}").format(str(exif.get('Image Model')),center,width,height)
-        return result
-
 
 
 # --------------
@@ -191,6 +169,6 @@ class ROIController:
 
     @inlineCallbacks
     def onSetAutomaticReq(self, filename, rect):
-        info = yield deferToThread(reshapeRect, filename, rect)
+        info = yield deferToThread(reshape_rect, filename, rect)
         log.debug('onSetAutomaticReq() returns {info}', info=info)
         self.view.menuBar.preferences.roiFrame.automaticROIResp(info)

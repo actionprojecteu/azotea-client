@@ -55,4 +55,19 @@ def chop(string, sep=None):
     	chopped = []
     return chopped
 
+def mkbool(boolstr):
+    result = None
+    if boolstr == 'True':
+        result = True
+    elif boolstr == 'False':
+        result = False
+    return result
 
+def mkdate(datestr):
+    date = None
+    for fmt in ['%Y-%m','%Y-%m-%d','%Y-%m-%dT%H:%M:%S','%Y-%m-%dT%H:%M:%SZ']:
+        try:
+            date = datetime.datetime.strptime(datestr, fmt)
+        except ValueError:
+            pass
+    return date
