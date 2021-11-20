@@ -70,21 +70,20 @@ class LocationController:
 
     @inlineCallbacks
     def createReq(self, options):
-        if options.longitude and options.latitude:
-            random_long, random_lat = randomize(options.longitude, options.latitude)
-        else:
-            random_long, random_lat = (None, None)
-
-        data = {
-            'site_name'  : ' '.join(options.site_name),
-            'location'   : ' '.join(options.location),
-            'longitude'  : options.longitude,
-            'latitude'   : options.latitude,
-            'public_long': random_long,
-            'public_lat' : random_lat,
-            'utc_offset' : options.utc_offset
-        }
         try:
+            if options.longitude and options.latitude:
+                random_long, random_lat = randomize(options.longitude, options.latitude)
+            else:
+                random_long, random_lat = (None, None)
+            data = {
+                'site_name'  : ' '.join(options.site_name),
+                'location'   : ' '.join(options.location),
+                'longitude'  : options.longitude,
+                'latitude'   : options.latitude,
+                'public_long': random_long,
+                'public_lat' : random_lat,
+                'utc_offset' : options.utc_offset
+            }
             log.info('Insert to location_t: {data}', data=data)
             yield self.model.save(data)
             log.debug('Getting id from location_t')

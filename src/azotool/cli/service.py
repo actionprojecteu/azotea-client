@@ -99,32 +99,17 @@ class CommandService(Service):
                 config = self.dbaseService.dao.config,
             ),
             SkyController(
-                model  = self.dbaseService.dao.camera,
+                model  = self.dbaseService.dao,
                 config = self.dbaseService.dao.config,
             ),
         )
         # patch SkyBackgroundController
         self.controllers[-1].observerCtrl = self.controllers[1]
-        self.controllers[-1].roiCtrl      = self.controllers[2]
-        self.model = self.dbaseService.dao
+        self.controllers[-1].roiCtrl      = self.controllers[3]
         self.main()
 
     def stopService(self):
         log.info("Stopping Command Service")
-        
-
-    # ---------------
-    # OPERATIONAL API
-    # ---------------
-
-   
-
-
-    # =============
-    # Twisted Tasks
-    # =============
-   
-        
 
       
     # ==============

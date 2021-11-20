@@ -94,69 +94,6 @@ class SkyBackgroundController:
 
 
     @inlineCallbacks
-    def doCheckDefaultsExport(self):
-        result = True
-        errors = list()
-        default_roi_id, tmp = yield self.roiCtrl.getDefault()
-        if default_roi_id:
-            self.roi_id = int(default_roi_id)
-        else:
-            self.roi_id = None
-            errors.append("- No default ROI selected.")
-        default_observer_id, default_observer_details = yield self.observerCtrl.getDefault()
-        if default_observer_id:
-            self.observer_id = int(default_observer_id)
-            self.observer_name = default_observer_details['surname'].replace(' ', '_')
-        else:
-            self.observer_id = None
-            errors.append("- No default observer selected.")
-        if errors:
-            error_list = '\n'.join(errors)
-            message = _("These things are missing:\n{0}").format(error_list)
-            log.error("Sky Background Processor: {m}", m=message)
-            result = False
-        return(result)
-
-
-
-    @inlineCallbacks
-    def doExport(self, date):
-        filter_dict = {'observer_id': self.observer_id}
-        date_selection = date['date_selection']
-        if date_selection == DATE_SELECTION_ALL:
-            filename = f'{self.observer_name}-all.csv'
-            contents = yield self.sky.exportAll(filter_dict)
-        elif date_selection == DATE_SELECTION_LATEST_NIGHT:
-            year, month, day = yield self.sky.getLatestNight(filter_dict)
-            filename = f'{self.observer_name}-{year}{month}{day:02d}.csv'
-            contents = yield self.sky.exportLatestNight(filter_dict)
-        elif date_selection == DATE_SELECTION_LATEST_MONTH:
-            year, month, day = yield self.sky.getLatestMonth(filter_dict)
-            filename = f'{self.observer_name}-{year}{month}{day:02d}.csv'
-            contents = yield self.sky.exportLatestMonth(filter_dict)
-        elif date_selection == DATE_SELECTION_DATE_RANGE:
-            filter_dict['start_date_id'] = int(date['start_date'])
-            filter_dict['end_date_id']   = int(date['end_date'])
-            filename = f"{self.observer_name}-{date['start_date']}-{date['end_date']}.csv"
-            contents = yield self.sky.exportDateRange(filter_dict)
-        else:
-            log.error("ESTO NO DEBERIA DARSE")
-        os.makedirs(self.csv_dir, exist_ok=True)
-        path = os.path.join(self.csv_dir, filename)
-        with open(path,'w') as fd:
-            writer = csv.writer(fd, delimiter=';')
-            writer.writerow(CSV_COLUMNS)
-            for row in contents:
-                row = map(postprocess, enumerate(row))
-                writer.writerow(row)
-        log.info("Export {what} complete: {path}", what=self.export_type, path=path)
-        if self.pub_flag:
-            pub.sendMessage('publishing_publish_req')
-        else:
-            pub.sendMessage('file_quit', exit_code = 0)
-
-
-    @inlineCallbacks
     def doCheckDefaults(self):
         result = True
         errors = list()

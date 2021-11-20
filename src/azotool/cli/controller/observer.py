@@ -50,18 +50,19 @@ class ObserverController:
     def __init__(self, model, config):
         self.model  = model
         self.config = config
+        self.default_id = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.createReq,  'observer_create_req')
 
     @inlineCallbacks
     def createReq(self, options):
-        data = {
-            'family_name': ' '.join(options.name),
-            'surname'    : ' '.join(options.surname),
-            'affiliation': ' '.join(options.affiliation),
-            'acronym'    : ' '.join(options.acronym),
-        }
         try:
+            data = {
+                'family_name': ' '.join(options.name),
+                'surname'    : ' '.join(options.surname),
+                'affiliation': ' '.join(options.affiliation),
+                'acronym'    : ' '.join(options.acronym),
+            }
             log.info('Versioned insert to observer_t: {data}', data=data)
             yield self.model.save(data)
             log.debug('Getting id from observer_t')
@@ -73,3 +74,13 @@ class ObserverController:
             pub.sendMessage('file_quit', exit_code = 1)
         else:
             pub.sendMessage('file_quit')
+
+    @inlineCallbacks
+    def getDefault(self):
+        if not self.default_id:
+            # loads defaults
+            info = yield self.config.load('observer','observer_id')
+            self.default_id = info['observer_id']
+            if self.default_id:
+                self.default_details = yield self.model.loadById(info)
+        return((self.default_id,  self.default_details))

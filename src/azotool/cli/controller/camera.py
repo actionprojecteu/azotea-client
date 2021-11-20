@@ -61,11 +61,11 @@ class CameraController:
 
     @inlineCallbacks
     def createReq(self, options):
-        if options.as_given:
-            data = self.createAsGiven(options)
-        else:
-            data = yield self.createByImage(options.from_image)
         try:
+            if options.as_given:
+                data = self.createAsGiven(options)
+            else:
+                data = yield self.createByImage(options.from_image)
             log.info('Insert/replace to camera_t: {data}', data=data)
             yield self.model.save(data)
             log.debug('Getting id from camera_t')

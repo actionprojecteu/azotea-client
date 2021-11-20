@@ -36,6 +36,7 @@ from tkcalendar import Calendar, DateEntry
 # -------------
 
 from azotea import __version__
+from azotea import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 
 # ----------------
 # Module constants
@@ -51,12 +52,6 @@ NAMESPACE = 'GUI'
 # -----------------------
 
 log  = Logger(namespace=NAMESPACE)
-
-
-DATE_SELECTION_ALL        = 'All'
-DATE_SELECTION_DATE_RANGE = 'Date range'
-DATE_SELECTION_LATEST_NIGHT = 'Latest night'
-DATE_SELECTION_LATEST_MONTH = 'Latest month'
 
 # -----------------
 # Application Class
