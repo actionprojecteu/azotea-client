@@ -94,6 +94,7 @@ class ROIController:
     def createAsGiven(self, options):
         x1 = options.x1; y1 = options.y1
         x2 = options.x2; y2 = options.y2
+        comment = options.comment
         if x1 and y1 and x2 and y2:
             rect = Rect(x1=x1, y1=y1, x2=x2, y2=y2)
             return {
@@ -101,7 +102,7 @@ class ROIController:
                 'y1': y1,
                 'x2': x2,
                 'y2': y2,
-                'comment': options.comment,
+                'comment': ' '.join(comment) if comment else None,
                 'display_name': str(rect),
             }
         else:

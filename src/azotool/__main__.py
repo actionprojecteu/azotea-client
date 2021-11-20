@@ -142,15 +142,15 @@ def createParser():
     group.add_argument('--as-given',    action='store_true', help='create camera by adding further parameters')
     
     # additional argumnets with the --from-image option
-    roicre.add_argument('--width',      type=int, default=None, help="Width of central rectangle")
-    roicre.add_argument('--height',      type=int, default=None, help="height of central rectangle")
+    roicre.add_argument('--width',   type=int, default=None, help="Width of central rectangle")
+    roicre.add_argument('--height',  type=int, default=None, help="height of central rectangle")
 
     # additional argumnets with the --as-given option
     roicre.add_argument('--x1',      type=int, default=None, help="Starting pixel column")
     roicre.add_argument('--y1',      type=int, default=None, help="Starting pixel row")
     roicre.add_argument('--x2',      type=int, default=None, help='Ending pixel column')
     roicre.add_argument('--y2',      type=int, default=None, help="Ending pixel row")
-    roicre.add_argument('--comment', type=str, default=None, help="Additional region comment")
+    roicre.add_argument('--comment', type=str, nargs='+', default=None, help="Additional region comment")
 
     # ------------------------------------------
     # Create second level parsers for 'sky'
