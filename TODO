@@ -6,13 +6,15 @@ MAS INMEDIATO TODAVIA
 * idem con la camara y los parametros a capón. Trimming de los espacios en las cadenas nargs=+
 * probar la ROI con azotool
 * probar los 4 exports con azotool
-* --publish en azotea batch ¿Tambien nen azotool?
+* opcion --publish en azotea batch ¿Tambien en azotool?
 * gestion de coordenandas
   - realmente hace falta las pub_* ?
   - columna randomized INTEGER
-  - flag de randomize
+  - flag --randomize
   - refactorizar la GUI con un checkbox de randomize
 * generacion de CSV, añadir columna version
+* refactorizar el modelo de datos para quitar columnas de id en sky
+   - requiere un image_id (maestro/detalle) en sky_t
 
 
 INMEDIATO
