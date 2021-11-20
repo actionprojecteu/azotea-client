@@ -72,7 +72,7 @@ def createParser():
     # -----------------------------
 
     parser_batch.add_argument('--images-dir', type=str, default=None, action='store', metavar='<path>', help='Images working directory')
-
+    parser_batch.add_argument('--publish', action='store_true',  help='optionally publsih to server')
     return parser
 
 

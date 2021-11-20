@@ -98,7 +98,7 @@ class SkyBackgroundController:
            
     def start(self):
         log.info('starting Sky Background Controller')
-        pub.subscribe(self.onStatsReq,  'sky_brightness_stats_req')
+        pub.subscribe(self.onStatisticsReq,  'sky_brightness_stats_req')
         pub.subscribe(self.onDeleteReq, 'sky_brightness_delete_req')
         pub.subscribe(self.onAbortReq,  'sky_brightness_abort_stats_req')
         pub.subscribe(self.onExportReq, 'sky_brightness_csv_req')
@@ -111,11 +111,11 @@ class SkyBackgroundController:
     # ----------------------
 
     @inlineCallbacks
-    def onStatsReq(self):
+    def onStatisticsReq(self):
         self._abort = False
         result = yield self.doCheckDefaults()
         if result:
-            yield self.doStats()
+            yield self.doStatistics()
 
 
     @inlineCallbacks
@@ -244,7 +244,7 @@ class SkyBackgroundController:
 
 
     @inlineCallbacks
-    def doStats(self):
+    def doStatistics(self):
         # Default settings extracted by doCheckDefaults()
         conditions = {
             'roi_id'     : self.roi_id,

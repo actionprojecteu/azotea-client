@@ -1,12 +1,9 @@
 MAS INMEDIATO TODAVIA
 =====================
  
-* azotool sky export y azotool sky publish => quitar todo eso del batch 
-* comporobar los parametros x1,y1,x2,y2 , width y heigh de la ROI por lo de las opciones exclusivas
-* idem con la camara y los parametros a capón. Trimming de los espacios en las cadenas nargs=+
-* probar la ROI con azotool
 * probar los 4 exports con azotool
-* opcion --publish en azotea batch ¿Tambien en azotool?
+* meter micelanea optics y server info
+* ¿ azotool sky publish ?
 * gestion de coordenandas
   - realmente hace falta las pub_* ?
   - columna randomized INTEGER

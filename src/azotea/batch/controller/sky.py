@@ -68,18 +68,18 @@ class SkyBackgroundController:
         self.roiCtrl      = None
         self.publish = False
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        pub.subscribe(self.onStatsReq,  'sky_brightness_stats_req')   
+        pub.subscribe(self.onStatisticsReq,  'sky_brightness_stats_req')   
 
     # -----------------------
     # Subscriptions from View
     # -----------------------
 
     @inlineCallbacks
-    def onStatsReq(self):
+    def onStatisticsReq(self):
         try:
             result = yield self.doCheckDefaults()
             if result:
-                yield self.doStats()
+                yield self.doStatistics()
             else:
                 pub.sendMessage('file_quit', exit_code = 1)
         except Exception as e:
@@ -103,7 +103,7 @@ class SkyBackgroundController:
         errors = list()
         log.debug('doCheckDefaults()')
         default_roi_id, tmp = yield self.roiCtrl.getDefault()
-        if default_roi_id:
+        if default_roi_id: 
             self.roi_id = int(default_roi_id)
         else:
             self.roi_id = None
@@ -117,12 +117,13 @@ class SkyBackgroundController:
 
 
     @inlineCallbacks
-    def doStats(self):
+    def doStatistics(self):
         # Default settings extracted by doCheckDefaults()
         conditions = {
             'roi_id'     : self.roi_id,
         }
-        roi_dict = yield self.roi.loadById({'roi_id': self.roi_id})
+
+        roi_dict = yield self.roi.loadById(conditions)
         rect = Rect.from_dict(roi_dict)
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)

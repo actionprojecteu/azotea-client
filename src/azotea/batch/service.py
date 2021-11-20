@@ -92,33 +92,31 @@ class BatchService(Service):
         self.dbaseService = self.parent.getServiceNamed(DatabaseService.NAME)
         self.controllers = (
                 CameraController(
-                    parent = self, 
                     model  = self.dbaseService.dao.camera,
                     config = self.dbaseService.dao.config,
                 ),
                 ObserverController(
-                    parent = self, 
                     model  = self.dbaseService.dao.observer,
                     config = self.dbaseService.dao.config,
                 ),
                 LocationController(
-                    parent = self, 
                     model  = self.dbaseService.dao.location,
                     config = self.dbaseService.dao.config,
                 ),
                 ROIController(
-                    parent = self, 
                     model  = self.dbaseService.dao.roi,
                     config = self.dbaseService.dao.config,
                 ),
                 ImageController(
-                    parent   = self, 
                     model    = self.dbaseService.dao,
                     config   = self.dbaseService.dao.config,
                     images_dir = self.images_dir, 
                 ),
                 SkyBackgroundController(
-                    parent   = self, 
+                    model    = self.dbaseService.dao,
+                    config   = self.dbaseService.dao.config,
+                ),
+                PublishingController(
                     model    = self.dbaseService.dao,
                     config   = self.dbaseService.dao.config,
                 ),
@@ -126,13 +124,16 @@ class BatchService(Service):
         # Dirty monkey patching
         
         # # patch ImageController
-        self.controllers[-2].cameraCtrl   = self.controllers[0]
-        self.controllers[-2].observerCtrl = self.controllers[1]
-        self.controllers[-2].locationCtrl = self.controllers[2]
+        self.controllers[-3].cameraCtrl   = self.controllers[0]
+        self.controllers[-3].observerCtrl = self.controllers[1]
+        self.controllers[-3].locationCtrl = self.controllers[2]
 
         # patch SkyBackgroundController
+        self.controllers[-2].observerCtrl = self.controllers[1]
+        self.controllers[-2].roiCtrl      = self.controllers[3]
+
+        # patch PublishingController
         self.controllers[-1].observerCtrl = self.controllers[1]
-        self.controllers[-1].roiCtrl      = self.controllers[2]
 
         pub.sendMessage('image_register_req')     
         
