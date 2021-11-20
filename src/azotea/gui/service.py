@@ -12,6 +12,12 @@
 import os
 import sys
 
+# -------------------
+# Third party imports
+# -------------------
+
+from pubsub import pub
+
 # ---------------
 # Twisted imports
 # ---------------
@@ -159,9 +165,8 @@ class GraphicalService(Service):
 
         tksupport.install(self.application)
         self.task.start(3, now=False) # call every T seconds
-        # Start application controller a bit later
-        reactor.callLater(0, self.controllers[0].start)
-        
+        # Start application controller 
+        pub.sendMessage('bootstrap_req')
 
     def stopService(self):
         log.info('Stopping Graphical User Interface Service')

@@ -28,7 +28,6 @@ from twisted.internet.threads import deferToThread
 # -------------------
 
 from pubsub import pub
-from azotea.utils.camera import image_analyze_exif
 
 #--------------
 # local imports
@@ -37,6 +36,7 @@ from azotea.utils.camera import image_analyze_exif
 from azotea import __version__
 from azotea.utils.roi import Point, Rect
 from azotea.logger  import setLogLevel
+from azotea.utils.camera import image_analyze_exif
 
 # ----------------
 # Module constants

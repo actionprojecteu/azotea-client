@@ -71,6 +71,10 @@ class ApplicationController:
         self.model = model
         self.view = view
         setLogLevel(namespace=NAMESPACE, levelStr='info')
+        pub.subscribe(self.onDatabaseVersionReq, 'database_version_req')
+        pub.subscribe(self.onCheckPreferencesReq, 'check_preferences_req')
+        pub.subscribe(self.onSaveConsentReq, 'save_consent_req')
+        pub.subscribe(self.start, 'bootstrap_req')
 
 
     def onDatabaseVersionReq(self):
@@ -107,11 +111,8 @@ class ApplicationController:
     @inlineCallbacks
     def start(self):
         log.info('starting Application Controller')
-        pub.subscribe(self.onDatabaseVersionReq, 'database_version_req')
-        pub.subscribe(self.onCheckPreferencesReq, 'check_preferences_req')
-        pub.subscribe(self.onSaveConsentReq, 'save_consent_req')
         consent  = yield self.model.config.load(section='global', property='agree')
-        log.info("CONSENT = {c}", c=consent)
+        log.info("Consent = {c}", c=consent)
         if not consent:
             self.view.openConsentDialog()
         else:
