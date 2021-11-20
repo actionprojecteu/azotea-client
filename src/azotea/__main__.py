@@ -81,7 +81,9 @@ def handle_agreement(options):
         connection = azotea.consent.form.get_database_connection(options.dbase)
         accepted = azotea.consent.form.check_agreement(connection)
         if not accepted:
+            print("-"*22)
             print("Agreement not accepted")
+            print("-"*22)
             sys.exit(126)
         connection.close()
 

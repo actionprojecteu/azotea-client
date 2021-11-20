@@ -47,17 +47,12 @@ from azotea.batch.controller import NAMESPACE, log
 
 class ObserverController:
 
-    def __init__(self, parent,model, config):
-        self.parent = parent
+    def __init__(self, model, config):
         self.model = model
         self.config = config
         self.default_id = None
         self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        
-
-    def start(self):
-        log.info('starting Observer Controller')
 
 
     @inlineCallbacks

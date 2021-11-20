@@ -58,8 +58,7 @@ class ImageController:
 
     NAME = NAMESPACE
 
-    def __init__(self, parent, model, config, images_dir):
-        self.parent = parent
+    def __init__(self, model, config, images_dir):
         self.model = model
         self.image = model.image
         self.config = config
@@ -67,41 +66,47 @@ class ImageController:
         self.default_f_number = None
         self.images_dir = images_dir
         setLogLevel(namespace=NAMESPACE, levelStr='info')
+        pub.subscribe(self.onRegisterReq, 'image_register_req')
          
 
     @inlineCallbacks  
-    def start(self):
-        log.info('Starting Register Controller')
-        ok = yield self.doCheckDefaults()
-        if not ok:
-            log.error("Missing default values")
-            pub.sendMessage('file_quit', exit_code = 1)
-            return
-        images_dir = self.images_dir
-        with os.scandir(images_dir) as it:
-            dirs  = [ entry.path for entry in it if entry.is_dir()  ]
-            files = [ entry.path for entry in it if entry.is_file() ]
-        if dirs:
-            if files:
-                log.warn("Ignoring files in {wd}", wd=images_dir)
-            i = 0; N_Files = 0
-            for images_dir in sorted(dirs, reverse=True):
+    def onRegisterReq(self):
+        try:
+            log.info('Starting Register Controller')
+            ok = yield self.doCheckDefaults()
+            if not ok:
+                log.error("Missing default values")
+                pub.sendMessage('file_quit', exit_code = 1)
+                return
+            images_dir = self.images_dir
+            with os.scandir(images_dir) as it:
+                dirs  = [ entry.path for entry in it if entry.is_dir()  ]
+                files = [ entry.path for entry in it if entry.is_file() ]
+            if dirs:
+                if files:
+                    log.warn("Ignoring files in {wd}", wd=images_dir)
+                i = 0; N_Files = 0
+                for images_dir in sorted(dirs, reverse=True):
+                    result = yield self.doRegister(images_dir)
+                    if not result:
+                        break
+                    j, M_Files = result
+                    i += j
+                    N_Files += M_Files
+            else:
                 result = yield self.doRegister(images_dir)
-                if not result:
-                    break
-                j, M_Files = result
-                i += j
-                N_Files += M_Files
+                if result:
+                    i, N_Files = result
+            if N_Files:
+                log.info("Register: {i}/{N} images complete", i=i, N=N_Files)
+            else:
+                extension = '*' + self.extension
+                log.warn("Register: No images found with the filter {ext}",ext=extension)
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
         else:
-            result = yield self.doRegister(images_dir)
-            if result:
-                i, N_Files = result
-        if N_Files:
-            log.info("Register: {i}/{N} images complete", i=i, N=N_Files)
             pub.sendMessage("sky_brightness_stats_req")
-        else:
-            extension = '*' + self.extension
-            log.warn("Register: No images found with the filter {ext}",ext=extension)
 
 
     # We assign the default optics here
@@ -112,7 +117,6 @@ class ImageController:
         if not self.default_f_number:
             self.default_f_number = yield self.config.load('optics','f_number')
         return((self.default_focal_length,  self.default_f_number))
-
 
 
     @inlineCallbacks
@@ -159,8 +163,6 @@ class ImageController:
         else:
             return(True)
     
-
-    # ---------------------- OBSERVER ----------------------------------------------
 
 
     @inlineCallbacks

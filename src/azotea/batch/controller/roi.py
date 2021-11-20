@@ -47,8 +47,7 @@ from azotea.batch.controller import NAMESPACE, log
 
 class ROIController:
 
-    def __init__(self, parent, model, config):
-        self.parent = parent
+    def __init__(self, model, config):
         self.model = model
         self.config = config
         self.default_id = None

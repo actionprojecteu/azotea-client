@@ -90,11 +90,12 @@ def createParser():
     subparser = parser_observer.add_subparsers(dest='subcommand')
 
     obscre = subparser.add_parser('create',  help="Create a new observer in the database")
+    obscre.add_argument('--default',     action='store_true', help='Set this observer as the default observer')
     obscre.add_argument('--name',        type=str, nargs='+', required=True, help="Observer's name")
     obscre.add_argument('--surname',     type=str, nargs='+', required=True, help="Observer's surname")
     obscre.add_argument('--affiliation', type=str, nargs='+', required=True, help='Complete affiliation name')
     obscre.add_argument('--acronym',     type=str, nargs='+', required=True, help='Affiliation acronym')
-
+    
     # ------------------------------------------
     # Create second level parsers for 'location'
     # ------------------------------------------
@@ -102,6 +103,7 @@ def createParser():
     subparser = parser_location.add_subparsers(dest='subcommand')
 
     loccre = subparser.add_parser('create',  help="Create a new location in the database")
+    loccre.add_argument('--default',     action='store_true', help='Set this location as the default location')
     loccre.add_argument('--site-name',  type=str, nargs='+', required=True, help="Name identifying the place")
     loccre.add_argument('--location',   type=str, nargs='+', required=True, help="City/Town where the site belongs to")
     loccre.add_argument('--longitude',  type=float, default=None, help='Site longitude in decimal degrees, negative West')
@@ -115,11 +117,10 @@ def createParser():
     subparser = parser_camera.add_subparsers(dest='subcommand')
 
     camcre = subparser.add_parser('create',  help="Create a new camera in the database")
-    
+    camcre.add_argument('--default',     action='store_true', help='Set this camera as the default camera')
     group = camcre.add_mutually_exclusive_group(required=True)
     group.add_argument('--from-image',  type=str, default=None, action='store', metavar='<image file path>', help='create camera by inspecting an image')
     group.add_argument('--as-given',    action='store_true', help='create camera by adding further parameters')
-    
     # additional argumnets with the --as-given option
     camcre.add_argument('--model',       type=str, nargs='+', default=None, help="Camera Model (taken from EXIF data)")
     camcre.add_argument('--bias',        type=int, default=None, help="default bias, to be replicated in all channels if we cannot read ir from EXIF")
@@ -136,15 +137,13 @@ def createParser():
     subparser = parser_roi.add_subparsers(dest='subcommand')
 
     roicre = subparser.add_parser('create',  help="Create a new region of interest in the database")
-    
     group = roicre.add_mutually_exclusive_group(required=True)
+    roicre.add_argument('--default',     action='store_true', help='Set this ROI as the default ROI')
     group.add_argument('--from-image',  type=str, default=None, action='store', metavar='<image file path>', help='create camera by inspecting an image')
     group.add_argument('--as-given',    action='store_true', help='create camera by adding further parameters')
-    
     # additional argumnets with the --from-image option
     roicre.add_argument('--width',   type=int, default=None, help="Width of central rectangle")
     roicre.add_argument('--height',  type=int, default=None, help="height of central rectangle")
-
     # additional argumnets with the --as-given option
     roicre.add_argument('--x1',      type=int, default=None, help="Starting pixel column")
     roicre.add_argument('--y1',      type=int, default=None, help="Starting pixel row")
@@ -177,20 +176,29 @@ def handle_agreement(options):
     if options.command == 'consent' and options.subcommand == 'view':
         accepted = azotea.consent.form.check_agreement(connection)
         if accepted:
-            print("Agreement already acepted")
+            print("-"*26)
+            print("Agreement already accepted")
+            print("-"*26)
             sys.exit(0)
         else:
             accepted = azotea.consent.form.view()
             if accepted:
                 azotea.consent.form.save_agreement(connection)
+                print("-"*18)
+                print("Agreement accepted")
+                print("-"*18)
                 sys.exit(0)
             else:
+                print("-"*22)
                 print("Agreement not accepted")
+                print("-"*22)
                 sys.exit(126)
     else:
         accepted = azotea.consent.form.check_agreement(connection)
         if not accepted:
+            print("-"*22)
             print("Agreement not accepted")
+            print("-"*22)
             sys.exit(126)
         connection.close()
 

@@ -132,4 +132,5 @@ dmypy.json
 src/*.db
 src/*.bak
 src/*.csv
+src/*.sh
 images/

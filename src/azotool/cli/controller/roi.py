@@ -69,10 +69,11 @@ class ROIController:
                 data = yield self.createByImage(options.from_image, options.width, options.height)
             log.info('Insert/replace to roi_t: {data}', data=data)
             yield self.model.save(data)
-            log.debug('Getting id from roi_t')
-            info_id = yield self.model.lookup(data)
-            log.info('Setting default ROI in configuration section as id = {id}',id=info_id)
-            yield self.config.saveSection('ROI',info_id)
+            if options.default:
+                log.debug('Getting id from roi_t')
+                info_id = yield self.model.lookup(data)
+                log.info('Setting default ROI in configuration section as id = {id}',id=info_id)
+                yield self.config.saveSection('ROI',info_id)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('file_quit', exit_code = 1)

@@ -86,10 +86,11 @@ class LocationController:
             }
             log.info('Insert to location_t: {data}', data=data)
             yield self.model.save(data)
-            log.debug('Getting id from location_t')
-            info_id = yield self.model.lookup(data)
-            log.info('Setting default location in configuration section as id = {id}',id=info_id)
-            yield self.config.saveSection('location',info_id)
+            if options.default:
+                log.debug('Getting id from location_t')
+                info_id = yield self.model.lookup(data)
+                log.info('Setting default location in configuration section as id = {id}',id=info_id)
+                yield self.config.saveSection('location',info_id)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('file_quit', exit_code = 1)

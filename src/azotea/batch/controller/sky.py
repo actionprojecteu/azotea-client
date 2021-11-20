@@ -58,8 +58,7 @@ class SkyBackgroundController:
 
     NAME = NAMESPACE
     
-    def __init__(self, parent, config, model):
-        self.parent = parent
+    def __init__(self, config, model):
         self.model  = model
         self.sky    = model.sky
         self.image  = model.image
@@ -67,13 +66,9 @@ class SkyBackgroundController:
         self.config = config
         self.observerCtrl = None
         self.roiCtrl      = None
+        self.publish = False
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        self.start()
-           
-    def start(self):
-        log.info('starting Sky Background Controller')
-        pub.subscribe(self.onStatsReq,  'sky_brightness_stats_req')
-    
+        pub.subscribe(self.onStatsReq,  'sky_brightness_stats_req')   
 
     # -----------------------
     # Subscriptions from View
@@ -81,11 +76,20 @@ class SkyBackgroundController:
 
     @inlineCallbacks
     def onStatsReq(self):
-        result = yield self.doCheckDefaults()
-        if result:
-            yield self.doStats()
-        else:
+        try:
+            result = yield self.doCheckDefaults()
+            if result:
+                yield self.doStats()
+            else:
+                pub.sendMessage('file_quit', exit_code = 1)
+        except Exception as e:
+            log.failure('{e}',e=e)
             pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            if self.publish:
+                pub.sendMessage("publishing_publish_req")
+            else:
+                pub.sendMessage('file_quit')
 
 
     # -------
@@ -151,4 +155,4 @@ class SkyBackgroundController:
             log.info("Sky Background Processor: {n}/{d} images processed", n=i+1, d=N_stats)
         else:
             log.info("Sky Background Processor: No images to process")
-        pub.sendMessage('file_quit', exit_code = 0)
+        

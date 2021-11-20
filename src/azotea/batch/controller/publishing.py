@@ -58,8 +58,7 @@ class PublishingError(Exception):
 
 class PublishingController:
     
-    def __init__(self, parent, model, config):
-        self.parent = parent
+    def __init__(self, model, config):
         self.model = model
         self.sky    = model.sky
         self.config = config
@@ -68,11 +67,27 @@ class PublishingController:
         self.password = None
         self.url      = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        self.start()
-
-    def start(self):
-        log.info('starting Publishing Controller')
         pub.subscribe(self.onPublishReq, 'publishing_publish_req')
+
+
+    @inlineCallbacks
+    def onPublishReq(self):
+        try:
+            result = yield self.doCheckDefaults()
+            if result:
+                total = yield self.sky.getPublishingCount({'observer_id': self.observer_id})
+                if total == 0:
+                    log.info("Publishing Processor: No Sky Brightness measurements to publish")
+                else:
+                    log.info("Publishing Processor: Publishing {total} measurements. This may take a while", total=total)
+                    yield self.doPublish(total)
+            else:
+                pub.sendMessage('file_quit', exit_code = 1)
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            pub.sendMessage('file_quit')
 
 
     @inlineCallbacks
@@ -110,21 +125,6 @@ class PublishingController:
             log.error("Publishing Processor: {msg}", msg=message)
             result = False
         return(result)
-
-
-    @inlineCallbacks
-    def onPublishReq(self):
-        self._abort = False
-        result = yield self.doCheckDefaults()
-        if result:
-            total = yield self.sky.getPublishingCount({'observer_id': self.observer_id})
-            if total == 0:
-                log.info("Publishing Processor: No Sky Brightness measurements to publish")
-            else:
-                log.info("Publishing Processor: Publishing {total} measurements. This may take a while", total=total)
-                yield self.doPublish(total)
-        else:
-            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks

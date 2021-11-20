@@ -16,7 +16,6 @@ MAS INMEDIATO TODAVIA
 * refactorizar el modelo de datos para quitar columnas de id en sky
    - requiere un image_id (maestro/detalle) en sky_t
 
-
 INMEDIATO
 =========
 * ¿Validacion? _tkinter.TclError: expected floating-point number but got "39,6928888889"

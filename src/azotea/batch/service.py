@@ -134,8 +134,7 @@ class BatchService(Service):
         self.controllers[-1].observerCtrl = self.controllers[1]
         self.controllers[-1].roiCtrl      = self.controllers[2]
 
-        for controller in self.controllers:
-            controller.start()        
+        pub.sendMessage('image_register_req')     
         
 
     def stopService(self):
