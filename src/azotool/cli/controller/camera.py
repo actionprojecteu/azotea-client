@@ -81,6 +81,8 @@ class CameraController:
 
     @inlineCallbacks
     def createByImage(self, path):
+        if not path:
+            raise ValueError("--from-image path is missing")
         info, warning = yield deferToThread(image_analyze_exif, path)
         old_info = yield self.model.load(info)    # lookup by model
         if not old_info:
@@ -89,7 +91,14 @@ class CameraController:
             log.warn("{message}", message=warning)
         return(info)
 
+
     def createAsGiven(self, options):
+        if not options.model:
+            raise ValueError("--model is missing")
+        if not options.extension:
+            raise ValueError("--extension is missing")
+        if not options.bias:
+            raise ValueError("--bias is missing")
         return {
             'model'        : ' '.join(options.model),
             'bias'         : options.bias,

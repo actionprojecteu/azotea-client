@@ -122,7 +122,7 @@ def createParser():
     
     # additional argumnets with the --as-given option
     camcre.add_argument('--model',       type=str, nargs='+', default=None, help="Camera Model (taken from EXIF data)")
-    camcre.add_argument('--bias',        type=int, default=None, help="default bias, to be replicated in all channels if we canno read ir from EXIF")
+    camcre.add_argument('--bias',        type=int, default=None, help="default bias, to be replicated in all channels if we cannot read ir from EXIF")
     camcre.add_argument('--extension',   type=str, default=None, help='File extension procuced by a camera (i.e. .NEF)')
     camcre.add_argument('--header-type', choices=('EXIF', 'FITS'), default=None,  help="Either 'EXIF' or 'FITS'")
     camcre.add_argument('--bayer-pattern', choices=('RGGB', 'BGGR','GRGB','GBGR'), default=None, help='Bayer pattern grid')
