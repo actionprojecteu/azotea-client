@@ -47,16 +47,34 @@ from azotool.cli   import NAMESPACE, log
 # Module Classes
 # --------------
 
-class PublishingController:
+class MiscelaneaController:
 
     def __init__(self, model, config):
         self.model  = model
         self.config = config
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        pub.subscribe(self.createReq,  'publishing_create_req')
+        pub.subscribe(self.opticsReq,  'miscelanea_optics_req')
+        pub.subscribe(self.publishReq, 'miscelanea_publishing_req')
 
     @inlineCallbacks
-    def createReq(self, options):
+    def opticsReq(self, options):
+        try:
+            data = {
+                'focal_length': options.focal_length,
+                'f_number'    : options.f_number,
+            }
+            log.info("Writting in 'optics' configuration section = {data}",data=data)
+            yield self.config.saveSection('optics', data)     
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            pub.sendMessage('file_quit')
+
+   
+
+    @inlineCallbacks
+    def publishReq(self, options):
         try:
             data = {
                 'username'  : options.username,

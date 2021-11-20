@@ -45,8 +45,7 @@ from azotool.cli.controller.location   import LocationController
 from azotool.cli.controller.camera     import CameraController
 from azotool.cli.controller.sky        import SkyController
 from azotool.cli.controller.roi        import ROIController
-from azotool.cli.controller.publishing import PublishingController
-
+from azotool.cli.controller.miscelanea import MiscelaneaController
 
 # ----------------
 # Module constants
@@ -99,7 +98,7 @@ class CommandService(Service):
                 model  = self.dbaseService.dao.roi,
                 config = self.dbaseService.dao.config,
             ),
-            PublishingController(
+            MiscelaneaController(
                 model  = self.dbaseService.dao,
                 config = self.dbaseService.dao.config,
             ),

@@ -73,7 +73,6 @@ def createParser():
     parser_roi    = subparser.add_parser('roi', help='roi commands')
     parser_misc = subparser.add_parser('miscelanea', help='miscelanea commands')
     parser_sky  = subparser.add_parser('sky', help='sky background commands')
-    parser_publ = subparser.add_parser('publishing', help='publishing commands')
    
     # -----------------------------------------
     # Create second level parsers for 'consent'
@@ -169,13 +168,17 @@ def createParser():
     skyexp.add_argument('--from-date', type=mkdate, default=None, metavar='<YYYY-MM-DD>', help="Start date")
     skyexp.add_argument('--to-date',   type=mkdate, default=None, metavar='<YYYY-MM-DD>', help='End date')
 
-    # ------------------------------------------
-    # Create second level parsers for 'publishing'
-    # ------------------------------------------
+    # --------------------------------------------
+    # Create second level parsers for 'miscelanea'
+    # --------------------------------------------
 
-    subparser = parser_publ.add_subparsers(dest='subcommand')
+    subparser = parser_misc.add_subparsers(dest='subcommand')
 
-    pubcre = subparser.add_parser('create',  help="Create a new observer in the database")
+    miscopt = subparser.add_parser('optics',  help="Create the 'optics' section in the configuration")
+    miscopt.add_argument('--focal-length',   type=int, required=True, help='Camera focal length in mm.')
+    miscopt.add_argument('--f-number',       type=str, required=True, help="Camera f/ ratio")
+
+    pubcre = subparser.add_parser('publishing',  help="create the 'publishing' section in the configuration")
     pubcre.add_argument('--url',      type=str, required=True, help='Server URL')
     pubcre.add_argument('--username', type=str, required=True, help="Server username")
     pubcre.add_argument('--password', type=str, required=True, help="Server password")
