@@ -7,10 +7,7 @@
 
 #--------------------
 # System wide imports
-# -------------------
-
-import math
-import random 
+# ------------------- 
 
 # ---------------
 # Twisted imports
@@ -31,6 +28,7 @@ from pubsub import pub
 
 from azotea.logger  import setLogLevel
 from azotool.cli   import NAMESPACE, log
+from azotea.utils.location import randomize
 
 # ----------------
 # Module constants
@@ -44,13 +42,6 @@ from azotool.cli   import NAMESPACE, log
 # Module Utility Functions
 # ------------------------
 
-def randomize(longitude, latitude):
-    # Includes +- 1Km uncertainty in coordinates
-    delta_long  = random.uniform(-1,1)*(1/6371)*math.cos(math.radians(latitude))
-    delta_lat   = random.uniform(-1,1)*(1/6371)
-    random_long = longitude + math.degrees(delta_long)
-    random_lat  = latitude  + math.degrees(delta_lat)
-    return random_long, random_lat
 
 
 # --------------

@@ -34,8 +34,6 @@ from azotea.utils import NAMESPACE, log
 # Module global variables
 # -----------------------
 
-NAMESPACE = 'CTRL '
-
 BAYER_LETTER = ['B','G','R','G']
 
 # -----------------------
@@ -65,12 +63,13 @@ def analyze_bias(levels):
     if max(levels) - global_bias > 4:
         raise TooDifferentValuesBiasError(global_bias, levels, 4)
     tuples   = [nearest_power_of_two(bias) for bias in levels]
-    log.info("biases tuples = {tuples}",tuples=tuples)
+    log.debug("biases tuples = {tuples}",tuples=tuples)
     biases   = [item[0] for item in tuples]
     warnings = [item[1] for item in tuples]
     if any(warnings):
         raise NotPowerOfTwoErrorBiasError(global_bias, levels)
     global_bias = biases[0]
+    log.info("global bias set to = {global_bias}",global_bias=global_bias)
     return global_bias
       
 

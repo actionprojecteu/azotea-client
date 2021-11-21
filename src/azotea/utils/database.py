@@ -22,7 +22,6 @@ import sqlite3
 # local imports
 # -------------
 
-
 # ----------------
 # Module constants
 # ----------------
