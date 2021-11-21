@@ -135,7 +135,7 @@ class BatchService(Service):
         # patch PublishingController
         self.controllers[-1].observerCtrl = self.controllers[1]
 
-        pub.sendMessage('image_register_req')     
+        pub.sendMessage('images_register_req')     
         
 
     def stopService(self):

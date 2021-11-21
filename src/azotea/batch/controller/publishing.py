@@ -70,6 +70,10 @@ class PublishingController:
         pub.subscribe(self.onPublishReq, 'publishing_publish_req')
 
 
+    # --------------
+    # Event handlers
+    # --------------
+
     @inlineCallbacks
     def onPublishReq(self):
         try:
@@ -89,6 +93,9 @@ class PublishingController:
         else:
             pub.sendMessage('file_quit')
 
+    # --------------
+    # Helper methods
+    # --------------
 
     @inlineCallbacks
     def getDefault(self):

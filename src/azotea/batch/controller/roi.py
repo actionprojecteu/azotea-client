@@ -53,11 +53,10 @@ class ROIController:
         self.default_id = None
         self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-    
-   
-    def start(self):
-        log.info('starting ROI Controller')
-        
+
+    # --------------
+    # Helper methods
+    # --------------
 
     @inlineCallbacks
     def getDefault(self):

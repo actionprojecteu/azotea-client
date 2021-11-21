@@ -4,10 +4,7 @@ MAS INMEDIATO TODAVIA
 * error n+1/n en register
 * probar los 4 exports con azotool
 * ¿ azotool sky publish ?
-* gestion de coordenandas
-  - refactorizar la GUI con un checkbox de randomize
 * generacion de CSV, añadir columna version
-* refactporizar GUI para mergear los Micecontroller y PublishingController
 * refactorizar el modelo de datos para quitar columnas de id en sky
    - requiere un image_id (maestro/detalle) en sky_t
 
@@ -17,7 +14,10 @@ INMEDIATO
 * Probar la generacion del megaexport
 * Falla el constraint check de borra imagenes/medidas.
 * Publicacionde medidas
-  - Controlador
+  - Controlador (tanbto ewn GUI como en batch)
+    - revisar codigo
+    - hacerlo por páginas
+    - enviar el consensitimeinto con su fecha
     - progress bar en relacion al numero de HTTP post a hacer
     - avisar de que va a tardar un rato (si hay que hacer > 2 peticiones HTTPS)
 

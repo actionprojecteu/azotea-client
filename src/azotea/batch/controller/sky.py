@@ -70,9 +70,9 @@ class SkyBackgroundController:
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onStatisticsReq,  'sky_brightness_stats_req')   
 
-    # -----------------------
-    # Subscriptions from View
-    # -----------------------
+    # --------------
+    # Event handlers
+    # --------------
 
     @inlineCallbacks
     def onStatisticsReq(self):
@@ -91,11 +91,9 @@ class SkyBackgroundController:
             else:
                 pub.sendMessage('file_quit')
 
-
-    # -------
-    # Helpers
-    # -------
-
+    # --------------
+    # Helper methods
+    # --------------
 
     @inlineCallbacks
     def doCheckDefaults(self):

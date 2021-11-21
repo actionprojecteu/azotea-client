@@ -66,8 +66,12 @@ class ImageController:
         self.default_f_number = None
         self.images_dir = images_dir
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        pub.subscribe(self.onRegisterReq, 'image_register_req')
+        pub.subscribe(self.onRegisterReq, 'images_register_req')
          
+
+    # --------------
+    # Event handlers
+    # --------------
 
     @inlineCallbacks  
     def onRegisterReq(self):
@@ -108,6 +112,9 @@ class ImageController:
         else:
             pub.sendMessage("sky_brightness_stats_req")
 
+    # --------------
+    # Helper methods
+    # --------------
 
     # We assign the default optics here
     @inlineCallbacks

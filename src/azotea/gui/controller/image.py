@@ -85,7 +85,7 @@ class ImageController:
         self.default_f_number = None
         self._abort = False
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        pub.subscribe(self.onImageRegisterReq,  'images_load_req')
+        pub.subscribe(self.onRegisterReq,  'images_register_req')
         pub.subscribe(self.onAbortReq,  'images_abort_load_req')
         pub.subscribe(self.onSetDefaultOpticsReq,  'images_set_default_optics_req')
        
@@ -100,7 +100,7 @@ class ImageController:
 
 
     @inlineCallbacks
-    def onImageRegisterReq(self):
+    def onRegisterReq(self):
         try:
             self._abort = False
             ok = yield self.doCheckDefaults()
