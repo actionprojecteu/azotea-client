@@ -449,7 +449,7 @@ class VersionedTable(Table):
         query_sql = self._sqlVersionedQuery()
         replace_sql = self._sqlVersionedReplace()
         insert_sql = self._sqlVersionedInsert()
-        now = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         self.log.debug("{sql} {data}", sql=query_sql, data=data)
         txn.execute(query_sql, data)
         result = txn.fetchone()

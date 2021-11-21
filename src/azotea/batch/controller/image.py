@@ -172,7 +172,7 @@ class ImageController:
         log.debug('Directory is {dir}.',dir=directory)
         extension = '*' + self.extension
         # AQUI EMPIEZA LO SERIO
-        session = int(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S'))
+        session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         i = 0

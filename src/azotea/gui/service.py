@@ -81,14 +81,14 @@ class GraphicalService(Service):
     def __init__(self, **kargs):
         super().__init__()
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        self.task    = task.LoopingCall(self.heartBeat)
+        #self.task    = task.LoopingCall(self.heartBeat)
 
     # -----------
     # Service API
     # -----------
     
     def startService(self):
-        log.info('starting Graphical User Interface')
+        log.info('Starting Graphical User Interface')
         super().startService()
         self.application = Application()
         self.dbaseService = self.parent.getServiceNamed(DatabaseService.NAME)
@@ -164,13 +164,13 @@ class GraphicalService(Service):
         self.controllers[-1].observerCtrl = self.controllers[2]     
 
         tksupport.install(self.application)
-        self.task.start(3, now=False) # call every T seconds
+        #self.task.start(3, now=False) # call every T seconds
         # Start application controller 
         pub.sendMessage('bootstrap_req')
 
     def stopService(self):
         log.info('Stopping Graphical User Interface Service')
-        self.task.stop()
+        #self.task.stop()
         return super().stopService()
 
 
@@ -179,5 +179,5 @@ class GraphicalService(Service):
     # ---------
 
     def heartBeat(self):
-        '''Oly for dubugging purposes'''
+        '''Only for dubugging purposes'''
         log.info('Tick')

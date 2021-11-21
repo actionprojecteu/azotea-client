@@ -134,7 +134,7 @@ class ROIController:
     @inlineCallbacks
     def onSetDefaultReq(self, data):
         try:
-            log.info('onSetDefaultReq() geting id from roi_t given by {data}', data=data)
+            log.info('onSetDefaultReq() getting id from roi_t given by {data}', data=data)
             info_id = yield self.model.lookup(data)
             self.default_id = info_id['roi_id']
             self.default_details = yield self.model.loadById(info_id)

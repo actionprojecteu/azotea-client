@@ -217,7 +217,7 @@ class ImageController:
         extension = '*' + self.extension
         # AQUI EMPIEZA LO SERIO
         self.view.mainArea.clearImageDataView()
-        session = int(datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S'))
+        session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         i = 0
