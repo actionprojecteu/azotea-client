@@ -26,7 +26,7 @@ import sqlite3
 # Module constants
 # ----------------
 
-
+VERSION_QUERY = "SELECT value from config_t WHERE section ='database' AND property = 'version'"
 
 # -----------------------
 # Module global variables
@@ -37,7 +37,7 @@ import sqlite3
 # ------------------------
 
 def filter_factory(connection):
-    VERSION_QUERY = "SELECT value from config_t WHERE section ='database' AND property = 'version'"
+    
     cursor = connection.cursor()
     cursor.execute(VERSION_QUERY)
     result = cursor.fetchone()
@@ -61,7 +61,7 @@ def create_database(dbase_path):
     return sqlite3.connect(dbase_path), new_database
 
 
-def create_schema(connection, schema_path, initial_data_dir_path, updates_data_dir, query):
+def create_schema(connection, schema_path, initial_data_dir_path, updates_data_dir, query=VERSION_QUERY):
     created = True
     cursor = connection.cursor()
     try:
