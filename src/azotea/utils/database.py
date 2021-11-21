@@ -43,8 +43,8 @@ def filter_factory(connection):
     result = cursor.fetchone()
     if not result:
         raise NotImplementedError(VERSION_QUERY)
-    version = result[0]
-    return lambda path: os.path.basename(path)[:2] > version
+    version = int(result[0])
+    return lambda path: int(os.path.basename(path)[:2]) > version
 
 
 def create_database(dbase_path):
