@@ -42,7 +42,7 @@ def filter_factory(connection):
     cursor.execute(VERSION_QUERY)
     result = cursor.fetchone()
     if not result:
-        raise NotImplementedError("Missing database version")
+        raise NotImplementedError(VERSION_QUERY)
     version = result[0]
     return lambda path: os.path.basename(path)[:2] > version
 
