@@ -12,6 +12,7 @@
 
 import os
 import sys
+import datetime
 
 # ---------------
 # Twisted imports
@@ -53,7 +54,7 @@ def get_database_connection(path):
 
 def check_agreement(connection):
     cursor = connection.cursor()
-    cursor.execute("SELECT value from config_t WHERE section = 'global' AND property = 'agree'")
+    cursor.execute("SELECT value from config_t WHERE section = 'gdpr' AND property = 'agree'")
     value = cursor.fetchone()
     if value:
         result = value[0] == 'Yes'
@@ -65,8 +66,15 @@ def save_agreement(connection):
     cursor = connection.cursor()
     cursor.execute('''
         INSERT OR REPLACE INTO config_t(section, property, value)
-        VALUES('global', 'agree', 'Yes')
+        VALUES('gdpr', 'agree', 'Yes')
         ''')
+    row = {
+        'tstamp': datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    }
+    cursor.execute('''
+        INSERT OR REPLACE INTO config_t(section, property, value)
+        VALUES('gdpr', 'tstamp', :tstamp)
+        ''', row)
     connection.commit()
 
 def view():
