@@ -26,6 +26,8 @@ import sqlite3
 # Module constants
 # ----------------
 
+
+
 # -----------------------
 # Module global variables
 # -----------------------
@@ -33,6 +35,17 @@ import sqlite3
 # ------------------------
 # Module Utility Functions
 # ------------------------
+
+def filter_factory(connection):
+    VERSION_QUERY = "SELECT value from config_t WHERE section ='database' AND property = 'version'"
+    cursor = connection.cursor()
+    cursor.execute(VERSION_QUERY)
+    result = cursor.fetchone()
+    if not result:
+        raise NotImplementedError("Missing database version")
+    version = result[0]
+    return lambda path: os.path.basename(path)[:2] > version
+
 
 def create_database(dbase_path):
     '''Creates a Database file if not exists and returns a connection'''
@@ -69,7 +82,9 @@ def create_schema(connection, schema_path, initial_data_dir_path, updates_data_d
             script = ''.join(lines)
             connection.executescript(script)
     else:
-        file_list = glob.glob(os.path.join(updates_data_dir, '*.sql'))
+        filter_func = filter_factory(connection)
+        file_list = sorted(glob.glob(os.path.join(updates_data_dir, '*.sql')))
+        file_list = list(filter(filter_func,file_list))
         for sql_file in file_list:
             #log.info("Applying updates to data model from {0}".format(os.path.basename(sql_file)))
             with open(sql_file) as f: 
