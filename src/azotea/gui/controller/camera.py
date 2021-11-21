@@ -78,30 +78,24 @@ class CameraController:
         pub.subscribe(self.onDeleteReq,      'camera_delete_req')
         pub.subscribe(self.onChooseImageReq, 'camera_choose_image_req')
 
-        
-    @inlineCallbacks
-    def getDefault(self):
-        if not self.default_id:
-            # loads defaults
-            info = yield self.config.load('camera','camera_id')
-            self.default_id = info['camera_id']
-            if self.default_id:
-                self.default_details = yield self.model.loadById(info)
-                log.debug("getDefault() CAMERA LOADED DETAILS {d}",d=self.default_details)
-        return((self.default_id,  self.default_details))
-       
-
+    # -------------
+    # Event handler
+    # -------------
 
     @inlineCallbacks
     def onChooseImageReq(self, path):
-        info, warning = yield deferToThread(image_analyze_exif, path)
-        old_info = yield self.model.load(info)    # lookup by model
-        if not old_info:
-            message = _("Camera not in database!")
-            self.view.messageBoxWarn(who='Preferences', message=message)
-        self.view.menuBar.preferences.cameraFrame.updateCameraInfoFromImage(info)
-        if warning:
-            self.view.messageBoxWarn(who='Preferences', message=warning)
+        try:
+            info, warning = yield deferToThread(image_analyze_exif, path)
+            old_info = yield self.model.load(info)    # lookup by model
+            if not old_info:
+                message = _("Camera not in database!")
+                self.view.messageBoxWarn(who='Preferences', message=message)
+            self.view.menuBar.preferences.cameraFrame.updateCameraInfoFromImage(info)
+            if warning:
+                self.view.messageBoxWarn(who='Preferences', message=warning)
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
     @inlineCallbacks
     def onListReq(self):
@@ -119,6 +113,7 @@ class CameraController:
                     preferences.cameraFrame.detailsResp(self.default_details)
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -130,7 +125,7 @@ class CameraController:
             self.view.menuBar.preferences.cameraFrame.detailsResp(info)
         except Exception as e:
             log.failure('{e}',e=e)
-
+            pub.sendMessage('file_quit', exit_code = 1)
 
     @inlineCallbacks
     def onSaveReq(self, data):
@@ -141,6 +136,7 @@ class CameraController:
             self.view.menuBar.preferences.cameraFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -156,6 +152,7 @@ class CameraController:
             pub.sendMessage('camera_list_req')  # send a message to itself to update the views
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -166,6 +163,23 @@ class CameraController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.cameraFrame.deleteErrorResponse(count)
-        yield self.onListReq()
-        self.view.menuBar.preferences.cameraFrame.deleteOkResponse(count)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            yield self.onListReq()
+            self.view.menuBar.preferences.cameraFrame.deleteOkResponse(count)
 
+    # --------------
+    # Helper methods
+    # --------------
+
+    @inlineCallbacks
+    def getDefault(self):
+        if not self.default_id:
+            # loads defaults
+            info = yield self.config.load('camera','camera_id')
+            self.default_id = info['camera_id']
+            if self.default_id:
+                self.default_details = yield self.model.loadById(info)
+                log.debug("getDefault() CAMERA LOADED DETAILS {d}",d=self.default_details)
+        return((self.default_id,  self.default_details))
+       

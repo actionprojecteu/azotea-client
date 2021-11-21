@@ -3,6 +3,7 @@ MAS INMEDIATO TODAVIA
 
 * error n+1/n en register
 * probar los 4 exports con azotool
+* sustituir los utcnow() por datetime.datetime.now(datetime.timezone.utc)
 * ¿ azotool sky publish ?
 * gestion de coordenandas
   - refactorizar la GUI con un checkbox de randomize

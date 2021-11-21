@@ -85,62 +85,58 @@ class ImageController:
         self.default_f_number = None
         self._abort = False
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        pub.subscribe(self.begin,  'images_load_req')
-        pub.subscribe(self.abort,  'images_abort_load_req')
+        pub.subscribe(self.onImageRegisterReq,  'images_load_req')
+        pub.subscribe(self.onAbortReq,  'images_abort_load_req')
         pub.subscribe(self.onSetDefaultOpticsReq,  'images_set_default_optics_req')
        
 
-    def abort(self):
+    # --------------
+    # Event handlers
+    # --------------
+
+
+    def onAbortReq(self):
         self._abort = True
- 
-    # -----------------------
-    # Subscriptions from View
-    # -----------------------
+
 
     @inlineCallbacks
-    def begin(self):
-        self._abort = False
-        ok = yield self.doCheckDefaults()
-        if ok:
-            images_dir = self.view.openDirectoryDialog()
-            if images_dir:
-                with os.scandir(images_dir) as it:
-                    dirs  = [ entry.path for entry in it if entry.is_dir()  ]
-                    files = [ entry.path for entry in it if entry.is_file() ]
-                if dirs:
-                    if files:
-                        log.warn("Ignoring files in {wd}", wd=images_dir)
-                    i = 0; N_Files = 0
-                    for images_dir in sorted(dirs, reverse=True):
+    def onImageRegisterReq(self):
+        try:
+            self._abort = False
+            ok = yield self.doCheckDefaults()
+            if ok:
+                images_dir = self.view.openDirectoryDialog()
+                if images_dir:
+                    with os.scandir(images_dir) as it:
+                        dirs  = [ entry.path for entry in it if entry.is_dir()  ]
+                        files = [ entry.path for entry in it if entry.is_file() ]
+                    if dirs:
+                        if files:
+                            log.warn("Ignoring files in {wd}", wd=images_dir)
+                        i = 0; N_Files = 0
+                        for images_dir in sorted(dirs, reverse=True):
+                            result = yield self.doRegister(images_dir)
+                            if not result:
+                                break
+                            j, M_Files = result
+                            i += j
+                            N_Files += M_Files
+                    else:
                         result = yield self.doRegister(images_dir)
-                        if not result:
-                            break
-                        j, M_Files = result
-                        i += j
-                        N_Files += M_Files
-                else:
-                    result = yield self.doRegister(images_dir)
-                    if result:
-                        i, N_Files = result
-                
-                if N_Files:
-                    message = _("Registration: {0}/{1} images complete").format(i,N_Files)
-                    self.view.messageBoxInfo(who=_("Register"),message=message)
-                else:
-                    extension = '*' + self.extension
-                    message = _("No images found with the filter {0}").format(extension)
-                    self.view.messageBoxWarn(who=_("Register"),message=message)
-                self.view.statusBar.clear()
-
-
-    # We assign the default optics here
-    @inlineCallbacks
-    def getDefault(self):
-        if not self.default_focal_length:
-            self.default_focal_length = yield self.config.load('optics','focal_length')
-        if not self.default_f_number:
-            self.default_f_number = yield self.config.load('optics','f_number')
-        return((self.default_focal_length,  self.default_f_number))
+                        if result:
+                            i, N_Files = result
+                    
+                    if N_Files:
+                        message = _("Registration: {0}/{1} images complete").format(i,N_Files)
+                        self.view.messageBoxInfo(who=_("Register"),message=message)
+                    else:
+                        extension = '*' + self.extension
+                        message = _("No images found with the filter {0}").format(extension)
+                        self.view.messageBoxWarn(who=_("Register"),message=message)
+                    self.view.statusBar.clear()
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -152,7 +148,21 @@ class ImageController:
             yield self.model.config.saveSection('optics', data)
         except Exception as e:
             log.failure('{e}',e=e)
-         
+            pub.sendMessage('file_quit', exit_code = 1)
+
+    # --------------
+    # Helper methods
+    # --------------
+
+    # We assign the default optics here
+    @inlineCallbacks
+    def getDefault(self):
+        if not self.default_focal_length:
+            self.default_focal_length = yield self.config.load('optics','focal_length')
+        if not self.default_f_number:
+            self.default_f_number = yield self.config.load('optics','f_number')
+        return((self.default_focal_length,  self.default_f_number))
+
 
     @inlineCallbacks
     def doCheckDefaults(self):
@@ -198,9 +208,6 @@ class ImageController:
         else:
             return(True)
     
-
-    # ---------------------- OBSERVER ----------------------------------------------
-
 
     @inlineCallbacks
     def doRegister(self, directory):

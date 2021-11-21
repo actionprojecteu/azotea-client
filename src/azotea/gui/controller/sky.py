@@ -98,64 +98,79 @@ class SkyBackgroundController:
         pub.subscribe(self.onDeleteReq, 'sky_brightness_delete_req')
         pub.subscribe(self.onAbortReq,  'sky_brightness_abort_stats_req')
         pub.subscribe(self.onExportReq, 'sky_brightness_csv_req')
+ 
+    # --------------
+    # Event handlers
+    # --------------
 
     def onAbortReq(self):
         self._abort = True
- 
-    # -----------------------
-    # Subscriptions from View
-    # ----------------------
 
     @inlineCallbacks
     def onStatisticsReq(self):
-        self._abort = False
-        result = yield self.doCheckDefaults()
-        if result:
-            yield self.doStatistics()
+        try:
+            self._abort = False
+            result = yield self.doCheckDefaults()
+            if result:
+                yield self.doStatistics()
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
     def onDeleteReq(self, date):
-        observer_id, tmp = yield self.observerCtrl.getDefault()
-        filter_dict = {'observer_id': observer_id}
-        date_selection = date['date_selection']
-        if date_selection == DATE_SELECTION_ALL:
-            count = yield self.sky.countAll(filter_dict)
-            message = _("Deleting {0} images").format(count)
-            accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
-            if accepted:
-                yield self.sky.deleteAll(filter_dict)
-        elif date_selection == DATE_SELECTION_LATEST_NIGHT:
-            count = yield self.sky.getLatestNightCount(filter_dict)
-            message = _("Deleting {0} images").format(count)
-            accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
-            if accepted:
-                yield self.sky.deleteLatestNight(filter_dict)
-        elif date_selection == DATE_SELECTION_LATEST_MONTH:
-            count = yield self.sky.getLatestMonthCount(filter_dict)
-            message = _("Deleting {0} images").format(count)
-            accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
-            if accepted:
-                yield self.sky.deleteLatestMonth(filter_dict)
-        elif date_selection == DATE_SELECTION_DATE_RANGE:
-            filter_dict['start_date_id'] = int(date['start_date'])
-            filter_dict['end_date_id']   = int(date['end_date'])
-            count = yield self.sky.getDateRangeCount(filter_dict)
-            message = _("Deleting {0} images").format(count)
-            accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
-            if accepted:
-                yield self.sky.deleteDateRange(filter_dict)
-        else:
-            pass
+        try:
+            observer_id, tmp = yield self.observerCtrl.getDefault()
+            filter_dict = {'observer_id': observer_id}
+            date_selection = date['date_selection']
+            if date_selection == DATE_SELECTION_ALL:
+                count = yield self.sky.countAll(filter_dict)
+                message = _("Deleting {0} images").format(count)
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
+                if accepted:
+                    yield self.sky.deleteAll(filter_dict)
+            elif date_selection == DATE_SELECTION_LATEST_NIGHT:
+                count = yield self.sky.getLatestNightCount(filter_dict)
+                message = _("Deleting {0} images").format(count)
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
+                if accepted:
+                    yield self.sky.deleteLatestNight(filter_dict)
+            elif date_selection == DATE_SELECTION_LATEST_MONTH:
+                count = yield self.sky.getLatestMonthCount(filter_dict)
+                message = _("Deleting {0} images").format(count)
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
+                if accepted:
+                    yield self.sky.deleteLatestMonth(filter_dict)
+            elif date_selection == DATE_SELECTION_DATE_RANGE:
+                filter_dict['start_date_id'] = int(date['start_date'])
+                filter_dict['end_date_id']   = int(date['end_date'])
+                count = yield self.sky.getDateRangeCount(filter_dict)
+                message = _("Deleting {0} images").format(count)
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
+                if accepted:
+                    yield self.sky.deleteDateRange(filter_dict)
+            else:
+                pass
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
     def onExportReq(self, date):
-        self._abort = False
-        result = yield self.doCheckDefaultsExport()
-        if result:
-            yield self.doExport(date)
+        try:
+            self._abort = False
+            result = yield self.doCheckDefaultsExport()
+            if result:
+                yield self.doExport(date)
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
+    # --------------
+    # Helper methods
+    # --------------
 
     @inlineCallbacks
     def doCheckDefaults(self):
@@ -285,9 +300,3 @@ class SkyBackgroundController:
             message = _("No images to process")
             self.view.messageBoxWarn(who=_("Sky backround statistics"),message=message)
         self.view.statusBar.clear()
-
-
-    
-
-    
-           

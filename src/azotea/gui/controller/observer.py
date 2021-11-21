@@ -80,17 +80,9 @@ class ObserverController:
         pub.subscribe(self.onDeleteReq,     'observer_delete_req')
         pub.subscribe(self.onPurgeReq,      'observer_purge_req')
 
-
-    @inlineCallbacks
-    def getDefault(self):
-        if not self.default_id:
-            # loads defaults
-            info = yield self.config.load('observer','observer_id')
-            self.default_id = info['observer_id']
-            if self.default_id:
-                self.default_details = yield self.model.loadById(info)
-        return((self.default_id,  self.default_details))
-       
+    # --------------
+    # Event handlers
+    # --------------
 
     @inlineCallbacks
     def onListReq(self):
@@ -108,6 +100,7 @@ class ObserverController:
                     preferences.observerFrame.detailsResp(self.default_details)
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -119,6 +112,7 @@ class ObserverController:
             self.view.menuBar.preferences.observerFrame.detailsResp(info)
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -130,6 +124,7 @@ class ObserverController:
             self.view.menuBar.preferences.observerFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -145,6 +140,7 @@ class ObserverController:
             pub.sendMessage('observer_list_req')  # send a message to itself to update the views
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -155,8 +151,10 @@ class ObserverController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.observerFrame.deleteErrorResponse()
-        yield self.onListReq()
-        self.view.menuBar.preferences.observerFrame.deleteOkResponse(count)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            yield self.onListReq()
+            self.view.menuBar.preferences.observerFrame.deleteOkResponse(count)
 
 
     @inlineCallbacks
@@ -167,5 +165,21 @@ class ObserverController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.observerFrame.purgeErrorResponse()
-        self.view.menuBar.preferences.observerFrame.purgeOkResponse(count)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            self.view.menuBar.preferences.observerFrame.purgeOkResponse(count)
+
+    # --------------
+    # Helper methods
+    # --------------
+
+    @inlineCallbacks
+    def getDefault(self):
+        if not self.default_id:
+            # loads defaults
+            info = yield self.config.load('observer','observer_id')
+            self.default_id = info['observer_id']
+            if self.default_id:
+                self.default_details = yield self.model.loadById(info)
+        return((self.default_id,  self.default_details))
 

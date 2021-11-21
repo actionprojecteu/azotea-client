@@ -83,17 +83,9 @@ class ROIController:
         pub.subscribe(self.onDeleteReq,       'roi_delete_req')
         pub.subscribe(self.onSetAutomaticReq, 'roi_set_automatic_req')
     
-
-    @inlineCallbacks
-    def getDefault(self):
-        if not self.default_id:
-            # loads defaults
-            info = yield self.config.load('ROI','roi_id')
-            self.default_id = info['roi_id']
-            if self.default_id:
-                self.default_details = yield self.model.loadById(info)
-        return((self.default_id,  self.default_details))
-
+    # --------------
+    # Event handlers
+    # --------------
 
     @inlineCallbacks
     def onListReq(self):
@@ -110,9 +102,9 @@ class ROIController:
                 self.view.mainArea.ROIComment.set(self.default_details['comment'])
                 if preferences:
                     preferences.roiFrame.detailsResp(self.default_details)
-
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
     @inlineCallbacks
     def onDetailsReq(self, data):
@@ -123,6 +115,7 @@ class ROIController:
             self.view.menuBar.preferences.roiFrame.detailsResp(info)
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -135,6 +128,7 @@ class ROIController:
             self.view.menuBar.preferences.roiFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -150,6 +144,7 @@ class ROIController:
             pub.sendMessage('roi_list_req')  # send a message to itself to update the views
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -160,11 +155,31 @@ class ROIController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.roiFrame.deleteErrorResponse(count)
-        yield self.onListReq()
-        self.view.menuBar.preferences.roiFrame.deleteOkResponse(count)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            yield self.onListReq()
+            self.view.menuBar.preferences.roiFrame.deleteOkResponse(count)
 
     @inlineCallbacks
     def onSetAutomaticReq(self, filename, rect):
-        info = yield deferToThread(reshape_rect, filename, rect)
-        log.debug('onSetAutomaticReq() returns {info}', info=info)
-        self.view.menuBar.preferences.roiFrame.automaticROIResp(info)
+        try:
+            info = yield deferToThread(reshape_rect, filename, rect)
+            log.debug('onSetAutomaticReq() returns {info}', info=info)
+            self.view.menuBar.preferences.roiFrame.automaticROIResp(info)
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
+
+    # --------------
+    # Helper methods
+    # --------------
+
+    @inlineCallbacks
+    def getDefault(self):
+        if not self.default_id:
+            # loads defaults
+            info = yield self.config.load('ROI','roi_id')
+            self.default_id = info['roi_id']
+            if self.default_id:
+                self.default_details = yield self.model.loadById(info)
+        return((self.default_id,  self.default_details))

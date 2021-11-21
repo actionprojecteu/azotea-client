@@ -39,6 +39,7 @@ from azotea import __version__
 from azotea.utils.roi import Point, Rect
 from azotea.logger  import startLogging, setLogLevel
 from azotea.error import TooDifferentValuesBiasError, NotPowerOfTwoErrorBiasError
+from azotea.utils.location import randomize
 
 # ----------------
 # Module constants
@@ -80,16 +81,11 @@ class LocationController:
         pub.subscribe(self.onSetDefaultReq, 'location_set_default_req')
         pub.subscribe(self.onDeleteReq,     'location_set_delete_req')
 
-    @inlineCallbacks
-    def getDefault(self):
-        if not self.default_id:
-            # loads defaults
-            info = yield self.config.load('location','location_id')
-            self.default_id = info['location_id']
-            if self.default_id:
-                self.default_details = yield self.model.loadById(info)
-        return((self.default_id,  self.default_details))
-       
+   
+    
+    # --------------   
+    # Event handlers
+    # --------------
 
     @inlineCallbacks
     def onListReq(self):
@@ -107,6 +103,7 @@ class LocationController:
                     preferences.locationFrame.detailsResp(self.default_details)
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
     @inlineCallbacks
     def onDetailsReq(self, data):
@@ -117,17 +114,30 @@ class LocationController:
             self.view.menuBar.preferences.locationFrame.detailsResp(info)
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
     def onSaveReq(self, data):
         try:
-            log.info('onSaveReq() versioned insert {data} details from location_t', data=data)
-            yield self.model.save(data)
-            log.info('onSaveReq() versioned insert ok from location_t')
+            log.info('onSaveReq() analyze {data} details from location_t', data=data)
+            # look for previously saved location with the same site_name and location
+            previous = yield self.model.load(data)
+            if not previous:
+                yield self.writeRandomized(data)
+                log.info('onSaveReq() insert ok from location_t')
+            elif previous['randomized'] == 1 and data['randomized']:
+                previous['utc_offset'] = data['utc_offset']
+                log.info('updated previous location_t: {data}', data=previous)
+                yield self.model.save(previous)
+                log.info('onSaveReq() insert ok from location_t')
+            else:
+                yield self.writeRandomized(data)
+                log.info('onSaveReq() insert ok from location_t')
             self.view.menuBar.preferences.locationFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -143,6 +153,7 @@ class LocationController:
             pub.sendMessage('location_list_req')  # send a message to itself to update the views
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -153,5 +164,37 @@ class LocationController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.locationFrame.deleteErrorResponse()
-        yield self.onListReq()
-        self.view.menuBar.preferences.locationFrame.deleteOkResponse(count)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            yield self.onListReq()
+            self.view.menuBar.preferences.locationFrame.deleteOkResponse(count)
+
+
+    # -------------
+    # Helper methods
+    # --------------
+
+    @inlineCallbacks
+    def getDefault(self):
+        if not self.default_id:
+            # loads defaults
+            info = yield self.config.load('location','location_id')
+            self.default_id = info['location_id']
+            if self.default_id:
+                self.default_details = yield self.model.loadById(info)
+        return((self.default_id,  self.default_details))
+
+    @inlineCallbacks
+    def writeRandomized(self, data):
+        longitude = data['longitude'] 
+        latitude  = data['latitude'] 
+        randomizeFlag = data['randomized']
+        if longitude and latitude and randomizeFlag:
+            long1 = longitude; lat1 = latitude
+            longitude, latitude = randomize(longitude, latitude)
+            log.info('Randomized coordinates ({long1}, {lat1}) -> ({long2}, {lat2})', 
+                long1=long1, lat1=lat1, long2=longitude, lat2=latitude)
+        data['longitude'] = longitude
+        data['latitude']  = latitude
+        log.info('Insert to location_t: {data}', data=data)
+        yield self.model.save(data)

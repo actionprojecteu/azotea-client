@@ -88,6 +88,10 @@ class PublishingController:
         pub.subscribe(self.onPublishReq, 'publishing_publish_req')
         pub.subscribe(self.onAbortReq,   'publishing_abort_publish_req')
 
+    # --------------
+    # Event handlers
+    # --------------
+
     def onAbortReq(self):
         self._abort = True
 
@@ -102,6 +106,7 @@ class PublishingController:
             self.view.menuBar.preferences.publishingFrame.detailsResp(publishing_opts)
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -116,6 +121,7 @@ class PublishingController:
             self.view.menuBar.preferences.publishingFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -128,8 +134,34 @@ class PublishingController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.publishingFrame.deleteErrorResponse(count)
-        self.view.menuBar.preferences.publishingFrame.deleteOkResponse(count)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            self.view.menuBar.preferences.publishingFrame.deleteOkResponse(count)
 
+
+    @inlineCallbacks
+    def onPublishReq(self):
+        try:
+            self._abort = False
+            result = yield self.doCheckDefaults()
+            if result:
+                total = yield self.sky.getPublishingCount({'observer_id': self.observer_id})
+                if total == 0:
+                    message = _("No Sky Brightness measurements to publish")
+                    self.view.messageBoxInfo(who=_("Publishing Processor"),message=message)
+                else:
+                    message = _("Publishing {0} measurements.\nThis may take a while").format(total)
+                    accepted = self.view.messageBoxAcceptCancel(message=message, who=_("Publishing Processor"))
+                    if accepted:
+                        yield self.doPublish(total)
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
+
+
+    # --------------
+    # Helper methods
+    # --------------
 
     @inlineCallbacks
     def getDefault(self):
@@ -169,21 +201,6 @@ class PublishingController:
         return(result)
 
 
-    @inlineCallbacks
-    def onPublishReq(self):
-        self._abort = False
-        result = yield self.doCheckDefaults()
-        if result:
-            total = yield self.sky.getPublishingCount({'observer_id': self.observer_id})
-            if total == 0:
-                message = _("No Sky Brightness measurements to publish")
-                self.view.messageBoxInfo(who=_("Publishing Processor"),message=message)
-            else:
-                message = _("Publishing {0} measurements.\nThis may take a while").format(total)
-                accepted = self.view.messageBoxAcceptCancel(message=message, who=_("Publishing Processor"))
-                if accepted:
-                    yield self.doPublish(total)
-
 
     @inlineCallbacks
     def doPublish(self, total):
@@ -220,13 +237,4 @@ class PublishingController:
             yield self.sky.updatePublishingCount(filter_dict)
         else:
             self.view.messageBoxError(who=_("Publishing Processor"), message=message)
-
-
-          
-
-
-
-
-           
-
 
