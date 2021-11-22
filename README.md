@@ -219,6 +219,42 @@ Agreement accepted
 2021-11-22T14:02:15+0100 [-] Main loop terminated.
 ```
 
+# Image processing
+
+In GUI Mode, there are two steps:
+1. `File > Load images ...`
+2. `Process > Sky Brightness ...`
+
+Then we can either generate a CSV file with the results or publsih them:
+* `File > Export to CSV ...`
+* `File > Publish Measurements ...`
+
+In batch mode, loading images, peforming sky brightness measurements and (optionally) publishing results can be done all at once:
+
+```
+export PATH=${HOME}/azotea/bin:/usr/local/bin:/usr/bin:/bin
+export VIRTUAL_ENV=${HOME}/azotea
+DBASE=${HOME}/azotea/azotea.db
+
+azotea --dbase ${DBASE} batch --images-dir ${HOME}/azotea/images --publish 
+```
+The `--images-dir` option can specify a directory where the actual images are or a parent directory.
+i.e:
+```
+${HOME}/azotea/images
+                |
+`               +----/2021-05-07
+                |
+                +----/2021-05-08
+                (...)
+                +----/2021-11-02
+```
+
+This allows more automation, as all subdirectories will be traversed. 
+We recommend using a scheme like `YYYY-MM-DD` for the subdirectories.
+Directoris will be processed with descendent order, that is, from the most recent name (i.e. 2021-11-02) to the least recent one.
+
+
 # Automation
 
 ## Log file & console output
@@ -239,6 +275,7 @@ Azotea in GUI mode offers the same functions as the command line version.
 See the attached screeshots:
 
 ![Overview](doc/image/main.png)
+
 ![Edit > Preferences > Camera](doc/image/camera.png)
 
 ![Edit > Preferences > Observer](doc/image/observer.png)
