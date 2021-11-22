@@ -240,8 +240,14 @@ See the attached screeshots:
 
 ![Overview](doc/image/main.png)
 ![Edit > Preferences > Camera](doc/image/camera.png)
+
 ![Edit > Preferences > Observer](doc/image/observer.png)
+
 ![Edit > Preferences > Location](doc/image/location.png)
+
 ![Edit > Preferences > ROI](doc/image/roi.png)
+
 ![Edit > Preferences > Publishing](doc/image/publishing.png)
+
 ![Edit > Preferences > Miscelanea](doc/image/miscelanea.png)
+
