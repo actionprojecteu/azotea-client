@@ -60,7 +60,9 @@ error codes are not checked.
 ```bash
 export PATH=${HOME}/azotea/bin:/usr/local/bin:/usr/bin:/bin
 export VIRTUAL_ENV=${HOME}/azotea
+
 DBASE=${HOME}/azotea/azotea.db
+IMAGES=${HOME}/azotea/images
 
 azotool --console --dbase ${DBASE} consent view
 
@@ -71,10 +73,10 @@ azotool --console --dbase ${DBASE} location create --default --randomize --site-
         --longitude -2.7335649 --latitude 40.4966031 --utc-offset 1
 
 azotool --console --dbase ${DBASE} camera create --default \
-        --from-image ${HOME}/azotea/images/2021-11-22/IMG_0164.CR2
+        --from-image ${IMAGES}/2021-11-22/IMG_0164.CR2
 
 azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
-        --from-image ${HOME}/azotea/images/2021-11-22/IMG_0164.CR2
+        --from-image ${IMAGES}/2021-11-22/IMG_0164.CR2
 
 azotool --console --dbase ${DBASE} miscelanea optics --focal-length 180 --f-number 3.5
 
