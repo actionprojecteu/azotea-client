@@ -63,7 +63,7 @@ azotool --console --dbase ${DBASE} consent view
 azotool --console --dbase ${DBASE} observer create --default --name Juan --surname Gómez Pérez \
         --affiliation Agrupación Astronómica de Alcafrán --acronym AA-ACFN
 
-azotool --console --dbase ${DBASE} location create --default --site-name Alcafrán --location Alcafrán \
+azotool --console --dbase ${DBASE} location create --default --randomize --site-name Alcafrán --location Alcafrán \
         --longitude -2.7335649 --latitude 40.4966031 --utc-offset 1
 
 azotool --console --dbase ${DBASE} camera create --default \
@@ -75,6 +75,148 @@ azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400
 azotool --console --dbase ${DBASE} miscelanea optics --focal-length 180 --f-number 3.5
 
 azotool --console --dbase ${DBASE} miscelanea publishing --username foo --password bar
+```
+
+1. *Environmental variables*
+
+The first two lines specify environmental variables so that the Python execution is done only within the virtual environment.
+The thrid line specifies the database file to be created where all the results and associated data are stored.
+*It is highly recommended that you specify such database in your azotea commands*. Otherwise, changing inadveridely from the current working directory a new, empty database file will be created and apparently it seems that you have lost all your data.
+
+2. *Consent*
+
+We need your consent to gather some personal data, before you can run the software. 
+The software will not run if you do not agree.
+
+3. *Observer data*
+
+We create observer's data specifying his/her name, surmname and affiliation data (with its acronym) 
+using the command line options shown.
+
+In addition, we make sure that this is the default observer for the tool, by specifying `--default`. Image processing is always
+associated with a default observer.
+
+4. *Location data*
+
+In a similar way, we create a default location, so that observations are associated to this default location. Note that for small locations such as villages, the `--site-name` can be equal to the `--location` name, as in this example. For other cases, they should be different. 
+I.e `--site-name Facultad de CC. Físicas --location Madrid` 
+
+In our example, the coorditaes given belong to Juan's personal observatory. As he wishes to preserve hidden the exact location for security reasons, he specifies `--randomize` which will add an uncertainty up to 1 Km.
+
+For public premises such `Facultad de CC. Físicas` this is not usually a concern and thre is no need to specify `--randomize`
+
+5. *Camera data*
+
+We proceed to enter the default camera data. By far the best way is to specify an example RAW file taken from this camera and the software will read all necessary data from it.
+
+6. *Region of interest*
+
+In order to measure the sky background, we must specify a default Region of Interest (ROI). Usually, we wish this ROI to be a rectangle centered around the image centre. The best way to do it is, once more, specify the rectangle width and height and an image
+so that the software computes the actual rectangle corners.
+
+7. *Miscelaneous*
+
+Last, we must specify defaults optics data just in case there is no such data available in the image EXIF headers.
+Also the credentials can be specified so that the results are automatically uploaded to our server. 
+(**NOTE: This is not yet available**)
+
+
+An instance of the console output can be seen below:
+
+```
+UNIVERSIDAD COMPLUTENSE DE MADRID
+=================================
+
+By using this software you explicitely give 
+Universidad Complutense de Madrid consent to gather:
+* your name and surname.
+* your affiliation (i.e. amateur club name or institution).
+* your observatory approximate location.
+
+These data will be kept in a file whose owner is 
+Universidad Complutense de Madrid and will not be used for other
+purpose than to give credit to the participants' observations. 
+You can rectify or ask to delete your data 
+by writting at the following address: ainhoasa@ucm.es
+
+Press the 'y' key then <ENTER> to agree, any other key to disagree.
+
+y
+------------------
+Agreement accepted
+------------------
+2021-11-22T14:02:12+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-22T14:02:12+0100 [dbase#info] Database version = 01
+2021-11-22T14:02:12+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:12+0100 [dbase#info] Starting DAO
+2021-11-22T14:02:12+0100 [cli#info] Starting Command Service
+2021-11-22T14:02:12+0100 [cli#info] Sending event observer_create_req
+2021-11-22T14:02:12+0100 [cli#info] Versioned insert to observer_t: {'family_name': 'Juan', 'surname': 'Gómez Pérez', 'affiliation': 'Agrupación Astronómica de Alcafrán', 'acronym': 'AA-ACFN'}
+2021-11-22T14:02:12+0100 [cli#info] Setting default observer in configuration section as id = {'observer_id': 1}
+2021-11-22T14:02:12+0100 [cli#info] Stopping Command Service
+2021-11-22T14:02:12+0100 [dbase#info] Stopping Database Service
+2021-11-22T14:02:12+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:12+0100 [-] Main loop terminated.
+2021-11-22T14:02:12+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-22T14:02:12+0100 [dbase#info] Database version = 01
+2021-11-22T14:02:12+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:12+0100 [dbase#info] Starting DAO
+2021-11-22T14:02:12+0100 [cli#info] Starting Command Service
+2021-11-22T14:02:12+0100 [cli#info] Sending event location_create_req
+2021-11-22T14:02:12+0100 [cli#info] Insert to location_t: {'site_name': 'Alcafrán', 'location': 'Alcafrán', 'longitude': -2.7335649, 'latitude': 40.4966031, 'randomized': 0, 'utc_offset': 1}
+2021-11-22T14:02:12+0100 [cli#info] Setting default location in configuration section as id = {'location_id': 1}
+2021-11-22T14:02:13+0100 [cli#info] Stopping Command Service
+2021-11-22T14:02:13+0100 [dbase#info] Stopping Database Service
+2021-11-22T14:02:13+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:13+0100 [-] Main loop terminated.
+2021-11-22T14:02:13+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-22T14:02:13+0100 [dbase#info] Database version = 01
+2021-11-22T14:02:13+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:13+0100 [dbase#info] Starting DAO
+2021-11-22T14:02:13+0100 [cli#info] Starting Command Service
+2021-11-22T14:02:13+0100 [cli#info] Sending event camera_create_req
+2021-11-22T14:02:13+0100 [CTRL #info] analyzing bias levels([2049, 2049, 2050, 2049])
+2021-11-22T14:02:13+0100 [CTRL #info] global bias set to = 2048
+2021-11-22T14:02:13+0100 [cli#info] Insert/replace to camera_t: {'model': 'Canon EOS 550D', 'extension': '.CR2', 'bias': 2048, 'width': 5344, 'length': 3516, 'header_type': 'EXIF', 'bayer_pattern': 'GBRG'}
+2021-11-22T14:02:13+0100 [cli#info] Setting default camera in configuration section as id = {'camera_id': 4}
+2021-11-22T14:02:14+0100 [cli#info] Stopping Command Service
+2021-11-22T14:02:14+0100 [dbase#info] Stopping Database Service
+2021-11-22T14:02:14+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:14+0100 [-] Main loop terminated.
+2021-11-22T14:02:14+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-22T14:02:14+0100 [dbase#info] Database version = 01
+2021-11-22T14:02:14+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:14+0100 [dbase#info] Starting DAO
+2021-11-22T14:02:14+0100 [cli#info] Starting Command Service
+2021-11-22T14:02:14+0100 [cli#info] Sending event roi_create_req
+2021-11-22T14:02:14+0100 [cli#info] Insert/replace to roi_t: {'x1': 1086, 'y1': 679, 'x2': 1586, 'y2': 1079, 'display_name': '[679:1079,1086:1586]', 'comment': 'ROI for Canon EOS 550D, centered at P=(1336,879), width=500, height=400'}
+2021-11-22T14:02:14+0100 [cli#info] Setting default ROI in configuration section as id = {'roi_id': 1}
+2021-11-22T14:02:15+0100 [cli#info] Stopping Command Service
+2021-11-22T14:02:15+0100 [dbase#info] Stopping Database Service
+2021-11-22T14:02:15+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:15+0100 [-] Main loop terminated.
+2021-11-22T14:02:15+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-22T14:02:15+0100 [dbase#info] Database version = 01
+2021-11-22T14:02:15+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:15+0100 [dbase#info] Starting DAO
+2021-11-22T14:02:15+0100 [cli#info] Starting Command Service
+2021-11-22T14:02:15+0100 [cli#info] Sending event miscelanea_optics_req
+2021-11-22T14:02:15+0100 [cli#info] Writting in 'optics' configuration section = {'focal_length': 180, 'f_number': '3.5'}
+2021-11-22T14:02:15+0100 [cli#info] Stopping Command Service
+2021-11-22T14:02:15+0100 [dbase#info] Stopping Database Service
+2021-11-22T14:02:15+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:15+0100 [-] Main loop terminated.
+2021-11-22T14:02:15+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-22T14:02:15+0100 [dbase#info] Database version = 01
+2021-11-22T14:02:15+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:15+0100 [dbase#info] Starting DAO
+2021-11-22T14:02:15+0100 [cli#info] Starting Command Service
+2021-11-22T14:02:15+0100 [cli#info] Sending event miscelanea_publishing_req
+2021-11-22T14:02:15+0100 [cli#info] Writting in 'publishing' configuration section = {'username': 'foo', 'password': 'bar'}
+2021-11-22T14:02:15+0100 [cli#info] Stopping Command Service
+2021-11-22T14:02:15+0100 [dbase#info] Stopping Database Service
+2021-11-22T14:02:15+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
+2021-11-22T14:02:15+0100 [-] Main loop terminated.
 ```
 
 # Automation
@@ -92,9 +234,14 @@ The command exit codes are:
 * 1 => Command ended with errors. See the console (if set) or the log file.
 * 126 => User did not agree the usage conditions
 
-PATH={{ tessdb_venv_dir }}/bin:/usr/local/bin:/usr/bin:/bin
-PYTHONIOENCODING=utf-8
-#PYTHONPATH={{ tessdb_venv_dir }}/lib/python/3.6/site-packages
-VIRTUAL_ENV={{ tessdb_venv_dir }}
+# GUI Mode
+Azotea in GUI mode offers the same functions as the command line version. 
+See the attached screeshots:
 
-
+![Overview](doc/image/main.png)
+![Edit > Preferences > Camera](doc/image/camera.png)
+![Edit > Preferences > Observer](doc/image/observer.png)
+![Edit > Preferences > Location](doc/image/location.png)
+![Edit > Preferences > ROI](doc/image/roi.png)
+![Edit > Preferences > Publishing](doc/image/publishing.png)
+![Edit > Preferences > Miscelanea](doc/image/miscelanea.png)

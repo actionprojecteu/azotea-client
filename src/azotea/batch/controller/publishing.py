@@ -77,6 +77,12 @@ class PublishingController:
     @inlineCallbacks
     def onPublishReq(self):
         try:
+
+            # NOT AVAILABLE FOR THE TIME BEING
+            log.warn("Publishing is not available for the time being")
+            pub.sendMessage('file_quit')
+            return
+
             result = yield self.doCheckDefaults()
             if result:
                 total = yield self.sky.getPublishingCount({'observer_id': self.observer_id})
