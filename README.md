@@ -19,6 +19,7 @@ This can be easily done in Python 3 with a few lines. See the script below
 python3 -m venv ${HOME}/azotea
 mkdir -p ${HOME}/azotea/images
 mkdir -p ${HOME}/azotea/log
+mkdir -p ${HOME}/azotea/csv
 . ${HOME}/azotea/bin/activate
 pip install git+https://github.com/actionprojecteu/azotea-client.git@main
 ```
@@ -29,10 +30,15 @@ pip install git+https://github.com/actionprojecteu/azotea-client.git@main
 * The fourth line install the software from [its GitHub repository](https://github.com/actionprojecteu/azotea-client)
 
 There is an error showing `Building wheel for azotea-client (setup.py) ... error` but it seems ok.
-Verify it by executing
+
+Verify it by executing any of these:
 
 ```bash
+. ${HOME}/azotea/bin/activate
 azotool --version
+azotea --version
+azotool --help
+azotea --help
 ````
 
 # Configuration
@@ -236,9 +242,12 @@ In batch mode, loading images, peforming sky brightness measurements and (option
 ```
 export PATH=${HOME}/azotea/bin:/usr/local/bin:/usr/bin:/bin
 export VIRTUAL_ENV=${HOME}/azotea
-DBASE=${HOME}/azotea/azotea.db
 
-azotea --dbase ${DBASE} batch --images-dir ${HOME}/azotea/images --publish 
+DBASE=${HOME}/azotea/azotea.db
+LOG=${HOME}/azotea/log/azotea.log
+IMAGES=${HOME}/azotea/images
+
+azotea --dbase ${DBASE} --log-file ${LOG} batch --images-dir ${IMAGES} --publish 
 ```
 The `--images-dir` option can specify a directory where the actual images are or a parent directory.
 i.e:
@@ -256,9 +265,22 @@ This allows more automation, as all subdirectories will be traversed.
 We recommend using a scheme like `YYYY-MM-DD` for the subdirectories.
 Directoris will be processed with descendent order, that is, from the most recent name (i.e. 2021-11-02) to the least recent one.
 
-CSV file generation in batch mode is done by using `azotool`
+CSV file generation in batch mode is done by using `azotool`. It has the same options as in the GUI mode. 
+We can use the `--console` option if executed interactively or the `--log-file` option if executed within an automation script.
 
+```
+export PATH=${HOME}/azotea/bin:/usr/local/bin:/usr/bin:/bin
+export VIRTUAL_ENV=${HOME}/azotea
 
+DBASE=${HOME}/azotea/azotea.db
+LOG=${HOME}/azotea/log/azotea.log
+CSV=${HOME}/azotea/csv
+
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --all
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --latest-night
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --latest-month
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --range --from-date 2021-01-21 --to-date 2021-03-18
+```
 
 # Automation
 
