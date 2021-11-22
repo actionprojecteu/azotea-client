@@ -105,11 +105,11 @@ associated with a default observer.
 4. *Location data*
 
 In a similar way, we create a default location, so that observations are associated to this default location. Note that for small locations such as villages, the `--site-name` can be equal to the `--location` name, as in this example. For other cases, they should be different. 
-I.e `--site-name Facultad de CC. Físicas --location Madrid` 
+I.e `--site-name Facultad de CC. Físicas UCM --location Madrid` 
 
 In our example, the coorditaes given belong to Juan's personal observatory. As he wishes to preserve hidden the exact location for security reasons, he specifies `--randomize` which will add an uncertainty up to 1 Km.
 
-For public premises such `Facultad de CC. Físicas` this is not usually a concern and thre is no need to specify `--randomize`
+For public premises such `Facultad de CC. Físicas UCM` this is not usually a concern and thre is no need to specify `--randomize`
 
 Finally the `-utc-offset` specifies a positve +1 offset respect to UTC, as in the rest of the Iberian Peninsula. No Daylight savings time is automatically handled.
 
