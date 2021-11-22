@@ -28,8 +28,6 @@ pip install git+https://github.com/actionprojecteu/azotea-client.git@main
 * The third line activates the virtual environment (**please note the starting dot**) so that all needed python packages are installed there and not system wide.
 * The fourth line install the software from [its GitHub repository](https://github.com/actionprojecteu/azotea-client)
 
-```
-
 There is an error showing `Building wheel for azotea-client (setup.py) ... error` but it seems ok.
 Verify it by executing
 
@@ -221,6 +219,8 @@ Agreement accepted
 
 # Image processing
 
+## GUI Mode
+
 In GUI Mode, there are two steps:
 1. `File > Load images ...`
 2. `Process > Sky Brightness ...`
@@ -228,6 +228,8 @@ In GUI Mode, there are two steps:
 Then we can either generate a CSV file with the results or publsih them:
 * `File > Export to CSV ...`
 * `File > Publish Measurements ...`
+
+## Batch mode
 
 In batch mode, loading images, peforming sky brightness measurements and (optionally) publishing results can be done all at once:
 
@@ -253,6 +255,9 @@ ${HOME}/azotea/images
 This allows more automation, as all subdirectories will be traversed. 
 We recommend using a scheme like `YYYY-MM-DD` for the subdirectories.
 Directoris will be processed with descendent order, that is, from the most recent name (i.e. 2021-11-02) to the least recent one.
+
+CSV file generation in batch mode is done by using `azotool`
+
 
 
 # Automation

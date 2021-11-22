@@ -145,7 +145,7 @@ class PublishingController:
             
             # NOT AVAILABLE FOR THE TIME BEING
             log.warn("Publishing is not available for the time being")
-            message = _(Publishing is not available for the time being)
+            message = _("Publishing is not available for the time being")
             self.view.messageBoxWarn(who=("Publishing Processor"), message=message)
             return
 
