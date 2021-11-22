@@ -271,14 +271,8 @@ class SkyBackgroundController:
             name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
             w_date, w_time = widget_datetime(date_id, time_id) 
             row = {
-                'name'       : name,
                 'image_id'   : image_id,
-                'observer_id': observer_id,
-                'location_id': location_id,
                 'roi_id'     : self.roi_id,
-                'camera_id'  : camera_id,
-                'date_id'    : date_id,
-                'time_id'    : time_id,
                 'widget_date': w_date,  # for display purposes only
                 'widget_time': w_time,  # for display purposes only
                 'exptime'    : exptime, # for display purposes only
@@ -287,12 +281,12 @@ class SkyBackgroundController:
                 yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
             except Exception as e:
                 log.failure('{e}', e=e)
-                self.view.statusBar.update( _("SKY BACKGROUND"), row['name'], (100*i//N_stats), error=True)
+                self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=True)
                 return(None)
             else:
-                self.view.statusBar.update( _("SKY BACKGROUND"), row['name'], (100*i//N_stats), error=False)
+                self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=False)
                 yield self.sky.save(row)
-                self.view.mainArea.displaySkyMeasurement(row['name'],row)
+                self.view.mainArea.displaySkyMeasurement(name, row)
         if N_stats:
             message = _("Sky background: {0}/{1} images computed").format(i+1,N_stats)
             self.view.messageBoxInfo(who=_("Sky backround statistics"),message=message)

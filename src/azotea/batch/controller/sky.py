@@ -129,26 +129,17 @@ class SkyBackgroundController:
             name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
             w_date, w_time = widget_datetime(date_id, time_id) 
             row = {
-                'name'       : name,
-                'image_id'   : image_id,
-                'observer_id': observer_id,
-                'location_id': location_id,
                 'roi_id'     : self.roi_id,
-                'camera_id'  : camera_id,
-                'date_id'    : date_id,
-                'time_id'    : time_id,
-                'widget_date': w_date,  # for display purposes only
-                'widget_time': w_time,  # for display purposes only
-                'exptime'    : exptime, # for display purposes only
+                'image_id'   : image_id,
             }
             try:
                 yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
             except Exception as e:
                 log.failure('{e}', e=e)
-                log.error("Sky Background Processor: {name} [{p}%]", name=row['name'], p=(100*i//N_stats))
+                log.error("Sky Background Processor: {name} [{p}%]", name=name, p=(100*i//N_stats))
                 return(None)
             else:
-                log.info("Sky Background Processor: {name} [{p}%]", name=row['name'], p=(100*i//N_stats))
+                log.info("Sky Background Processor: {name} [{p}%]", name=name, p=(100*i//N_stats))
                 yield self.sky.save(row)
         if N_stats:
             log.info("Sky Background Processor: {n}/{d} images processed", n=i+1, d=N_stats)

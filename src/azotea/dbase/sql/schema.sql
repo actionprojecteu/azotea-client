@@ -129,14 +129,9 @@ CREATE TABLE IF NOT EXISTS image_t
 
 CREATE TABLE IF NOT EXISTS sky_brightness_t
 (
-    -- References to dimensions
-    observer_id         INTEGER NOT NULL,
-    location_id         INTEGER NOT NULL,
-    camera_id           INTEGER NOT NULL,
+    -- References to dimensions/parent table
     image_id            INTEGER NOT NULL,
     roi_id              INTEGER NOT NULL,
-    date_id             INTEGER NOT NULL,
-    time_id             INTEGER NOT NULL,
 
     -- Sky Brighntess Measurements
     aver_signal_R      REAL,             -- R raw signal mean without dark substraction
@@ -162,14 +157,50 @@ CREATE TABLE IF NOT EXISTS sky_brightness_t
     -- Management
     published         INTEGER DEFAULT 0, -- Published in server flag
 
-    FOREIGN KEY(date_id)     REFERENCES date_t(date_id),
-    FOREIGN KEY(time_id)     REFERENCES time_t(time_id),
-    FOREIGN KEY(camera_id)   REFERENCES camera_t(camera_id),
-    FOREIGN KEY(location_id) REFERENCES location_t(location_id),
-    FOREIGN KEY(observer_id) REFERENCES observer_t(observer_id),
+    FOREIGN KEY(image_id)    REFERENCES image_t(image_id),
     FOREIGN KEY(roi_id)      REFERENCES roi_t(roi_id),
-    PRIMARY KEY(image_id,roi_id)
+    PRIMARY KEY(image_id, roi_id)
 );
+
+-------------------------------------------------------------------
+-- This view is needed to perform exports including the ROI details
+-- not present in the image_t table
+--------------------------------------------------------------------
+
+CREATE VIEW IF NOT EXISTS sky_brightness_v
+AS SELECT
+    s.image_id,
+    -- ROI details
+    r.x1,
+    r.y1,
+    r.x2,
+    r.y2,
+    r.display_name,
+    r.comment,
+    -- Sky Brighntess Measurements
+    s.aver_signal_R , 
+    s.vari_signal_R, 
+    s.aver_dark_R,  
+    s.vari_dark_R , 
+
+    s.aver_signal_G1, 
+    s.vari_signal_G1, 
+    s.aver_dark_G1,  
+    s.vari_dark_G1 , 
+
+    s.aver_signal_G2, 
+    s.vari_signal_G2, 
+    s.aver_dark_G2, 
+    s.vari_dark_G2, 
+
+    s.aver_signal_B, 
+    s.vari_signal_B, 
+    s.aver_dark_B,  
+    s.vari_dark_B, 
+    -- Management
+    s.published
+FROM sky_brightness_t AS s
+JOIN roi_t AS r USING(roi_id);
 
 
 

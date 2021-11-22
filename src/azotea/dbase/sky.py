@@ -42,14 +42,23 @@ class SkyBrightness:
 
     def countAll(self, filter_dict):
         def _countAll(txn, filter_dict):
-            sql = '''SELECT COUNT(*) FROM sky_brightness_t WHERE observer_id = :observer_id;'''
+            sql = '''
+                SELECT COUNT(*) FROM sky_brightness_t AS s
+                JOIN image_t AS i USING(image_id)
+                WHERE i.observer_id = :observer_id;'''
             txn.execute(sql, filter_dict)
             return txn.fetchone()[0]
         return self._pool.runInteraction(_countAll, filter_dict)
 
     def deleteAll(self, filter_dict):
         def _deleteAll(txn, filter_dict):
-            sql = '''DELETE FROM sky_brightness_t WHERE observer_id = :observer_id;'''
+            sql = '''
+                DELETE FROM sky_brightness_t 
+                WHERE image_id IN (
+                    SELECT image_id FROM image_t 
+                    WHERE observer_id = :observer_id
+                )
+                '''
             txn.execute(sql, filter_dict)
         return self._pool.runInteraction(_deleteAll, filter_dict)
 
@@ -108,8 +117,11 @@ class SkyBrightness:
         def _deleteDateRange(txn, filter_dict):
             sql = '''
             DELETE FROM sky_brightness_t
-            WHERE observer_id = :observer_id
-            AND date_id BETWEEN :start_date_id AND :end_date_id;
+            WHERE image_id IN (
+                SELECT image_id FROM image_t
+                WHERE observer_id = :observer_id
+                AND date_id BETWEEN :start_date_id AND :end_date_id
+            )
             '''
             txn.execute(sql, filter_dict)
         return self._pool.runInteraction(_deleteDateRange, filter_dict)
@@ -134,13 +146,8 @@ class SkyBrightness:
         def _save(txn, row_dict):
             sql = '''
                 INSERT INTO sky_brightness_t (
-                    observer_id,
-                    location_id,
-                    camera_id,
                     image_id,
                     roi_id,
-                    date_id,
-                    time_id,
                     aver_signal_R,
                     vari_signal_R,
                     aver_signal_G1,
@@ -151,13 +158,8 @@ class SkyBrightness:
                     vari_signal_B
                 )
                 VALUES (
-                    :observer_id,
-                    :location_id,
-                    :camera_id,
                     :image_id,
                     :roi_id,
-                    :date_id,
-                    :time_id,
                     :aver_signal_R,
                     :vari_signal_R,
                     :aver_signal_G1,
@@ -177,10 +179,10 @@ class SkyBrightness:
         def _getLatestMonth(txn, filter_dict):
             sql = '''
             SELECT MAX(d.year),MAX(d.month_num),1
-            FROM sky_brightness_t AS s
+            FROM image_t AS i
             JOIN date_t AS d USING(date_id)
             JOIN observer_t AS o USING(observer_id)
-            WHERE s.observer_id = :observer_id
+            WHERE i.observer_id = :observer_id
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
@@ -191,23 +193,23 @@ class SkyBrightness:
         def _getLatestMonthCount(txn, filter_dict):
             sql = '''
             SELECT COUNT(*)
-            FROM sky_brightness_t AS s
+            FROM image_t AS i
             JOIN date_t AS d USING(date_id)
             JOIN observer_t AS o USING(observer_id)
-            WHERE s.observer_id = :observer_id
+            WHERE i.observer_id = :observer_id
             AND d.year = (
                 SELECT MAX(d.year)
-                FROM sky_brightness_t AS s
+                FROM image_t AS i
                 JOIN date_t AS d USING(date_id)
                 JOIN observer_t AS o USING(observer_id)
-                WHERE s.observer_id = :observer_id
+                WHERE i.observer_id = :observer_id
             )
             AND d.month_num = (
                 SELECT MAX(d.month_num)
-                FROM sky_brightness_t AS s
+                FROM image_t AS i
                 JOIN date_t AS d USING(date_id)
                 JOIN observer_t AS o USING(observer_id)
-                WHERE s.observer_id = :observer_id
+                WHERE i.observer_id = :observer_id
             )
             '''
             self.log.debug(sql)
@@ -220,11 +222,11 @@ class SkyBrightness:
         def _getLatestNight(txn, filter_dict):
             sql = '''
             SELECT d.year, d.month_num, d.day
-            FROM sky_brightness_t AS s
+            FROM image_t AS i
             JOIN date_t AS d USING(date_id)
             JOIN time_t AS t USING(time_id)
             JOIN observer_t AS o USING(observer_id)
-            WHERE o.observer_id = :observer_id
+            WHERE i.observer_id = :observer_id
             AND round((d.julian_day - 0.5 + t.day_fraction),0) = (
                 SELECT MAX(round((d.julian_day - 0.5 + t.day_fraction),0))
                 FROM image_t AS i
@@ -243,11 +245,11 @@ class SkyBrightness:
         def _getLatestNightCount(txn, filter_dict):
             sql = '''
             SELECT count(*)
-            FROM sky_brightness_t AS s
+            FROM image_t AS i
             JOIN date_t AS d USING(date_id)
             JOIN time_t AS t USING(time_id)
             JOIN observer_t AS o USING(observer_id)
-            WHERE o.observer_id = :observer_id
+            WHERE i.observer_id = :observer_id
             AND round((d.julian_day - 0.5 + t.day_fraction),0) = (
                 SELECT MAX(round((d.julian_day - 0.5 + t.day_fraction),0))
                 FROM image_t AS i
@@ -266,10 +268,10 @@ class SkyBrightness:
         def _getDateRangeCount(txn, filter_dict):
             sql = '''
             SELECT COUNT(*)
-            FROM sky_brightness_t AS s
+            FROM image_t AS i
             JOIN observer_t AS o USING(observer_id)
-            WHERE s.observer_id = :observer_id
-            AND s.date_id BETWEEN :start_date_id AND :end_date_id;
+            WHERE i.observer_id = :observer_id
+            AND i.date_id BETWEEN :start_date_id AND :end_date_id;
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
@@ -292,7 +294,7 @@ class SkyBrightness:
             i.name, 
             c.model, 
             i.iso, 
-            r.display_name,
+            s.display_name,
             NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
@@ -312,16 +314,15 @@ class SkyBrightness:
             s.aver_dark_B,    
             s.vari_dark_B,
             c.bias
-            FROM sky_brightness_t AS s
-            JOIN roi_t      AS r USING(roi_id)
+            FROM image_t AS i
+            JOIN sky_brightness_v AS s USING(image_id)
             JOIN date_t     AS d USING(date_id)
             JOIN time_t     AS t USING(time_id)
-            JOIN image_t    AS i USING(image_id)
             JOIN camera_t   AS c USING(camera_id)
             JOIN observer_t AS o USING(observer_id)
             JOIN location_t AS l USING(location_id)
-            WHERE s.observer_id = :observer_id
-            ORDER BY s.date_id ASC, s.time_id ASC;
+            WHERE i.observer_id = :observer_id
+            ORDER BY i.date_id ASC, i.time_id ASC;
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
@@ -344,7 +345,7 @@ class SkyBrightness:
             i.name, 
             c.model, 
             i.iso, 
-            r.display_name,
+            s.display_name,
             NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
@@ -364,17 +365,16 @@ class SkyBrightness:
             s.aver_dark_B,    
             s.vari_dark_B,
             c.bias
-            FROM sky_brightness_t AS s
-            JOIN roi_t      AS r USING(roi_id)
+            FROM image_t    AS i
             JOIN date_t     AS d USING(date_id)
             JOIN time_t     AS t USING(time_id)
-            JOIN image_t    AS i USING(image_id)
+            JOIN sky_brightness_v AS s USING(image_id)
             JOIN camera_t   AS c USING(camera_id)
             JOIN observer_t AS o USING(observer_id)
             JOIN location_t AS l USING(location_id)
-            WHERE s.observer_id = :observer_id
-            AND s.date_id BETWEEN :start_date_id AND :end_date_id
-            ORDER BY s.date_id ASC, s.time_id ASC;
+            WHERE i.observer_id = :observer_id
+            AND i.date_id BETWEEN :start_date_id AND :end_date_id
+            ORDER BY i.date_id ASC, i.time_id ASC;
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
@@ -397,7 +397,7 @@ class SkyBrightness:
             i.name, 
             c.model, 
             i.iso, 
-            r.display_name,
+            s.display_name,
             NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
@@ -417,15 +417,14 @@ class SkyBrightness:
             s.aver_dark_B,    
             s.vari_dark_B,
             c.bias
-            FROM sky_brightness_t AS s
-            JOIN roi_t  AS r USING(roi_id)
+            FROM image_t AS i
+            JOIN sky_brightness_v  AS s USING(image_id) -- this is a view !
             JOIN date_t  AS d USING(date_id)
             JOIN time_t  AS t USING(time_id)
-            JOIN image_t  AS i USING(image_id)
             JOIN camera_t AS c USING(camera_id)
             JOIN observer_t AS o USING(observer_id)
             JOIN location_t AS l USING(location_id)
-            WHERE s.observer_id = :observer_id
+            WHERE i.observer_id = :observer_id
             AND round((d.julian_day - 0.5 + t.day_fraction),0) = (
                 SELECT MAX(round((d.julian_day - 0.5 + t.day_fraction),0))
                 FROM image_t AS i
@@ -434,7 +433,7 @@ class SkyBrightness:
                 JOIN observer_t AS o USING(observer_id)
                 WHERE i.observer_id = :observer_id
             )
-            ORDER BY s.date_id ASC, s.time_id ASC;
+            ORDER BY i.date_id ASC, i.time_id ASC;
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
@@ -456,7 +455,7 @@ class SkyBrightness:
             i.name, 
             c.model, 
             i.iso, 
-            r.display_name,
+            s.display_name,
             NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
@@ -476,30 +475,29 @@ class SkyBrightness:
             s.aver_dark_B,    
             s.vari_dark_B,
             c.bias
-            FROM sky_brightness_t AS s
-            JOIN roi_t  AS r USING(roi_id)
+            FROM image_t AS i
             JOIN date_t  AS d USING(date_id)
             JOIN time_t  AS t USING(time_id)
-            JOIN image_t  AS i USING(image_id)
+            JOIN sky_brightness_v  AS s USING(image_id)
             JOIN camera_t AS c USING(camera_id)
             JOIN observer_t AS o USING(observer_id)
             JOIN location_t AS l USING(location_id)
-            WHERE s.observer_id = :observer_id
+            WHERE i.observer_id = :observer_id
             AND d.month_num = (
                 SELECT MAX(d.month_num)
-                FROM sky_brightness_t AS s
+                FROM image_t AS i
                 JOIN date_t AS d USING(date_id)
                 JOIN observer_t AS o USING(observer_id)
-                WHERE s.observer_id = :observer_id
+                WHERE i.observer_id = :observer_id
             )
             AND d.year = (
                 SELECT MAX(d.year)
-                FROM sky_brightness_t AS s
+                FROM image_t AS i
                 JOIN date_t AS d USING(date_id)
                 JOIN observer_t AS o USING(observer_id)
-                WHERE s.observer_id = :observer_id
+                WHERE i.observer_id = :observer_id
             )
-            ORDER BY s.date_id ASC, s.time_id ASC;
+            ORDER BY i.date_id ASC, i.time_id ASC;
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
@@ -512,8 +510,8 @@ class SkyBrightness:
             sql = '''
             SELECT COUNT(*)
             FROM sky_brightness_t AS s
-            JOIN observer_t AS o USING(observer_id)
-            WHERE s.observer_id = :observer_id
+            JOIN image_t AS i USING(image_id)
+            WHERE i.observer_id = :observer_id
             AND s.published = 0;
             '''
             self.log.debug(sql)
@@ -527,8 +525,11 @@ class SkyBrightness:
             sql = '''
             UPDATE sky_brightness_t
             SET published = 1
-            WHERE observer_id = :observer_id
-            AND published = 0;
+            WHERE published = 0
+            AND image_id IN (
+                SELECT image_id FROM image_t
+                WHERE  observer_id = :observer_id
+            )
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
@@ -559,19 +560,19 @@ class SkyBrightness:
             o.surname, o.family_name, o.acronym, o.affiliation, o.valid_since, o.valid_until, o.valid_state,
             l.site_name, l.location, l.public_long, l.public_lat, l.utc_offset,
             c.model, c.bias, c.extension, c.header_type, c.bayer_pattern, c.width, c.length,
-            r.x1, r.y1, r.x2, r.y2, r.display_name, r.comment,
+            s.x1, s.y1, s.x2, s.y2, s.display_name, s.comment,
             i.name, i.directory, i.hash, i.iso, i.gain, i.exptime, i.focal_length, i.f_number, i.session,  
             s.aver_signal_R,  s.vari_signal_R,  s.aver_signal_G1, s.vari_signal_G1, 
             s.aver_signal_G2, s.vari_signal_G2, s.aver_signal_B,  s.vari_signal_B
-            FROM sky_brightness_t AS s
+            FROM image_t AS i
             JOIN roi_t      AS r USING(roi_id)
-            JOIN image_t    AS i USING(image_id)
+            JOIN sky_brightness_v AS s USING(image_id)
             JOIN camera_t   AS c USING(camera_id)
             JOIN observer_t AS o USING(observer_id)
             JOIN location_t AS l USING(location_id)
-            WHERE s.observer_id = :observer_id
+            WHERE i.observer_id = :observer_id
             AND   s.published = 0
-            ORDER BY s.date_id ASC, s.time_id ASC
+            ORDER BY i.date_id ASC, i.time_id ASC
             LIMIT :limit OFFSET :offset;
             '''
             self.log.debug(sql)
