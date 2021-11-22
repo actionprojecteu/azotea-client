@@ -58,7 +58,7 @@ PACKAGE_DATA = {
     ],
 }
 
-SCRIPTS = ["scripts/azotea"]
+SCRIPTS = ["scripts/azotea", "scripts/azotool"]
 
 DATA_FILES  = []
 
