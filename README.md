@@ -21,7 +21,7 @@ mkdir -p ${HOME}/azotea/images
 mkdir -p ${HOME}/azotea/log
 mkdir -p ${HOME}/azotea/csv
 . ${HOME}/azotea/bin/activate
-pip install git+https://github.com/actionprojecteu/azotea-client.git@main
+pip install git+https://github.com/actionprojecteu/azotea-client.git@0.2.0
 ```
 
 * The first line creates a Python virtual environment under `${HOME}/azotea`.
