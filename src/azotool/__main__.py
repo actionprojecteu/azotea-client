@@ -162,12 +162,12 @@ def createParser():
     skyexp.add_argument('--csv-dir', type=str, required=True, action='store', metavar='<csv directory>', help='directory where to place CSV files')
     group = skyexp.add_mutually_exclusive_group(required=True)
     group.add_argument('--latest-month', action='store_true', help='Latest month in database')
-    group.add_argument('--latest-day',   action='store_true', help='Latest day in database')
-    group.add_argument('--all',          action='store_true', help='Export all')
+    group.add_argument('--latest-night', action='store_true', help='Latest night in database')
+    group.add_argument('--all',          action='store_true', help='Export all nights')
     group.add_argument('--range',        action='store_true', help='Export a date range')
     # options for range export
-    skyexp.add_argument('--from-date', type=mkdate, default=None, metavar='<YYYY-MM-DD>', help="Start date")
-    skyexp.add_argument('--to-date',   type=mkdate, default=None, metavar='<YYYY-MM-DD>', help='End date')
+    skyexp.add_argument('--from-date', type=mkdate, default=None, metavar='<YYYY-MM-DD>', help="Start date in range")
+    skyexp.add_argument('--to-date',   type=mkdate, default=None, metavar='<YYYY-MM-DD>', help='End date in range')
 
     # --------------------------------------------
     # Create second level parsers for 'miscelanea'
@@ -180,11 +180,8 @@ def createParser():
     miscopt.add_argument('--f-number',       type=str, required=True, help="Camera f/ ratio")
 
     pubcre = subparser.add_parser('publishing',  help="create the 'publishing' section in the configuration")
-    pubcre.add_argument('--url',      type=str, required=True, help='Server URL')
     pubcre.add_argument('--username', type=str, required=True, help="Server username")
     pubcre.add_argument('--password', type=str, required=True, help="Server password")
-    pubcre.add_argument('--page-size', type=int, default=100, help="Upload paging size")
-    pubcre.add_argument('--tps',       type=int, default=1,   help="Upload transactions per second")
    
     return parser
 

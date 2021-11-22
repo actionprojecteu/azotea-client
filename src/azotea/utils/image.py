@@ -45,8 +45,11 @@ from azotea.utils import NAMESPACE, log
 def hashfunc(filepath):
     '''Compute a hash from the image'''
     BLOCK_SIZE = 1048576 # 1MByte, the size of each read from the file
-    # md5() was the fastest algorithm I've tried    
-    file_hash = hashlib.md5()
+    # md5() was the fastest algorithm I've tried
+    # but I'm using blake2b with twice the digest size for compatibility
+    # with the old AZOTEA software    
+    #file_hash = hashlib.md5()
+    file_hash = hashlib.blake2b(digest_size=32)
     with open(filepath, 'rb') as f:
         block = f.read(BLOCK_SIZE) 
         while len(block) > 0:
@@ -56,7 +59,6 @@ def hashfunc(filepath):
 
 
 def exif_metadata(filename, row):
-    
     with open(filename, 'rb') as f:
         exif = exifread.process_file(f, details=False)
     if not exif:

@@ -79,12 +79,9 @@ class MiscelaneaController:
             data = {
                 'username'  : options.username,
                 'password'  : options.password,
-                'url'       : options.url,
-                'tps'       : options.tps,
-                'page_size' : options.page_size,
             }
             log.info("Writting in 'publishing' configuration section = {data}",data=data)
-            yield self.config.saveSection('publishing', data)     
+            yield self.config.saveSection('publishing', data)   
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('file_quit', exit_code = 1)

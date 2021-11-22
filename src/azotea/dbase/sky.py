@@ -30,6 +30,7 @@ from azotea.dbase.tables import Table, VersionedTable
 # Module constants
 # ----------------
 
+CSV_VERSION = 1
 
 class SkyBrightness:
 
@@ -278,8 +279,10 @@ class SkyBrightness:
 
     def exportAll(self, filter_dict):
         def _exportAll(txn, filter_dict):
+            filter_dict['csv_version'] = CSV_VERSION
             sql = '''
             SELECT 
+            :csv_version,
             i.session,  
             o.surname || ', ' || o.family_name, 
             o.acronym, 
@@ -328,8 +331,10 @@ class SkyBrightness:
 
     def exportDateRange(self, filter_dict):
         def _exportDateRange(txn, filter_dict):
+            filter_dict['csv_version'] = CSV_VERSION
             sql = '''
             SELECT 
+            :csv_version,
             i.session,  
             o.surname || ', ' || o.family_name, 
             o.acronym, 
@@ -379,8 +384,10 @@ class SkyBrightness:
 
     def exportLatestNight(self, filter_dict):
         def _exportLatestNight(txn, filter_dict):
+            filter_dict['csv_version'] = CSV_VERSION
             sql = '''
             SELECT 
+            :csv_version,
             i.session,  
             o.surname || ', ' || o.family_name, 
             o.acronym, 
@@ -436,8 +443,10 @@ class SkyBrightness:
 
     def exportLatestMonth(self, filter_dict):
         def _exportLatestMonth(txn, filter_dict):
+            filter_dict['csv_version'] = CSV_VERSION
             sql = '''
             SELECT 
+            :csv_version,
             i.session,  
             o.surname || ', ' || o.family_name, 
             o.acronym, 

@@ -1,9 +1,7 @@
 MAS INMEDIATO TODAVIA
 =====================
+
 * error n+1/n en register
-* probar los 4 exports con azotool
-* ¿ azotool sky publish ?
-* generacion de CSV, añadir columna version
 * refactorizar el modelo de datos para quitar columnas de id en sky
    - requiere un image_id (maestro/detalle) en sky_t
 
@@ -12,6 +10,7 @@ INMEDIATO
 * ¿Validacion? _tkinter.TclError: expected floating-point number but got "39,6928888889"
 * Probar la generacion del megaexport
 * Falla el constraint check de borra imagenes/medidas.
+* ¿ azotool sky publish ?
 * Publicacionde medidas
   - Controlador (tanbto ewn GUI como en batch)
     - revisar codigo
@@ -31,11 +30,6 @@ cabera_id
 debug_level
 [observer]
 
-* Utilidad de patches de BD, interactiva
- from_v01_to_v02.sql
- from_v02_yo_v03.sql
-  en el about, decir qué version de BD está
-
 * Bucle for roi in rois:
   procesar estadisticas (como soporte a tener uchas rois por imagen)
 
@@ -44,7 +38,6 @@ debug_level
   - cuadro de dialogo con canvas
 
 * Boton de ver imagen al ver la ROI
-
 
 * soporte para FITS
   - opciones de camara (bias, etc.)

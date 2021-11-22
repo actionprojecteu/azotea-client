@@ -74,6 +74,7 @@ CFA_PATTERNS = {
 }
 
 CSV_COLUMNS = (
+    'csv_version',
     'session', 
     'observer', 
     'organization', 
