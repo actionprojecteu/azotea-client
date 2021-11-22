@@ -111,6 +111,8 @@ In our example, the coorditaes given belong to Juan's personal observatory. As h
 
 For public premises such `Facultad de CC. Físicas` this is not usually a concern and thre is no need to specify `--randomize`
 
+Finally the `-utc-offset` specifies a positve +1 offset respect to UTC, as in the rest of the Iberian Peninsula. No Daylight savings time is automatically handled.
+
 5. *Camera data*
 
 We proceed to enter the default camera data. By far the best way is to specify an example RAW file taken from this camera and the software will read all necessary data from it.
