@@ -34,7 +34,7 @@ EARTH_RADIUS = 6371.0  # in Km
 # Module Utility Functions
 # ------------------------
 
-def randomize(longitude, latitude, error_Km = 1.0):
+def randomize(longitude, latitude, error_Km = 0.5):
     # Includes +- 1Km uncertainty in coordinates
     delta_long  = random.uniform(-error_Km, error_Km)*(1/EARTH_RADIUS)*math.cos(math.radians(latitude))
     delta_lat   = random.uniform(-error_Km, error_Km)*(1/EARTH_RADIUS)
