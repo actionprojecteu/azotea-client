@@ -290,7 +290,8 @@ azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV}
 
 ## Log file & console output
 
-It is highly recommeded to configure a log file when executing azotea in batch mode. This log file is not rotated.
+It is highly recommeded to configure a log file when executing azotea in batch mode. This log file is not rotated, so you should use
+an external log rotation tool like `logrotate` and set its rotation policy as needed.
 For the same reason, console output is not activated by default and must be explicitely activated with `--console`
 Redirecting  console `stdout` `stderr` has the same effect as specifying a log file but it is a bit more cumbersome.
 
