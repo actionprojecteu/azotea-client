@@ -104,5 +104,5 @@ class LocationController:
                 long1=long1, lat1=lat1, long2=longitude, lat2=latitude)
         data['longitude'] = longitude
         data['latitude']  = latitude
-        log.info('Insert to location_t: {data}', data=data)
+        log.info('Insert to location: {data}', data=data)
         yield self.model.save(data)
