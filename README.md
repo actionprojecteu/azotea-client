@@ -15,6 +15,7 @@ Development of this software has been possible through [ACTION - Participatory s
   - [Configuration by command line](https://github.com/actionprojecteu/azotea-client#configuration-by-command-line)
 * [Batch mode](https://github.com/actionprojecteu/azotea-client#batch-mode)
   - [Image processing](https://github.com/actionprojecteu/azotea-client#image-processing)
+  - [CSV file generation](https://github.com/actionprojecteu/azotea-client#csv-file-generation)
   - [Automation issues](https://github.com/actionprojecteu/azotea-client#automation-issues)
     - [Log file & console output](https://github.com/actionprojecteu/azotea-client#log-file--console-output)
     - [Exit codes](https://github.com/actionprojecteu/azotea-client#exit-codes)
@@ -282,10 +283,15 @@ ${AZOTEA_HOME}/images
 
 This allows more automation, as all subdirectories will be traversed. 
 We recommend using a scheme like `YYYY-MM-DD` for the subdirectories.
-Directoris will be processed with descendent order, that is, from the most recent name (i.e. 2021-11-02) to the least recent one.
+Directoris will be processed with descendent order, that is, from the 
+most recent name (i.e. 2021-11-02) to the least recent one.
 
-CSV file generation in batch mode is done by using `azotool`. It has the same options as in the GUI mode. 
-We can use the `--console` option if executed interactively or the `--log-file` option if executed within an automation script.
+## CSV File generation
+
+CSV file generation in batch mode is done by using `azotool`. It has the 
+same options as in the GUI mode. We can use the `--console` option 
+if executed interactively or the `--log-file` option if executed within 
+an automation script.
 
 ```bash
 #!/bin/bash
