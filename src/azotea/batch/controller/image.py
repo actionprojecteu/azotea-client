@@ -183,10 +183,13 @@ class ImageController:
         session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
-        i = 0
         bayer = self.bayer_pattern
         log.info('Found {n} candidates matching filter {ext} in directory {dir}.',n=N_Files, ext=extension, dir=directory)
-        for i, filepath in enumerate(file_list):
+        if self.header_type == FITS_HEADER_TYPE:
+            log.error("Register: Unsupported header type {h} for the time being",h=header_type) 
+            return(None)
+        i = 0
+        for i, filepath in enumerate(file_list, start=1):
             row = {
                 'name'        : os.path.basename(filepath), 
                 'directory'   : os.path.dirname(filepath),
@@ -196,26 +199,21 @@ class ImageController:
                 'def_fl'      : self.default_focal_length['focal_length'],  # these 2 are not real table columns
                 'def_fn'      : self.default_f_number['f_number'],      # they are here just to fix EXIF optics reading
             }
+            log.info("Register: Loading {n} ({i}/{N}) [{p}%]", i=i, N=N_Files, n=row['name'], p=(100*i//N_Files) )
             result = yield self.image.load(row)
             if result:
                 log.debug('Skipping already registered {row.name}.', row=row)
-                log.debug("Register: Loading {n} [{p}%]", n=row['name'], p=(100*i//N_Files) )
                 continue
             row['session'] = session
-            if row['header_type'] == FITS_HEADER_TYPE:
-                log.error("Register: Unsupported header type {h} for the time being",h=header_type) 
+            try:
+                yield deferToThread(hash_and_exif_metadata, filepath, row)
+            except Exception as e:
+                log.failure('{e}', e=e)
+                log.error("Register: Error in fingerprint computation or EXIF metadata reading on {n} ({i}/{N}) [{p}%]",
+                        i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
                 return(None)
-            else:
-                try:
-                    yield deferToThread(hash_and_exif_metadata, filepath, row)
-                except Exception as e:
-                    log.failure('{e}', e=e)
-                    log.error("Register: Error in fingerprint computation or EXIF metadata reading on {n} [{p}%]",
-                        n=row['name'], p=(100*i//N_Files))
-                    return(None)
             new_camera = yield self.model.camera.lookup(row)
             if not new_camera:
-                log.info("Register: Loading {n} [{p}%]", n=row['name'], p=(100*i//N_Files) )
                 log.error("Register: Camera model {m} not found in the database",m=row['model'])
                 return(None)
             log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
@@ -226,9 +224,6 @@ class ImageController:
                 log.warn("Possible duplicate image: {name}",name=row['name'])
                 yield self.image.fixDirectory(row)
                 log.debug('Fixed directory for {name}', name=row['name'])
-                log.info("Register: Loading {n} [{p}%]", n=row['name'], p=(100*i//N_Files) )
                 continue
-            else:
-                log.info("Register: Loading {n} [{p}%]", n=row['name'], p=(100*i//N_Files) )
-        return((i+1, N_Files))
+        return((i, N_Files))
         
