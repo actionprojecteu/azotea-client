@@ -110,10 +110,11 @@ class ImageController:
                     with os.scandir(images_dir) as it:
                         dirs  = [ entry.path for entry in it if entry.is_dir()  ]
                         files = [ entry.path for entry in it if entry.is_file() ]
+                    N_Files = 0
                     if dirs:
                         if files:
                             log.warn("Ignoring files in {wd}", wd=images_dir)
-                        i = 0; N_Files = 0
+                        i = 0
                         for images_dir in sorted(dirs, reverse=True):
                             result = yield self.doRegister(images_dir)
                             if not result:
@@ -125,7 +126,6 @@ class ImageController:
                         result = yield self.doRegister(images_dir)
                         if result:
                             i, N_Files = result
-                    
                     if N_Files:
                         message = _("Registration: {0}/{1} images complete").format(i,N_Files)
                         self.view.messageBoxInfo(who=_("Register"),message=message)
@@ -250,7 +250,7 @@ class ImageController:
                     yield deferToThread(expensiveEXIFOperation, filepath, row)
                 except Exception as e:
                     log.failure('{e}', e=e)
-                    message = _("{0}: Error in MD5 computation or EXIF metadata reading").format(row['name'])
+                    message = _("{0}: Error in fingerprint computation or EXIF metadata reading").format(row['name'])
                     self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
                     return(None)
             new_camera = yield self.model.camera.lookup(row)
