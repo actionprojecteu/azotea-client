@@ -50,24 +50,6 @@ class SkyBrightness:
             return txn.fetchone()[0]
         return self._pool.runInteraction(_countAll, filter_dict)
 
-    def countPending(self, filter_dict):
-        def _countPendingl(txn, filter_dict):
-            sql = '''
-                SELECT COUNT(*) FROM sky_brightness_t AS s
-                JOIN image_t AS i USING(image_id)
-                WHERE i.observer_id = :observer_id;'''
-            ##### REVISAR ESTOOOOOOOOO
-            sql = '''
-                SELECT image_id
-                FROM image_t
-                EXCEPT 
-                SELECT DISTINCT image_id 
-                FROM sky_brightness_t;
-            '''
-            txn.execute(sql, filter_dict)
-            return txn.fetchone()[0]
-        return self._pool.runInteraction(countPending, filter_dict)
-
     def deleteAll(self, filter_dict):
         def _deleteAll(txn, filter_dict):
             sql = '''
@@ -79,6 +61,20 @@ class SkyBrightness:
                 '''
             txn.execute(sql, filter_dict)
         return self._pool.runInteraction(_deleteAll, filter_dict)
+
+
+    def deleteUnpublished(self, filter_dict):
+        def _deleteUnpublished(txn, filter_dict):
+            sql = '''
+                DELETE FROM sky_brightness_t 
+                WHERE image_id IN (
+                    SELECT image_id FROM image_t 
+                    WHERE observer_id = :observer_id
+                ) AND published = 0
+                '''
+            txn.execute(sql, filter_dict)
+        return self._pool.runInteraction(_deleteUnpublished, filter_dict)
+
 
     def deleteLatestNight(self, filter_dict):
         def _deleteLatestNight(txn, filter_dict):
@@ -348,8 +344,8 @@ class SkyBrightness:
         return self._pool.runInteraction(_exportAll, filter_dict)
 
 
-    def exportPending(self, filter_dict):
-        def _exportPending(txn, filter_dict):
+    def exportUnpublished(self, filter_dict):
+        def _exportUnpublished(txn, filter_dict):
             filter_dict['csv_version'] = CSV_VERSION
             sql = '''
             SELECT 
@@ -390,14 +386,14 @@ class SkyBrightness:
             JOIN camera_t   AS c USING(camera_id)
             JOIN observer_t AS o USING(observer_id)
             JOIN location_t AS l USING(location_id)
-            WHERE  v.published = 0
-            -- AND i.observer_id = :observer_id
+            WHERE  s.published = 0
+            AND i.observer_id = :observer_id
             ORDER BY i.date_id ASC, i.time_id ASC;
             '''
             self.log.debug(sql)
             txn.execute(sql, filter_dict)
             return txn.fetchall()
-        return self._pool.runInteraction(_exportPending, filter_dict)
+        return self._pool.runInteraction(_exportUnpublished, filter_dict)
 
 
     def exportDateRange(self, filter_dict):

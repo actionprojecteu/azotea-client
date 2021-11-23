@@ -132,7 +132,6 @@ class ApplicationController:
         try:
             log.info('starting Application Controller')
             consent  = yield self.model.config.load(section='gdpr', property='agree')
-            log.info("Consent = {c}", c=consent)
             if not consent:
                 self.view.openConsentDialog()
             else:

@@ -61,7 +61,7 @@ class DataAccesObject():
     # ------------
 
     def start(self, obs_dbg, loc_dbg, cam_dbg, img_dbg, roi_dbg, sky_dbg, cfg_dbg):
-        log.info('Starting DAO')
+        log.debug('Starting DAO')
 
         self.config = tables.ConfigTable(
             pool      = self.pool,

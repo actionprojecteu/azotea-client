@@ -32,7 +32,7 @@ from pubsub import pub
 # local imports
 # -------------
 
-from azotea import DATE_SELECTION_ALL, DATE_SELECTION_PENDING
+from azotea import DATE_SELECTION_ALL, DATE_SELECTION_UNPUBLISHED
 from azotea import DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 from azotea.logger  import setLogLevel
 from azotool.cli   import NAMESPACE, log
@@ -77,7 +77,7 @@ class SkyController:
             if options.all:
                 date['date_selection'] = DATE_SELECTION_ALL
             elif options.pending:
-                date['date_selection'] = DATE_SELECTION_PENDING
+                date['date_selection'] = DATE_SELECTION_UNPUBLISHED
             elif options.latest_night:
                 date['date_selection'] = DATE_SELECTION_LATEST_NIGHT
             elif options.latest_month:
@@ -130,9 +130,9 @@ class SkyController:
         if date_selection == DATE_SELECTION_ALL:
             filename = f'{self.observer_name}-all.csv'
             contents = yield self.sky.exportAll(filter_dict)
-        elif date_selection == DATE_SELECTION_PENDING:
-            filename = f'{self.observer_name}-pending.csv'
-            contents = yield self.sky.exportPending(filter_dict)
+        elif date_selection == DATE_SELECTION_UNPUBLISHED:
+            filename = f'{self.observer_name}-unpublished.csv'
+            contents = yield self.sky.exportUnpublished(filter_dict)
         elif date_selection == DATE_SELECTION_LATEST_NIGHT:
             year, month, day = yield self.sky.getLatestNight(filter_dict)
             filename = f'{self.observer_name}-{year}{month}{day:02d}.csv'

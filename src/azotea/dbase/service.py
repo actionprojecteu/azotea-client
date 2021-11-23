@@ -198,13 +198,13 @@ class DatabaseService(Service):
 
     def openPool(self):
         # setup the connection pool for asynchronouws adbapi
-        log.info("Opening DB Connection to {conn!s}", conn=self.path)
+        log.debug("Opening DB Connection to {conn!s}", conn=self.path)
         self.pool  = self.getPoolFunc(self.path)
         log.debug("Opened DB Connection to {conn!s}", conn=self.path)
 
 
     def closePool(self):
         '''setup the connection pool for asynchronouws adbapi'''
-        log.info("Closing DB Connection to {conn!s}", conn=self.path)
+        log.debug("Closing DB Connection to {conn!s}", conn=self.path)
         self.pool.close()
         log.debug("Closed DB Connection to {conn!s}", conn=self.path)

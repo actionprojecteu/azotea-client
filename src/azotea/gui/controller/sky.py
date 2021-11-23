@@ -45,13 +45,14 @@ import rawpy
 # -------------
 
 from azotea import __version__
+from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
+from azotea import DATE_SELECTION_ALL, DATE_SELECTION_UNPUBLISHED
+from azotea import DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 from azotea.utils import chop
 from azotea.utils.roi import Point, Rect
 from azotea.utils.sky import CSV_COLUMNS, postprocess, widget_datetime, processImage
 from azotea.logger  import startLogging, setLogLevel
 from azotea.error import IncorrectTimestampError
-from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
-from azotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 
 # ----------------
 # Module constants
@@ -126,6 +127,12 @@ class SkyBackgroundController:
             date_selection = date['date_selection']
             if date_selection == DATE_SELECTION_ALL:
                 count = yield self.sky.countAll(filter_dict)
+                message = _("Deleting {0} images").format(count)
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Background Processor"))
+                if accepted:
+                    yield self.sky.deleteAll(filter_dict)
+            elif date_selection == DATE_SELECTION_UNPUBLISHED:
+                count = yield self.sky.getPublishingCount(filter_dict)
                 message = _("Deleting {0} images").format(count)
                 accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Background Processor"))
                 if accepted:
@@ -224,9 +231,9 @@ class SkyBackgroundController:
         if date_selection == DATE_SELECTION_ALL:
             filename = f'{self.observer_name}-all.csv'
             contents = yield self.sky.exportAll(filter_dict)
-        elif date_selection == DATE_SELECTION_PENDING:
+        elif date_selection == DATE_SELECTION_UNPUBLISHED:
             filename = f'{self.observer_name}-pending.csv'
-            contents = yield self.sky.exportPending(filter_dict)
+            contents = yield self.sky.exportUnpublished(filter_dict)
         elif date_selection == DATE_SELECTION_LATEST_NIGHT:
             year, month, day = yield self.sky.getLatestNight(filter_dict)
             filename = f'{self.observer_name}-{year}{month}{day:02d}.csv'
@@ -264,7 +271,6 @@ class SkyBackgroundController:
             'roi_id'     : self.roi_id,
         }
         roi_dict = yield self.roi.loadById({'roi_id': self.roi_id})
-        log.info("ROI DICT = {r}",r=roi_dict)
         rect = Rect.from_dict(roi_dict)
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)
