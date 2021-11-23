@@ -139,7 +139,7 @@ class Table:
 
     def _readId(self, txn, nk_dict):
         query_sql = self._sqlReadId()
-        self.log.debug("{sql} {data}", sql=query_sql, data=nk_dict)
+        self.log.debug("{sql} <= {data}", sql=query_sql, data=nk_dict)
         txn.execute(query_sql, nk_dict)
         result = txn.fetchone()
         if result:
@@ -160,7 +160,7 @@ class Table:
     def _readEntry(self, txn, nk_dict):
         query_sql = self._sqlReadEntry()
         all_columns = self._natural_key_columns + self._other_columns
-        self.log.debug("{sql} {data}", sql=query_sql, data=nk_dict)
+        self.log.debug("{sql} <= {data}", sql=query_sql, data=nk_dict)
         txn.execute(query_sql, nk_dict)
         result = txn.fetchone()
         if result:
@@ -180,7 +180,7 @@ class Table:
     def _readEntryById(self, txn, id_dict):
         query_sql = self._sqlReadEntryById()
         all_columns = self._natural_key_columns + self._other_columns
-        self.log.debug("{sql} {data}", sql=query_sql, data=id_dict)
+        self.log.debug("{sql} <= {data}", sql=query_sql, data=id_dict)
         txn.execute(query_sql, id_dict)
         result = txn.fetchone()
         if result:
@@ -273,7 +273,7 @@ class Table:
         natural_key_columns = self._natural_key_columns
         other_columns = self._other_columns
         insert_sql = self._sqlInsertOrReplace()
-        self.log.debug("{sql} {data}", sql=insert_sql, data=data)
+        self.log.debug("{sql} <= {data}", sql=insert_sql, data=data)
         if type(data) in (list, tuple):
             txn.executemany(insert_sql, data)
         else:
@@ -285,7 +285,7 @@ class Table:
         natural_key_columns = self._natural_key_columns
         other_columns = self._other_columns
         insert_sql = self._sqlInsert()
-        self.log.debug("{sql} {data}", sql=insert_sql, data=data)
+        self.log.debug("{sql} <= {data}", sql=insert_sql, data=data)
         if type(data) in (list, tuple):
             txn.executemany(insert_sql, data)
         else:
@@ -308,7 +308,7 @@ class Table:
         txn.execute(query_sql, data)
         result = txn.fetchone()
         final_sql = insert_sql if not result else replace_sql
-        self.log.debug("{sql} {data}", sql=final_sql, data=data)
+        self.log.debug("{sql} <= {data}", sql=final_sql, data=data)
         txn.execute(final_sql, data)
 
     # ------------------------------------------------------------------------------------------------
@@ -336,7 +336,7 @@ class Table:
         if count:
             count = count[0]
             if count:
-                self.log.debug("{sql} {data}", sql=delete_sql, data=nk_dict)
+                self.log.debug("{sql} <= {data}", sql=delete_sql, data=nk_dict)
                 txn.execute(delete_sql, nk_dict)
         else:
             count = 0
@@ -456,7 +456,7 @@ class VersionedTable(Table):
         replace_sql = self._sqlVersionedReplace()
         insert_sql = self._sqlVersionedInsert()
         now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-        self.log.debug("{sql} {data}", sql=query_sql, data=data)
+        self.log.debug("{sql} <= {data}", sql=query_sql, data=data)
         txn.execute(query_sql, data)
         result = txn.fetchone()
         if not result:
@@ -464,7 +464,7 @@ class VersionedTable(Table):
             data['valid_state'] = 'Current'
             data['valid_until'] = self.END_OF_TIMES
             data['valid_since'] = now
-            self.log.debug("{sql} {data}", sql=insert_sql, data=data)
+            self.log.debug("{sql} <= {data}", sql=insert_sql, data=data)
             txn.execute(insert_sql, data)
         else:
             old_values = set(zip(other_columns, result[:-2]))    # Strip dates for comparison
@@ -476,12 +476,12 @@ class VersionedTable(Table):
             else:
                 self.log.debug("table {table}, set a new version of versioned attributes", table=table)
                 data['valid_until'] = now
-                self.log.debug("{sql} {data}", sql=replace_sql, data=data)
+                self.log.debug("{sql} <= {data}", sql=replace_sql, data=data)
                 txn.execute(replace_sql, data)
                 data['valid_state'] = 'Current'
                 data['valid_until'] = self.END_OF_TIMES
                 data['valid_since'] = now
-                self.log.debug("{sql} {data}", sql=insert_sql, data=data)
+                self.log.debug("{sql} <= {data}", sql=insert_sql, data=data)
                 txn.execute(insert_sql, data)
 
     # ------------------------------------------------------------------------------------------------
@@ -502,13 +502,13 @@ class VersionedTable(Table):
     def _deleteVersions(self, txn, nk_dict):
         count_sql  = self._sqlCountDeleteVersions()
         delete_sql = self._sqlDeleteVersions()
-        self.log.debug("{sql} {data}", sql=count_sql, data=nk_dict)
+        self.log.debug("{sql} <= {data}", sql=count_sql, data=nk_dict)
         txn.execute(count_sql, nk_dict)
         count = txn.fetchone()
         if count:
             count = count[0]
             if count:
-                self.log.debug("{sql} {data}", sql=delete_sql, data=nk_dict)
+                self.log.debug("{sql} <= {data}", sql=delete_sql, data=nk_dict)
                 txn.execute(delete_sql, nk_dict)
         else:
             count = 0
@@ -556,7 +556,7 @@ class ConfigTable:
 
     def _read(self, txn, row):
         sql = "SELECT property, value FROM config_t WHERE section = :section AND property = :property;"
-        self.log.debug("{sql} {data}", sql=sql, data=row)
+        self.log.debug("{sql} <= {data}", sql=sql, data=row)
         txn.execute(sql,row)
         result = txn.fetchall()
         if result:
@@ -565,7 +565,7 @@ class ConfigTable:
 
     def _readSection(self, txn, row):
         sql = "SELECT property, value FROM config_t WHERE section = :section"
-        self.log.debug("{sql} {data}", sql=sql, data=row)
+        self.log.debug("{sql} <= {data}", sql=sql, data=row)
         txn.execute(sql,row)
         result = txn.fetchall()
         if result:
@@ -577,7 +577,7 @@ class ConfigTable:
         INSERT OR REPLACE INTO config_t(section, property, value)
         VALUES(:section, :property, :value)
         '''
-        self.log.debug("{sql} {data}", sql=sql, data=rows)
+        self.log.debug("{sql} <= {data}", sql=sql, data=rows)
         txn.executemany(sql,rows)
 
     def _delete(self, txn, rows):
@@ -585,5 +585,5 @@ class ConfigTable:
         sql = '''
         UPDATE config_t SET value = NULL WHERE section = :section AND property = :property;
         '''
-        self.log.debug("{sql} {data}", sql=sql, data=rows)
+        self.log.debug("{sql} <= {data}", sql=sql, data=rows)
         txn.executemany(sql,rows)
