@@ -16,25 +16,30 @@ This can be easily done in Python 3 with a few lines. See the script below
 
 ```bash
 #!/bin/bash
-python3 -m venv ${HOME}/azotea
-mkdir -p ${HOME}/azotea/images
-mkdir -p ${HOME}/azotea/log
-mkdir -p ${HOME}/azotea/csv
-. ${HOME}/azotea/bin/activate
-pip install git+https://github.com/actionprojecteu/azotea-client.git@0.2.0
+AZOTEA_HOME=${HOME}/azotea
+python3 -m venv ${AZOTEA_HOME} # (1)
+mkdir -p ${AZOTEA_HOME}/images # (2)
+mkdir -p ${AZOTEA_HOME}/log    # (2)
+mkdir -p ${AZOTEA_HOME}/csv    # (2)
+. ${AZOTEA_HOME}/bin/activate  # (3)
+pip install git+https://github.com/actionprojecteu/azotea-client.git@main (4)
 ```
 
-* The first line creates a Python virtual environment under `${HOME}/azotea`.
-* The second and third lines create additional subdirectiores under this virtual environment for log files and camera images.
-* The third line activates the virtual environment (**please note the starting dot**) so that all needed python packages are installed there and not system wide.
-* The fourth line install the software from [its GitHub repository](https://github.com/actionprojecteu/azotea-client)
+* (1) creates a Python virtual environment under `${AZOTEA_HOME}`.
+* (2) creates additional subdirectiores under this virtual environment for log files and camera images. Please note that in this example, these directories are placed under `${AZOTEA_HOME}` for convenience, but they can be placed elsewhere.
+* (3) activates the virtual environment (**please note the starting dot**) so that all needed python packages are installed there and not system wide.
+* (4) installs the software from [its GitHub repository](https://github.com/actionprojecteu/azotea-client). We take the main branch.
 
 There is an error showing `Building wheel for azotea-client (setup.py) ... error` but it seems ok.
 
 Verify it by executing any of these:
 
 ```bash
-. ${HOME}/azotea/bin/activate
+#!/bin/bash
+AZOTEA_HOME=${HOME}/azotea
+
+. ${AZOTEA_HOME}/bin/activate
+
 azotool --version
 azotea --version
 azotool --help
@@ -58,11 +63,13 @@ The following series of commands must be issued. This can be edited in a file an
 error codes are not checked.
 
 ```bash
-export PATH=${HOME}/azotea/bin:/usr/local/bin:/usr/bin:/bin
-export VIRTUAL_ENV=${HOME}/azotea
+#!/bin/bash
+AZOTEA_HOME=${HOME}/azotea
+export PATH=${AZOTEA_HOME}/bin:/usr/local/bin:/usr/bin:/bin
+export VIRTUAL_ENV=${AZOTEA_HOME}
 
-DBASE=${HOME}/azotea/azotea.db
-IMAGES=${HOME}/azotea/images
+DBASE=${AZOTEA_HOME}/azotea.db
+IMAGES=${AZOTEA_HOME}/images
 
 azotool --console --dbase ${DBASE} consent view
 
@@ -78,7 +85,7 @@ azotool --console --dbase ${DBASE} camera create --default \
 azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
         --from-image ${IMAGES}/2021-11-22/IMG_0164.CR2
 
-azotool --console --dbase ${DBASE} miscelanea optics --focal-length 180 --f-number 3.5
+azotool --console --dbase ${DBASE} miscelanea optics --focal-length 18 --f-number 3.5
 
 azotool --console --dbase ${DBASE} miscelanea publishing --username foo --password bar
 ```
@@ -124,9 +131,7 @@ so that the software computes the actual rectangle corners.
 
 7. *Miscelaneous*
 
-Last, we must specify defaults optics data just in case there is no such data available in the image EXIF headers.
-Also the credentials can be specified so that the results are automatically uploaded to our server. 
-(**NOTE: This is not yet available**)
+Last, we must specify defaults optics data (focal length in mm and f/ number) just in case there is no such data available in the image EXIF headers. Also the credentials can be specified so that the results are automatically uploaded to our server. (**NOTE: This is not yet available**)
 
 
 An instance of the console output can be seen below:
@@ -226,6 +231,21 @@ Agreement accepted
 2021-11-22T14:02:15+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
 2021-11-22T14:02:15+0100 [-] Main loop terminated.
 ```
+# Launch in GUI mode
+
+You can use this script to launch AZOTEA in GUI mode
+
+```bash
+#!/bin/bash
+AZOTEA_HOME=${HOME}/azotea
+export PATH=${AZOTEA_HOME}/bin:/usr/local/bin:/usr/bin:/bin
+export VIRTUAL_ENV=${AZOTEA_HOME}
+
+DBASE=${AZOTEA_HOME}/azotea.db
+LOG=${AZOTEA_HOME}/log/azotea.log
+
+azotea --dbase ${DBASE} --log-file ${LOG} gui
+```
 
 # Image processing
 
@@ -243,22 +263,25 @@ Then we can either generate a CSV file with the results or publsih them:
 
 In batch mode, loading images, peforming sky brightness measurements and (optionally) publishing results can be done all at once:
 
-```
-export PATH=${HOME}/azotea/bin:/usr/local/bin:/usr/bin:/bin
-export VIRTUAL_ENV=${HOME}/azotea
+```bash
+#!/bin/bash
+AZOTEA_HOME=${HOME}/azotea
+export PATH=${AZOTEA_HOME}/bin:/usr/local/bin:/usr/bin:/bin
+export VIRTUAL_ENV=${AZOTEA_HOME}
 
-DBASE=${HOME}/azotea/azotea.db
-LOG=${HOME}/azotea/log/azotea.log
-IMAGES=${HOME}/azotea/images
+DBASE=${AZOTEA_HOME}/azotea.db
+LOG=${AZOTEA_HOME}/log/azotea.log
+IMAGES=${AZOTEA_HOME}/images
 
 azotea --dbase ${DBASE} --log-file ${LOG} batch --images-dir ${IMAGES} --publish 
 ```
-The `--images-dir` option can specify a directory where the actual images are or a parent directory.
-i.e:
+
+The `--images-dir` option can specify a directory where the actual images are or a parent directory, that is:
+
 ```
-${HOME}/azotea/images
+${AZOTEA_HOME}/images
                 |
-`               +----/2021-05-07
+                +----/2021-05-07
                 |
                 +----/2021-05-08
                 (...)
@@ -272,13 +295,15 @@ Directoris will be processed with descendent order, that is, from the most recen
 CSV file generation in batch mode is done by using `azotool`. It has the same options as in the GUI mode. 
 We can use the `--console` option if executed interactively or the `--log-file` option if executed within an automation script.
 
-```
-export PATH=${HOME}/azotea/bin:/usr/local/bin:/usr/bin:/bin
-export VIRTUAL_ENV=${HOME}/azotea
+```bash
+#!/bin/bash
+AZOTEA_HOME=${HOME}/azotea
+export PATH=${AZOTEA_HOME}/bin:/usr/local/bin:/usr/bin:/bin
+export VIRTUAL_ENV=${AZOTEA_HOME}
 
-DBASE=${HOME}/azotea/azotea.db
-LOG=${HOME}/azotea/log/azotea.log
-CSV=${HOME}/azotea/csv
+DBASE=${AZOTEA_HOME}/azotea.db
+LOG=${AZOTEA_HOME}/log/azotea.log
+CSV=${AZOTEA_HOME}/csv
 
 azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --all
 azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --latest-night
