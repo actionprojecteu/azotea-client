@@ -185,7 +185,10 @@ class SkyBrightness:
                 )
             '''
             self.log.debug(sql)
-            txn.execute(sql, row_dict)
+            if type(row_dict) in (list, tuple):
+                txn.executemany(sql, row_dict)
+            else:
+                txn.execute(sql, row_dict)
         return self._pool.runInteraction(_save, row_dict)
 
     # To generate a file name

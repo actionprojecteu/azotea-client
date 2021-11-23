@@ -115,31 +115,29 @@ class SkyBackgroundController:
     @inlineCallbacks
     def doStatistics(self):
         # Default settings extracted by doCheckDefaults()
-        conditions = {
-            'roi_id'     : self.roi_id,
-        }
-
+        conditions = {'roi_id' : self.roi_id,}
         roi_dict = yield self.roi.loadById(conditions)
         rect = Rect.from_dict(roi_dict)
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)
-        for i, (image_id,) in enumerate(image_id_list):
+        save_list = list()
+        for i, (image_id,) in enumerate(image_id_list, start=1):
             name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
             row = {
                 'roi_id'     : self.roi_id,
                 'image_id'   : image_id,
             }
-            try:
-                yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
-            except Exception as e:
-                log.failure('{e}', e=e)
-                log.error("Sky Background Processor: {name} [{p}%]", name=name, p=(100*i//N_stats))
-                return(None)
-            else:
-                log.info("Sky Background Processor: {name} [{p}%]", name=name, p=(100*i//N_stats))
-                yield self.sky.save(row)
+            yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
+            log.info("Sky Background Processor: {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+            save_list.append(row)
+            if (i % 50) == 0:
+                log.debug("Sky Background Processor: saving to database")
+                yield self.sky.save(save_list)
+                save_list = list()
+        if save_list:
+            yield self.sky.save(save_list)
         if N_stats:
-            log.info("Sky Background Processor: {n}/{d} images processed", n=i+1, d=N_stats)
+            log.info("Sky Background Processor: {n}/{d} images processed", n=i, d=N_stats)
         else:
             log.info("Sky Background Processor: No images to process")
         
