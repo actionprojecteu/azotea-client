@@ -76,14 +76,14 @@ class LocationController:
                 yield self.writeRandomized(current)
             elif previous['randomized'] == 1 and options.randomize:
                 previous['utc_offset'] = options.utc_offset
-                log.info('Insert to location_t: {data}', data=previous)
+                log.info('Insert to location: {data}', data=previous)
                 yield self.model.save(previous)
             else:
                 yield self.writeRandomized(current)
             if options.default:
                 log.debug('Getting id from location_t')
                 info_id = yield self.model.lookup(current)
-                log.info('Setting default location in configuration section as id = {id}',id=info_id)
+                log.info('Setting default location configuration as = {id}',id=info_id)
                 yield self.config.saveSection('location',info_id)
         except Exception as e:
             log.failure('{e}',e=e)

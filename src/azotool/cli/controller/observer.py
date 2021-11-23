@@ -63,12 +63,12 @@ class ObserverController:
                 'affiliation': ' '.join(options.affiliation),
                 'acronym'    : ' '.join(options.acronym),
             }
-            log.info('Versioned insert to observer_t: {data}', data=data)
+            log.info('Versioned insert observer: {data}', data=data)
             yield self.model.save(data)
             if options.default:
                 log.debug('Getting id from observer_t')
                 info_id = yield self.model.lookup(data)
-                log.info('Setting default observer in configuration section as id = {id}',id=info_id)
+                log.info('Setting default observer configuration as = {id}',id=info_id)
                 yield self.config.saveSection('observer',info_id)
         except Exception as e:
             log.failure('{e}',e=e)

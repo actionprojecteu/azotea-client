@@ -78,7 +78,7 @@ class CommandService(Service):
     # ------------
     
     def startService(self):
-        log.info("Starting Command Service")
+        log.debug("Starting Command Service")
         super().startService()
         self.dbaseService = self.parent.getServiceNamed(DatabaseService.NAME)
         self.controllers = (
@@ -113,7 +113,7 @@ class CommandService(Service):
         self.main()
 
     def stopService(self):
-        log.info("Stopping Command Service")
+        log.debug("Stopping Command Service")
 
       
     # ==============
@@ -128,7 +128,7 @@ class CommandService(Service):
         try:
             options = self.options
             event   = f"{options.command}_{options.subcommand}_req"
-            log.info("Sending event {ev}", ev=event)
+            log.debug("Sending event {ev}", ev=event)
             pub.sendMessage(event, options=options)
         except KeyboardInterrupt as e:
             log.critical("[{name}] Interrupted by user ", name=__name__)

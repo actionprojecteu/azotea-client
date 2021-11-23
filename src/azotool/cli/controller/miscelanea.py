@@ -63,7 +63,7 @@ class MiscelaneaController:
                 'focal_length': options.focal_length,
                 'f_number'    : options.f_number,
             }
-            log.info("Writting in 'optics' configuration section = {data}",data=data)
+            log.info("Writting default optics configuration = {data}",data=data)
             yield self.config.saveSection('optics', data)     
         except Exception as e:
             log.failure('{e}',e=e)
@@ -80,7 +80,7 @@ class MiscelaneaController:
                 'username'  : options.username,
                 'password'  : options.password,
             }
-            log.info("Writting in 'publishing' configuration section = {data}",data=data)
+            log.info("Writting publishing configuration = {data}",data=data)
             yield self.config.saveSection('publishing', data)   
         except Exception as e:
             log.failure('{e}',e=e)

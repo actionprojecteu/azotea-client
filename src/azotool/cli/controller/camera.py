@@ -66,12 +66,12 @@ class CameraController:
                 data = self.createAsGiven(options)
             else:
                 data = yield self.createByImage(options.from_image)
-            log.info('Insert/replace to camera_t: {data}', data=data)
+            log.info('Insert/replace camera data: {data}', data=data)
             yield self.model.save(data)
             if options.default:
                 log.debug('Getting id from camera_t')
                 info_id = yield self.model.lookup(data)
-                log.info('Setting default camera in configuration section as id = {id}',id=info_id)
+                log.info('Setting default camera configuration as = {id}',id=info_id)
                 yield self.config.saveSection('camera',info_id)
         except Exception as e:
             log.failure('{e}',e=e)
