@@ -172,6 +172,19 @@ class ImageController:
             return(True)
     
 
+    @inlineCallbacks
+    def saveAndFix(self, save_list):
+        try:
+            yield self.image.save(save_list)
+        except sqlite3.IntegrityError as e:
+            for row in save_list:
+                try:
+                    yield self.image.save(row)
+                except  sqlite3.IntegrityError as e:
+                    log.warn("Possible duplicate image: {name}",name=row['name'])
+                    yield self.image.fixDirectory(row)
+                    log.info('Fixed directory for {name}', name=row['name'])
+
 
     @inlineCallbacks
     def doRegister(self, directory):
@@ -189,6 +202,7 @@ class ImageController:
             log.error("Register: Unsupported header type {h} for the time being",h=header_type) 
             return(None)
         i = 0
+        save_list = list()
         for i, filepath in enumerate(file_list, start=1):
             row = {
                 'name'        : os.path.basename(filepath), 
@@ -218,12 +232,13 @@ class ImageController:
                 return(None)
             log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
             row['camera_id'] = int(new_camera['camera_id'])
-            try:
-                yield self.image.save(row)
-            except sqlite3.IntegrityError as e:
-                log.warn("Possible duplicate image: {name}",name=row['name'])
-                yield self.image.fixDirectory(row)
-                log.debug('Fixed directory for {name}', name=row['name'])
-                continue
+            save_list.append(row)
+            if (i % 50) == 0:
+                log.info("Register: saving to database")
+                yield self.saveAndFix(save_list)
+                save_list = list()
+        if save_list:
+            log.info("Register: saving to database")
+            yield self.saveAndFix(save_list)
         return((i, N_Files))
         

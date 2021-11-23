@@ -135,6 +135,7 @@ class SkyBackgroundController:
                 yield self.sky.save(save_list)
                 save_list = list()
         if save_list:
+            log.debug("Sky Background Processor: saving to database")
             yield self.sky.save(save_list)
         if N_stats:
             log.info("Sky Background Processor: {n}/{d} images processed", n=i, d=N_stats)
