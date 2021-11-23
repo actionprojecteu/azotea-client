@@ -127,19 +127,19 @@ class SkyBackgroundController:
             if date_selection == DATE_SELECTION_ALL:
                 count = yield self.sky.countAll(filter_dict)
                 message = _("Deleting {0} images").format(count)
-                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Background Processor"))
                 if accepted:
                     yield self.sky.deleteAll(filter_dict)
             elif date_selection == DATE_SELECTION_LATEST_NIGHT:
                 count = yield self.sky.getLatestNightCount(filter_dict)
                 message = _("Deleting {0} images").format(count)
-                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Background Processor"))
                 if accepted:
                     yield self.sky.deleteLatestNight(filter_dict)
             elif date_selection == DATE_SELECTION_LATEST_MONTH:
                 count = yield self.sky.getLatestMonthCount(filter_dict)
                 message = _("Deleting {0} images").format(count)
-                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Background Processor"))
                 if accepted:
                     yield self.sky.deleteLatestMonth(filter_dict)
             elif date_selection == DATE_SELECTION_DATE_RANGE:
@@ -147,7 +147,7 @@ class SkyBackgroundController:
                 filter_dict['end_date_id']   = int(date['end_date'])
                 count = yield self.sky.getDateRangeCount(filter_dict)
                 message = _("Deleting {0} images").format(count)
-                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Backround Processor"))
+                accepted = self.view.messageBoxAcceptCancel(message=message, who= _("Sky Background Processor"))
                 if accepted:
                     yield self.sky.deleteDateRange(filter_dict)
             else:
@@ -224,6 +224,9 @@ class SkyBackgroundController:
         if date_selection == DATE_SELECTION_ALL:
             filename = f'{self.observer_name}-all.csv'
             contents = yield self.sky.exportAll(filter_dict)
+        elif date_selection == DATE_SELECTION_PENDING:
+            filename = f'{self.observer_name}-pending.csv'
+            contents = yield self.sky.exportPending(filter_dict)
         elif date_selection == DATE_SELECTION_LATEST_NIGHT:
             year, month, day = yield self.sky.getLatestNight(filter_dict)
             filename = f'{self.observer_name}-{year}{month}{day:02d}.csv'

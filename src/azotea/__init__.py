@@ -38,6 +38,7 @@ DATE_SELECTION_ALL          = 'All'
 DATE_SELECTION_DATE_RANGE   = 'Date range'
 DATE_SELECTION_LATEST_NIGHT = 'Latest night'
 DATE_SELECTION_LATEST_MONTH = 'Latest month'
+DATE_SELECTION_PENDING      = 'Pending'
 
 # -----------------------
 # Module global variables

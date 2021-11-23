@@ -50,6 +50,24 @@ class SkyBrightness:
             return txn.fetchone()[0]
         return self._pool.runInteraction(_countAll, filter_dict)
 
+    def countPending(self, filter_dict):
+        def _countPendingl(txn, filter_dict):
+            sql = '''
+                SELECT COUNT(*) FROM sky_brightness_t AS s
+                JOIN image_t AS i USING(image_id)
+                WHERE i.observer_id = :observer_id;'''
+            ##### REVISAR ESTOOOOOOOOO
+            sql = '''
+                SELECT image_id
+                FROM image_t
+                EXCEPT 
+                SELECT DISTINCT image_id 
+                FROM sky_brightness_t;
+            '''
+            txn.execute(sql, filter_dict)
+            return txn.fetchone()[0]
+        return self._pool.runInteraction(countPending, filter_dict)
+
     def deleteAll(self, filter_dict):
         def _deleteAll(txn, filter_dict):
             sql = '''
@@ -328,6 +346,58 @@ class SkyBrightness:
             txn.execute(sql, filter_dict)
             return txn.fetchall()
         return self._pool.runInteraction(_exportAll, filter_dict)
+
+
+    def exportPending(self, filter_dict):
+        def _exportPending(txn, filter_dict):
+            filter_dict['csv_version'] = CSV_VERSION
+            sql = '''
+            SELECT 
+            :csv_version,
+            i.session,  
+            o.surname || ', ' || o.family_name, 
+            o.acronym, 
+            l.site_name || ' - ' || l.location, 
+            'LIGHT', -- image type
+            d.sql_date || 'T' || t.time, 
+            i.name, 
+            c.model, 
+            i.iso, 
+            s.display_name,
+            NULL,   -- dark roi 
+            i.exptime,
+            s.aver_signal_R,  
+            s.vari_signal_R, 
+            s.aver_signal_G1, 
+            s.vari_signal_G1, 
+            s.aver_signal_G2, 
+            s.vari_signal_G2,
+            s.aver_signal_B,  
+            s.vari_signal_B,
+            s.aver_dark_R,    
+            s.vari_dark_R,
+            s.aver_dark_G1,   
+            s.vari_dark_G1,
+            s.aver_dark_G2,   
+            s.vari_dark_G2,
+            s.aver_dark_B,    
+            s.vari_dark_B,
+            c.bias
+            FROM image_t AS i
+            JOIN sky_brightness_v AS s USING(image_id)
+            JOIN date_t     AS d USING(date_id)
+            JOIN time_t     AS t USING(time_id)
+            JOIN camera_t   AS c USING(camera_id)
+            JOIN observer_t AS o USING(observer_id)
+            JOIN location_t AS l USING(location_id)
+            WHERE  v.published = 0
+            -- AND i.observer_id = :observer_id
+            ORDER BY i.date_id ASC, i.time_id ASC;
+            '''
+            self.log.debug(sql)
+            txn.execute(sql, filter_dict)
+            return txn.fetchall()
+        return self._pool.runInteraction(_exportPending, filter_dict)
 
 
     def exportDateRange(self, filter_dict):

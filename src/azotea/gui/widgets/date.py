@@ -36,7 +36,8 @@ from tkcalendar import Calendar, DateEntry
 # -------------
 
 from azotea import __version__
-from azotea import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
+from azotea import DATE_SELECTION_ALL, DATE_SELECTION_PENDING
+from azotea import DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 
 # ----------------
 # Module constants
@@ -92,6 +93,7 @@ class DateFilterDialog(tk.Toplevel):
         subframe1 = ttk.LabelFrame(top_frame,text=_("Date filter selection"))
         subframe1.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
         self._method  = dateVar = tk.StringVar()
+        dateVar.set(DATE_SELECTION_ALL)
         button1 = ttk.Radiobutton(subframe1, text=_("All"), command=self.onRadioButton, variable=dateVar, value=DATE_SELECTION_ALL)
         button1.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
         self._control['all_dates'] = button1
@@ -104,7 +106,10 @@ class DateFilterDialog(tk.Toplevel):
         button4 = ttk.Radiobutton(subframe1, text=_("Date range"), command=self.onRadioButton, variable=dateVar, value=DATE_SELECTION_DATE_RANGE)
         button4.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
         self._control['date_range'] = button4
-        dateVar.set(DATE_SELECTION_ALL)
+        button5 = ttk.Radiobutton(subframe1, text=_("Pending observations"), command=self.onRadioButton, variable=dateVar, value=DATE_SELECTION_PENDING)
+        button5.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self._control['pending'] = button5
+        
 
         # Date range selection
         subframe2 = ttk.LabelFrame(top_frame,text=_("Date range selection"))

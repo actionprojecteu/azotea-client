@@ -33,9 +33,7 @@ from pubsub import pub
 
 from azotea.logger  import setLogLevel
 from azotea.utils.roi import Rect
-from azotea.utils.sky import CSV_COLUMNS, postprocess, widget_datetime, processImage
-from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
-from azotea import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
+from azotea.utils.sky import processImage
 from azotea.batch.controller import NAMESPACE, log
 
 # ----------------
@@ -127,7 +125,6 @@ class SkyBackgroundController:
         N_stats = len(image_id_list)
         for i, (image_id,) in enumerate(image_id_list):
             name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
-            w_date, w_time = widget_datetime(date_id, time_id) 
             row = {
                 'roi_id'     : self.roi_id,
                 'image_id'   : image_id,
