@@ -307,22 +307,24 @@ azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV}
 
 ### Log file & console output
 
-It is highly recommeded to configure a log file when executing azotea in batch mode. This log file is not rotated, so you should use an external log rotation tool like `logrotate` and set its rotation policy as needed.
-For the same reason, console output is not activated by default and must be explicitely activated with `--console`
-Redirecting  console `stdout` `stderr` has the same effect as specifying a log file but it is a bit more cumbersome.
+It is highly recommeded to configure a log file when executing azotea in batch mode. 
+This log file is not rotated, so you should use an external log rotation tool like `logrotate` 
+and set its rotation policy as needed. For the same reason, console output is not activated 
+by default and must be explicitely activated with `--console`, Redirecting console `stdout` `stderr` 
+has the same effect as specifying a log file but it is a bit more cumbersome.
 
 ### Exit codes
 
-Both `azotool` and `azotea`  return the following exit codes are:
+Both `azotool` and `azotea` commands return the following exit codes are:
 
-* 0 => Command finished without errors
+* 0 => Command finished without errors.
 * 1 => Command finished with errors. See the console (if set) or the log file.
-* 126 => User did not agree the usage conditions
+* 126 => User did not agree the usage conditions.
 
 # GUI Mode
 
 Azotea in GUI mode offers the same functions as the command line version. 
-See the attached screeshots below
+See the attached screeshots below.
 
 ## Launch the program in GUI mode
 
