@@ -17,7 +17,7 @@ import gettext
 import datetime
 
 from fractions import Fraction
-from sqlite3 import IntegrityError
+import sqlite3
 
 # ---------------
 # Twisted imports
@@ -210,6 +210,19 @@ class ImageController:
     
 
     @inlineCallbacks
+    def saveAndFix(self, save_list):
+        try:
+            yield self.image.save(save_list)
+        except sqlite3.IntegrityError as e:
+            for row in save_list:
+                try:
+                    yield self.image.save(row)
+                except  sqlite3.IntegrityError as e:
+                    log.warn("Possible duplicate image: {name}",name=row['name'])
+                    yield self.image.fixDirectory(row)
+                    log.info('Fixed directory for {name}', name=row['name'])
+
+    @inlineCallbacks
     def doRegister(self, directory):
         if os.path.basename(directory) == '':
             directory = directory[:-1]
@@ -221,9 +234,14 @@ class ImageController:
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         i = 0
+        save_list = list()
         bayer = self.bayer_pattern
+        if self.header_type == FITS_HEADER_TYPE:
+            message = _("Unsupported header type {0} for the time being").format(header_type)
+            self.view.messageBoxError(who=_("Register"),message=message)
+            return(None)
         log.debug('Found {n} candidates matching filter {ext}.',n=N_Files, ext=extension)
-        for i, filepath in enumerate(file_list):
+        for i, filepath in enumerate(file_list, start=1):
             if self._abort:
                 break
             row = {
@@ -236,23 +254,18 @@ class ImageController:
                 'def_fn'      : self.default_f_number['f_number'],      # they are here just to fix EXIF optics reading
             }
             result = yield self.image.load(row)
+            row['session'] = session
             if result:
                 log.debug('Skipping already registered {row.name}.', row=row)
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
                 continue
-            row['session'] = session
-            if row['header_type'] == FITS_HEADER_TYPE:
-                message = _("Unsupported header type {0} for the time being").format(header_type)
-                self.view.messageBoxError(who=_("Register"),message=message)
+            try:
+                yield deferToThread(hash_and_exif_metadata, filepath, row)
+            except Exception as e:
+                log.failure('{e}', e=e)
+                message = _("{0}: Error in fingerprint computation or EXIF metadata reading").format(row['name'])
+                self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
                 return(None)
-            else:
-                try:
-                    yield deferToThread(hash_and_exif_metadata, filepath, row)
-                except Exception as e:
-                    log.failure('{e}', e=e)
-                    message = _("{0}: Error in fingerprint computation or EXIF metadata reading").format(row['name'])
-                    self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
-                    return(None)
             new_camera = yield self.model.camera.lookup(row)
             if not new_camera:
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
@@ -262,16 +275,15 @@ class ImageController:
                 return(None)
             log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
             row['camera_id'] = int(new_camera['camera_id'])
-            try:
-                yield self.image.save(row)
-                self.view.mainArea.displayImageData(row['name'],row)
-            except IntegrityError as e:
-                log.warn("Possible duplicate image: {name}",name=row['name'])
-                yield self.image.fixDirectory(row)
-                self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
-                log.debug('Fixed directory for {name}', name=row['name'])
-                continue
-            else:
-                self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
-        return((i+1, N_Files))
+            self.view.mainArea.displayImageData(row['name'],row)
+            self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
+            save_list.append(row)
+            if (i % 50) == 0:
+                log.info("Register: saving to database")
+                yield self.saveAndFix(save_list)
+                save_list = list()
+        if save_list:
+            log.info("Register: saving to database")
+            yield self.saveAndFix(save_list)
+        return((i, N_Files))
         

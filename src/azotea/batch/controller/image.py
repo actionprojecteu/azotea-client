@@ -215,10 +215,10 @@ class ImageController:
             }
             log.info("Register: Loading {n} ({i}/{N}) [{p}%]", i=i, N=N_Files, n=row['name'], p=(100*i//N_Files) )
             result = yield self.image.load(row)
+            row['session'] = session
             if result:
                 log.debug('Skipping already registered {row.name}.', row=row)
                 continue
-            row['session'] = session
             try:
                 yield deferToThread(hash_and_exif_metadata, filepath, row)
             except Exception as e:
