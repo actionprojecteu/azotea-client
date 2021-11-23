@@ -8,7 +8,7 @@ Development of this software has been possible through [ACTION - Participatory s
 * Rich client GUI interactive mode.
 * Non interactive command line mode for automated data adquisition, reducition and publishing.
 
- ## Table of Contents
+# Table of Contents
 
 * [Installation](https://github.com/actionprojecteu/azotea-client#installation)
 * [Configuration](https://github.com/actionprojecteu/azotea-client#configuration)
