@@ -274,7 +274,8 @@ class SkyBackgroundController:
         rect = Rect.from_dict(roi_dict)
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)
-        for i, (image_id,) in enumerate(image_id_list):
+        save_list = list()
+        for i, (image_id,) in enumerate(image_id_list, start=1):
             if self._abort:
                 break
             name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
@@ -294,10 +295,17 @@ class SkyBackgroundController:
                 return(None)
             else:
                 self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=False)
-                yield self.sky.save(row)
                 self.view.mainArea.displaySkyMeasurement(name, row)
+                save_list.append(row)
+                if (i % 50) == 0:
+                    log.debug("Sky Background Processor: saving to database")
+                    yield self.sky.save(save_list)
+                    save_list = list()
+        if save_list:
+            log.debug("Sky Background Processor: saving to database")
+            yield self.sky.save(save_list)
         if N_stats:
-            message = _("Sky background: {0}/{1} images computed").format(i+1,N_stats)
+            message = _("Sky background: {0}/{1} images computed").format(i,N_stats)
             self.view.messageBoxInfo(who=_("Sky backround statistics"),message=message)
         else:
             message = _("No images to process")
