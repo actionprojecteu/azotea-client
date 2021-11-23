@@ -42,7 +42,7 @@ import rawpy
 
 from azotea import __version__
 from azotea.utils.roi import Point, Rect
-from azotea.utils.image import hashfunc, exif_metadata, toDateTime, expensiveEXIFOperation
+from azotea.utils.image import hashfunc, exif_metadata, toDateTime, hash_and_exif_metadata
 from azotea.logger  import startLogging, setLogLevel
 from azotea.error import IncorrectTimestampError
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
@@ -247,7 +247,7 @@ class ImageController:
                 return(None)
             else:
                 try:
-                    yield deferToThread(expensiveEXIFOperation, filepath, row)
+                    yield deferToThread(hash_and_exif_metadata, filepath, row)
                 except Exception as e:
                     log.failure('{e}', e=e)
                     message = _("{0}: Error in fingerprint computation or EXIF metadata reading").format(row['name'])

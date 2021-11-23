@@ -99,7 +99,7 @@ def toDateTime(tstamp):
         return date_id, time_id, widged_date, widget_time
 
 
-def expensiveEXIFOperation(filepath, row):
+def hash_and_exif_metadata(filepath, row):
     log.debug('Computing {row.name} MD5 hash', row=row)
     row['hash'] = hashfunc(filepath)
     log.debug('Loading {row.name} EXIF metadata', row=row)

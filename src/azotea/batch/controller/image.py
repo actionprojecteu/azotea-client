@@ -34,7 +34,7 @@ from pubsub import pub
 
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.logger  import setLogLevel
-from azotea.utils.image import hashfunc, exif_metadata, toDateTime, expensiveEXIFOperation
+from azotea.utils.image import hashfunc, exif_metadata, toDateTime, hash_and_exif_metadata
 from azotea.batch.controller import NAMESPACE, log
 
 
@@ -207,7 +207,7 @@ class ImageController:
                 return(None)
             else:
                 try:
-                    yield deferToThread(expensiveEXIFOperation, filepath, row)
+                    yield deferToThread(hash_and_exif_metadata, filepath, row)
                 except Exception as e:
                     log.failure('{e}', e=e)
                     log.error("Register: Error in fingerprint computation or EXIF metadata reading on {n} [{p}%]",
