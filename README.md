@@ -8,6 +8,13 @@ Development of this software has been possible through [ACTION - Participatory s
 * Rich client GUI interactive mode.
 * Non interactive command line mode for automated data adquisition, reducition and publishing.
 
+ ## Table of Contents
+
+* [Installation](https://github.com/actionprojecteu/azotea-client#installation)
+* [Configuration](https://github.com/actionprojecteu/azotea-client#configuration)
+* [Batch mode](https://github.com/actionprojecteu/azotea-client#configuration)
+* [GUI mode](https://github.com/actionprojecteu/azotea-client#configuration)
+
 # Installation
 
 This is a Python tool that runs on *only* in Python 3 (tested on Python 3.6) 
@@ -54,6 +61,8 @@ The software requires the same configuration whether it is run either in GUI or 
 * Enter cameras's data.
 * Enter Region of Interest data
 * Enter miscelaneous data (default optics configuration, publishing credentials)
+
+## Configuration by command line
 
 We'll walk through it using command line tools available for the batch mode, using a ficticious but prototypical example.
 
@@ -231,35 +240,10 @@ Agreement accepted
 2021-11-22T14:02:15+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
 2021-11-22T14:02:15+0100 [-] Main loop terminated.
 ```
-# Launch in GUI mode
 
-You can use this script to launch AZOTEA in GUI mode
+# Batch mode
 
-```bash
-#!/bin/bash
-AZOTEA_HOME=${HOME}/azotea
-export PATH=${AZOTEA_HOME}/bin:/usr/local/bin:/usr/bin:/bin
-export VIRTUAL_ENV=${AZOTEA_HOME}
-
-DBASE=${AZOTEA_HOME}/azotea.db
-LOG=${AZOTEA_HOME}/log/azotea.log
-
-azotea --dbase ${DBASE} --log-file ${LOG} gui
-```
-
-# Image processing
-
-## GUI Mode
-
-In GUI Mode, there are two steps:
-1. `File > Load images ...`
-2. `Process > Sky Brightness ...`
-
-Then we can either generate a CSV file with the results or publsih them:
-* `File > Export to CSV ...`
-* `File > Publish Measurements ...`
-
-## Batch mode
+## Image processing
 
 In batch mode, loading images, peforming sky brightness measurements and (optionally) publishing results can be done all at once:
 
@@ -311,25 +295,54 @@ azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV}
 azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --range --from-date 2021-01-21 --to-date 2021-03-18
 ```
 
-# Automation
+## Automation issues
 
-## Log file & console output
+### Log file & console output
 
-It is highly recommeded to configure a log file when executing azotea in batch mode. This log file is not rotated, so you should use
-an external log rotation tool like `logrotate` and set its rotation policy as needed.
+It is highly recommeded to configure a log file when executing azotea in batch mode. This log file is not rotated, so you should use an external log rotation tool like `logrotate` and set its rotation policy as needed.
 For the same reason, console output is not activated by default and must be explicitely activated with `--console`
 Redirecting  console `stdout` `stderr` has the same effect as specifying a log file but it is a bit more cumbersome.
 
-## Exit codes
+### Exit codes
 
-The command exit codes are:
-* 0 => Command ended without errors
-* 1 => Command ended with errors. See the console (if set) or the log file.
+Both `azotool` and `azotea`  return the following exit codes are:
+
+* 0 => Command finished without errors
+* 1 => Command finished with errors. See the console (if set) or the log file.
 * 126 => User did not agree the usage conditions
 
 # GUI Mode
+
 Azotea in GUI mode offers the same functions as the command line version. 
-See the attached screeshots:
+See the attached screeshots below
+
+## Launch the program in GUI mode
+
+You can use this script to launch AZOTEA in GUI mode
+
+```bash
+#!/bin/bash
+AZOTEA_HOME=${HOME}/azotea
+export PATH=${AZOTEA_HOME}/bin:/usr/local/bin:/usr/bin:/bin
+export VIRTUAL_ENV=${AZOTEA_HOME}
+
+DBASE=${AZOTEA_HOME}/azotea.db
+LOG=${AZOTEA_HOME}/log/azotea.log
+
+azotea --dbase ${DBASE} --log-file ${LOG} gui
+```
+## Image processing in GUI mode
+
+In GUI Mode, there are two steps:
+1. `File > Load images ...`
+2. `Process > Sky Brightness ...`
+
+Then we can either generate a CSV file with the results or publsih them:
+* `File > Export to CSV ...`
+* `File > Publish Measurements ...`
+
+
+## Screenshots
 
 ![Overview](doc/image/main.png)
 
