@@ -266,6 +266,7 @@ class Table:
         assignments_other = ", ".join([f"{column} = :{column}" for column in other_columns])
         sql = f"UPDATE {table} SET {assignments_other} WHERE {unique_conditions};"
         return sql
+        
 
     def _insert_ior(self, txn, data):
         table = self._table
@@ -273,7 +274,10 @@ class Table:
         other_columns = self._other_columns
         insert_sql = self._sqlInsertOrReplace()
         self.log.debug("{sql} {data}", sql=insert_sql, data=data)
-        txn.execute(insert_sql, data)
+        if type(data) in (list, tuple):
+            txn.executemany(insert_sql, data)
+        else:
+            txn.execute(insert_sql, data)
 
 
     def _insert_i(self, txn, data):
@@ -282,13 +286,18 @@ class Table:
         other_columns = self._other_columns
         insert_sql = self._sqlInsert()
         self.log.debug("{sql} {data}", sql=insert_sql, data=data)
-        txn.execute(insert_sql, data)
+        if type(data) in (list, tuple):
+            txn.executemany(insert_sql, data)
+        else:
+            txn.execute(insert_sql, data)
 
 
     def _insert_qior(self, txn, data):
         # using INSERT OR REPLACE changes the internal id, which is 
         # something undesireable or referential integrity
         self.log.debug("Data to insert/replace: {data}",data=data)
+        if type(data) in (list, tuple):
+            raise TypeError("SQL query-insert-or-replace not available for sequence types")
         table = self._table
         natural_key_columns = self._natural_key_columns
         other_columns = self._other_columns
@@ -298,12 +307,9 @@ class Table:
         self.log.debug("{sql}", sql=query_sql)
         txn.execute(query_sql, data)
         result = txn.fetchone()
-        if not result:
-            self.log.debug("{sql} {data}", sql=insert_sql, data=data)
-            txn.execute(insert_sql, data)
-        else:
-            self.log.debug("{sql} {data}", sql=replace_sql, data=data)
-            txn.execute(replace_sql, data)
+        final_sql = insert_sql if not result else replace_sql
+        self.log.debug("{sql} {data}", sql=final_sql, data=data)
+        txn.execute(final_sql, data)
 
     # ------------------------------------------------------------------------------------------------
 
