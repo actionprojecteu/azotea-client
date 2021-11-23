@@ -12,8 +12,16 @@ Development of this software has been possible through [ACTION - Participatory s
 
 * [Installation](https://github.com/actionprojecteu/azotea-client#installation)
 * [Configuration](https://github.com/actionprojecteu/azotea-client#configuration)
-* [Batch mode](https://github.com/actionprojecteu/azotea-client#configuration)
+        - [Configuration by command line](https://github.com/actionprojecteu/azotea-client#configuration-by-command-line)
+* [Batch mode](https://github.com/actionprojecteu/azotea-client#batch-mode)
+        - [Image processing](https://github.com/actionprojecteu/azotea-client#image-processing)
+        - [Automation issues](https://github.com/actionprojecteu/azotea-client#automation-issues)
+                - [Log file & console output](https://github.com/actionprojecteu/azotea-client#log-file--console-output)
+                - [Exit codes](https://github.com/actionprojecteu/azotea-client#exit-codes)
 * [GUI mode](https://github.com/actionprojecteu/azotea-client#configuration)
+        - [Launch the program in GUI mode](https://github.com/actionprojecteu/azotea-client#launch-the-program-in-gui-mode)
+        - [Image processing in GUI mode](https://github.com/actionprojecteu/azotea-client#image-processing-in-gui-mode)
+        - [Screenshots](https://github.com/actionprojecteu/azotea-client#screenshots)
 
 # Installation
 
@@ -341,7 +349,6 @@ Then we can either generate a CSV file with the results or publsih them:
 * `File > Export to CSV ...`
 * `File > Publish Measurements ...`
 
-
 ## Screenshots
 
 ![Overview](doc/image/main.png)
@@ -357,4 +364,3 @@ Then we can either generate a CSV file with the results or publsih them:
 ![Edit > Preferences > Publishing](doc/image/publishing.png)
 
 ![Edit > Preferences > Miscelanea](doc/image/miscelanea.png)
-
