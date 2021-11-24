@@ -109,6 +109,7 @@ class ImageController:
                 if images_dir:
                     sub_dirs = yield deferToThread(scan_non_empty_dirs, images_dir)
                     N_Files = 0; i = 0
+                    self.session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
                     for images_dir in sorted(sub_dirs, reverse=True):
                         result = yield self.doRegister(images_dir)
                         if not result:
@@ -227,7 +228,7 @@ class ImageController:
         extension = '*' + self.extension
         # AQUI EMPIEZA LO SERIO
         self.view.mainArea.clearImageDataView()
-        session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
+        session = self.session
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         i = 0
