@@ -218,9 +218,16 @@ class ImageController:
                 try:
                     yield self.image.save(row)
                 except  sqlite3.IntegrityError as e:
-                    log.warn("Possible duplicate image: {name}",name=row['name'])
-                    yield self.image.fixDirectory(row)
-                    log.info('Fixed directory for {name}', name=row['name'])
+                    name, directory = yield self.image.getByHash(row)
+                    log.warn("Possible duplicate image: '{name}' with existing '{prev}' in {dir}",name=row['name'], prev=name, dir=directory)
+                    if row['name'] == name:
+                        yield self.image.fixDirectory(row)
+                        log.info('Fixed directory for {name} to {dir}', name=row['name'], dir=row['directory'])
+                    else:
+                        message = _("image: '{0}' is completely discarded, using '{1}' instead").format(row['name'], name)
+                        self.view.messageBoxWarn(who=_("Register"), message=message)
+                        log.warn("Image: '{name}' is completely discarded, using '{prev}' instead",name=row['name'], prev=name)
+
 
     @inlineCallbacks
     def doRegister(self, directory):

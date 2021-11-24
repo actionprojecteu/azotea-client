@@ -55,6 +55,17 @@ class ImageTable(Table):
             '''Fixes directory in case of file movement'''
         return self._pool.runInteraction(_fixDirectory, filter_dict)
 
+    def getByHash(self, filter_dict):
+        def _getByHash(txn, filter_dict):
+            sql = '''
+                SELECT name, directory
+                FROM image_t
+                WHERE hash = :hash;
+            '''
+            txn.execute(sql, filter_dict)
+            return txn.fetchone()
+        return self._pool.runInteraction(_getByHash, filter_dict)
+
 
     def getInitialMetadata(self, filter_dict):
         '''Gets all the metadata needed for sky brightness mmeasurements'''
