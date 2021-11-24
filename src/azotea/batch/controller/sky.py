@@ -39,7 +39,7 @@ from azotea.utils.sky import processImage
 # Module constants
 # ----------------
 
-NAMESPACE = 'sky'
+NAMESPACE = 'skybg'
 
 # -----------------------
 # Module global variables
@@ -112,7 +112,7 @@ class SkyBackgroundController:
         if errors:
             error_list = '\n'.join(errors)
             message = _("These things are missing:\n{0}").format(error_list)
-            log.error("Sky Background Processor: {m}", m=message)
+            log.error("S{m}", m=message)
             result = False
         return(result)
 
@@ -126,7 +126,7 @@ class SkyBackgroundController:
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)
         save_list = list()
-        log.warn("Sky Background Processor: Processing {N} images", N=N_stats)
+        log.warn("Processing sky background in {N} images", N=N_stats)
         for i, (image_id,) in enumerate(image_id_list, start=1):
             name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
             row = {
@@ -134,17 +134,17 @@ class SkyBackgroundController:
                 'image_id'   : image_id,
             }
             yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
-            log.info("Sky Background Processor: {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+            log.info("Sky in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
             save_list.append(row)
             if (i % 50) == 0:
-                log.debug("Sky Background Processor: saving to database")
+                log.debug("Saving to database")
                 yield self.sky.save(save_list)
                 save_list = list()
         if save_list:
-            log.debug("Sky Background Processor: saving to database")
+            log.debug("Saving to database")
             yield self.sky.save(save_list)
         if N_stats:
-            log.warn("Sky Background Processor: {n}/{d} images processed", n=i, d=N_stats)
+            log.warn("Sky background processed in {n}/{d} images", n=i, d=N_stats)
         else:
-            log.warn("Sky Background Processor: No images to process")
+            log.warn("No images to process for sky background")
         

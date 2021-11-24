@@ -64,10 +64,10 @@ class MiscelaneaController:
             data = {}
             if options.register:
                 data['regis'] = options.register
-            if options.processing:
-                data['sky'] = options.processing
+            if options.sky:
+                data['skybg'] = options.sky
             if options.publishing:
-                data['publ'] = options.publishing
+                data['publi'] = options.publishing
             log.info("Writting logging level configuration = {data}",data=data)
             yield self.config.saveSection('logging', data)         
         except Exception as e:

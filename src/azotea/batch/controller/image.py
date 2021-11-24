@@ -82,7 +82,7 @@ class ImageController:
         try:
             lvl = yield self.config.load('logging', NAMESPACE)
             setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])
-            log.info('Starting Register Controller')
+            log.warn('Starting image registration process')
             ok = yield self.doCheckDefaults()
             if not ok:
                 log.error("Missing default values")
@@ -99,10 +99,10 @@ class ImageController:
                 i += j
                 N_Files += M_Files
             if N_Files:
-                log.warn("Register: {i}/{N} images analyzed", i=i, N=N_Files)
+                log.warn("{i}/{N} images analyzed for registry", i=i, N=N_Files)
             else:
                 extension = '*' + self.extension
-                log.warn("Register: No images found matching {ext}",ext=extension)
+                log.warn("No images found matching {ext}",ext=extension)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('file_quit', exit_code = 1)
@@ -162,7 +162,7 @@ class ImageController:
 
         if errors:
             for err in errors:
-                log.error("Register: Error {err}", err=err)
+                log.error("Error {err}", err=err)
             return(False)
         else:
             return(True)
@@ -183,7 +183,7 @@ class ImageController:
                         yield self.image.fixDirectory(row)
                         log.info('Fixed directory for {name} to {dir}', name=row['name'], dir=row['directory'])
                     else:
-                        log.warn("Image: '{name}' is completely discarded, using '{prev}' instead",name=row['name'], prev=name)
+                        log.warn("Image '{name}' is completely discarded, using '{prev}' instead",name=row['name'], prev=name) 
 
 
     @inlineCallbacks
@@ -196,10 +196,10 @@ class ImageController:
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         bayer = self.bayer_pattern
-        log.warn("Register: {n} images {ext} in sub-directory '{dir}'.",
+        log.warn("{n} images {ext} in sub-directory '{dir}'.",
             n=N_Files, ext=extension, dir=os.path.basename(directory))
         if self.header_type == FITS_HEADER_TYPE:
-            log.error("Register: Unsupported header type {h} for the time being",h=header_type) 
+            log.error("Unsupported header type {h} for the time being",h=header_type) 
             return(None)
         i = 0
         save_list = list()
@@ -213,7 +213,7 @@ class ImageController:
                 'def_fl'      : self.default_focal_length['focal_length'],  # these 2 are not real table columns
                 'def_fn'      : self.default_f_number['f_number'],      # they are here just to fix EXIF optics reading
             }
-            log.info("Register: Loading {n} ({i}/{N}) [{p}%]", i=i, N=N_Files, n=row['name'], p=(100*i//N_Files) )
+            log.info("Loading {n} ({i}/{N}) [{p}%]", i=i, N=N_Files, n=row['name'], p=(100*i//N_Files) )
             result = yield self.image.load(row)
             row['session'] = self.session
             if result:
@@ -222,24 +222,24 @@ class ImageController:
             try:
                 yield deferToThread(hash_and_exif_metadata, filepath, row)
             except Exception as e:
-                log.error("Register: Skipping {n} ({i}/{N}) [{p}%] => {e}",
+                log.error("Skipping {n} ({i}/{N}) [{p}%] => {e}",
                         e=e, i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
                 continue
             new_camera = yield self.model.camera.lookup(row)
             if not new_camera:
                 msg = 'Camera model {0} not found in the database'.format(ow['model'])
-                log.error("Register: Skipping {n} ({i}/{N}) [{p}%] => {m}",
+                log.error("Skipping {n} ({i}/{N}) [{p}%] => {m}",
                         m=msg, i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
                 continue
             log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
             row['camera_id'] = int(new_camera['camera_id'])
             save_list.append(row)
             if (i % 50) == 0:
-                log.debug("Register: saving to database")
+                log.debug("saving to database")
                 yield self.saveAndFix(save_list)
                 save_list = list()
         if save_list:
-            log.debug("Register: saving to database")
+            log.debug("saving to database")
             yield self.saveAndFix(save_list)
         return((i, N_Files))
         

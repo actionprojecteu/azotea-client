@@ -55,9 +55,9 @@ VALUES ('publishing', 'tps', 1);
 INSERT INTO config_t(section, property, value) 
 VALUES ( 'logging', 'regis', 'info');
 INSERT INTO config_t(section, property, value) 
-VALUES ( 'logging', 'sky', 'info');
+VALUES ( 'logging', 'skybg', 'info');
 INSERT INTO config_t(section, property, value) 
-VALUES ( 'logging', 'publ', 'info');
+VALUES ( 'logging', 'publi', 'info');
 
 
 -- Per-table SQL Debugging
