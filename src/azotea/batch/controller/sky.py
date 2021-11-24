@@ -78,6 +78,8 @@ class SkyBackgroundController:
     @inlineCallbacks
     def onStatisticsReq(self):
         try:
+            lvl = yield self.config.load('logging', NAMESPACE)
+            setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])
             result = yield self.doCheckDefaults()
             if result:
                 yield self.doStatistics()

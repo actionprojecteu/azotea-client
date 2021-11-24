@@ -15,6 +15,7 @@ import time
 # Twisted imports
 # ---------------
 
+from twisted.logger   import Logger
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectionRefusedError
 
@@ -79,7 +80,8 @@ class PublishingController:
     @inlineCallbacks
     def onPublishReq(self):
         try:
-
+            lvl = yield self.config.load('logging', NAMESPACE)
+            setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])
             # NOT AVAILABLE FOR THE TIME BEING
             log.warn("Publishing is not available for the time being")
             pub.sendMessage('file_quit')

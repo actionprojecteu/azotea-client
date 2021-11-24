@@ -66,8 +66,6 @@ class MiscelaneaController:
                 data['regis'] = options.register
             if options.processing:
                 data['sky'] = options.processing
-            if options.csv:
-                data['csv'] = options.csv
             if options.publishing:
                 data['publ'] = options.publishing
             log.info("Writting logging level configuration = {data}",data=data)

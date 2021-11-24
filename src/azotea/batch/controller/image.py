@@ -80,6 +80,8 @@ class ImageController:
     @inlineCallbacks  
     def onRegisterReq(self):
         try:
+            lvl = yield self.config.load('logging', NAMESPACE)
+            setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])
             log.info('Starting Register Controller')
             ok = yield self.doCheckDefaults()
             if not ok:

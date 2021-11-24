@@ -57,8 +57,6 @@ VALUES ( 'logging', 'regis', 'info');
 INSERT INTO config_t(section, property, value) 
 VALUES ( 'logging', 'sky', 'info');
 INSERT INTO config_t(section, property, value) 
-VALUES ( 'logging', 'csv', 'info');
-INSERT INTO config_t(section, property, value) 
 VALUES ( 'logging', 'publ', 'info');
 
 
