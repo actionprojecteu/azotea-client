@@ -49,6 +49,19 @@ VALUES ('publishing', 'page_size', 100);
 INSERT INTO config_t(section, property, value) 
 VALUES ('publishing', 'tps', 1);
 
+-- Logging processes section
+-- the property names will be the logging namestaces
+
+INSERT INTO config_t(section, property, value) 
+VALUES ( 'logging', 'regis', 'info');
+INSERT INTO config_t(section, property, value) 
+VALUES ( 'logging', 'sky', 'info');
+INSERT INTO config_t(section, property, value) 
+VALUES ( 'logging', 'csv', 'info');
+INSERT INTO config_t(section, property, value) 
+VALUES ( 'logging', 'publ', 'info');
+
+
 -- Per-table SQL Debugging
 INSERT INTO config_t(section, property, value) 
 VALUES ( 'tables', 'config_t', 'info');

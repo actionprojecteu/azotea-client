@@ -38,6 +38,8 @@ import azotea.consent.form
 # Module constants
 # ----------------
 
+LOG_CHOICES = ('none', 'critical', 'error', 'warn', 'info', 'debug')
+
 # -----------------------
 # Module global variables
 # -----------------------
@@ -71,7 +73,7 @@ def createParser():
     parser_location  = subparser.add_parser('location', help='location commands')
     parser_camera   = subparser.add_parser('camera', help='camera commands')
     parser_roi    = subparser.add_parser('roi', help='roi commands')
-    parser_misc = subparser.add_parser('miscelanea', help='miscelanea commands')
+    parser_misc = subparser.add_parser('configure', help='miscelanea commands')
     parser_sky  = subparser.add_parser('sky', help='sky background commands')
    
     # -----------------------------------------
@@ -171,7 +173,7 @@ def createParser():
     skyexp.add_argument('--to-date',   type=mkdate, default=None, metavar='<YYYY-MM-DD>', help='End date in range')
 
     # --------------------------------------------
-    # Create second level parsers for 'miscelanea'
+    # Create second level parsers for 'configure'
     # --------------------------------------------
 
     subparser = parser_misc.add_subparsers(dest='subcommand')
@@ -184,6 +186,12 @@ def createParser():
     pubcre.add_argument('--username', type=str, required=True, help="Server username")
     pubcre.add_argument('--password', type=str, required=True, help="Server password")
     pubcre.add_argument('--url',      type=str, default=None, help="Server URL")
+
+    logcnf = subparser.add_parser('logging',  help="create the 'publishing' section in the configuration")
+    logcnf.add_argument('--register',   type=str, choices=LOG_CHOICES, default=None, help="Image registration log level")
+    logcnf.add_argument('--processing', type=str, choices=LOG_CHOICES, default=None, help="Sky processing log level")
+    logcnf.add_argument('--csv',        type=str, choices=LOG_CHOICES, default=None, help="CSV generation log level")
+    logcnf.add_argument('--publishing', type=str, choices=LOG_CHOICES, default=None, help="CSV generation log level")
    
     return parser
 

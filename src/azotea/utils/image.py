@@ -24,9 +24,6 @@ import exifread
 # local imports
 # -------------
 
-from azotea.error import IncorrectTimestampError
-from azotea.utils import NAMESPACE, log
-
 # ----------------
 # Module constants
 # ----------------
@@ -38,6 +35,20 @@ from azotea.utils import NAMESPACE, log
 # -----------------------
 # Module global variables
 # -----------------------
+
+# ----------
+# Exceptions
+# ----------
+
+class IncorrectTimestampError(ValueError):
+    '''Could not parse such timestamp'''
+    def __str__(self):
+        s = self.__doc__
+        if self.args:
+            s = ' {0}: {1}'.format(s, str(self.args[0]))
+        s = '{0}.'.format(s)
+        return s
+
 
 # ------------------------
 # Module Utility Functions
@@ -104,7 +115,5 @@ def toDateTime(tstamp):
 
 
 def hash_and_exif_metadata(filepath, row):
-    log.debug('Computing {row.name} MD5 hash', row=row)
     row['hash'] = hash_func(filepath)
-    log.debug('Loading {row.name} EXIF metadata', row=row)
     row = exif_metadata(filepath, row)

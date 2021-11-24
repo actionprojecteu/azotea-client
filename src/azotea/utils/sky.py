@@ -45,11 +45,11 @@ import rawpy
 # -------------
 
 from azotea import __version__
-from azotea.utils import NAMESPACE, log, chop
+from azotea.utils import chop
 
 from azotea.utils.roi import Point, Rect
 from azotea.logger  import startLogging, setLogLevel
-from azotea.error import IncorrectTimestampError
+
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 
@@ -57,8 +57,6 @@ from azotea.gui.widgets.date import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANG
 # ----------------
 # Module constants
 # ----------------
-
-NAMESPACE = 'CTRL '
 
 # RGGB => R = [x=0,y=0], G1 = [x=1,y=0], G2 = [x=0,y=1], B = [x=1,y=1]
 # BGGR => R = [x=1,y=1], G1 = [x=1,y=0], G2 = [x=0,y=1], B = [x=0,y=0]
@@ -130,12 +128,6 @@ AVER_COL_INDEX = (
 
 OBSERVER_ORGANIZATION = CSV_COLUMNS.index('organization')
 LOCATION = CSV_COLUMNS.index('location')
-
-# -----------------------
-# Module global variables
-# -----------------------
-
-log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions

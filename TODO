@@ -1,6 +1,8 @@
 MAS INMEDIATO TODAVIA
 =====================
 
+* log levels configurables pot azotool
+
 INMEDIATO
 =========
 * ¿Validacion? _tkinter.TclError: expected floating-point number but got "39,6928888889"

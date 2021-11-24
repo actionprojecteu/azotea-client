@@ -42,9 +42,13 @@ from azotea.batch.controller import NAMESPACE, log
 # Module constants
 # ----------------
 
+NAMESPACE = 'regis'
+
 # -----------------------
 # Module global variables
 # -----------------------
+
+log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions
@@ -93,10 +97,10 @@ class ImageController:
                 i += j
                 N_Files += M_Files
             if N_Files:
-                log.info("Register: {i}/{N} images analyzed", i=i, N=N_Files)
+                log.warn("Register: {i}/{N} images analyzed", i=i, N=N_Files)
             else:
                 extension = '*' + self.extension
-                log.warn("Register: No images found with the filter {ext}",ext=extension)
+                log.warn("Register: No images found matching {ext}",ext=extension)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('file_quit', exit_code = 1)
@@ -190,7 +194,8 @@ class ImageController:
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         bayer = self.bayer_pattern
-        log.info('Found {n} candidates matching filter {ext} in directory {dir}.',n=N_Files, ext=extension, dir=directory)
+        log.warn("Register: {n} images {ext} in sub-directory '{dir}'.",
+            n=N_Files, ext=extension, dir=os.path.basename(directory))
         if self.header_type == FITS_HEADER_TYPE:
             log.error("Register: Unsupported header type {h} for the time being",h=header_type) 
             return(None)

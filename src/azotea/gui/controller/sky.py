@@ -52,13 +52,13 @@ from azotea.utils import chop
 from azotea.utils.roi import Point, Rect
 from azotea.utils.sky import CSV_COLUMNS, postprocess, widget_datetime, processImage
 from azotea.logger  import startLogging, setLogLevel
-from azotea.error import IncorrectTimestampError
+
 
 # ----------------
 # Module constants
 # ----------------
 
-NAMESPACE = 'CTRL '
+NAMESPACE = 'sky'
 
 # -----------------------
 # Module global variables
@@ -72,7 +72,6 @@ log = Logger(namespace=NAMESPACE)
 # ------------------------
 # Module Utility Functions
 # ------------------------
-
 
 
 # --------------

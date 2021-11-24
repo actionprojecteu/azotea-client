@@ -34,15 +34,18 @@ from pubsub import pub
 from azotea.logger  import setLogLevel
 from azotea.utils.roi import Rect
 from azotea.utils.sky import processImage
-from azotea.batch.controller import NAMESPACE, log
 
 # ----------------
 # Module constants
 # ----------------
 
+NAMESPACE = 'sky'
+
 # -----------------------
 # Module global variables
 # -----------------------
+
+log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions
@@ -121,6 +124,7 @@ class SkyBackgroundController:
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)
         save_list = list()
+        log.warn("Sky Background Processor: Processing {N} images", N=N_stats)
         for i, (image_id,) in enumerate(image_id_list, start=1):
             name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
             row = {
@@ -138,7 +142,7 @@ class SkyBackgroundController:
             log.debug("Sky Background Processor: saving to database")
             yield self.sky.save(save_list)
         if N_stats:
-            log.info("Sky Background Processor: {n}/{d} images processed", n=i, d=N_stats)
+            log.warn("Sky Background Processor: {n}/{d} images processed", n=i, d=N_stats)
         else:
-            log.info("Sky Background Processor: No images to process")
+            log.warn("Sky Background Processor: No images to process")
         

@@ -105,9 +105,9 @@ azotool --console --dbase ${DBASE} camera create --default \
 azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
         --from-image ${IMAGES}/2021-11-22/IMG_0164.CR2  # (7)
 
-azotool --console --dbase ${DBASE} miscelanea optics --focal-length 50 --f-number 3.5  # (8)
+azotool --console --dbase ${DBASE} configure optics --focal-length 50 --f-number 3.5  # (8)
 
-azotool --console --dbase ${DBASE} miscelanea publishing --username foo --password bar
+azotool --console --dbase ${DBASE} configure publishing --username foo --password bar
 ```
 
 1. *Environmental variables*
@@ -343,4 +343,4 @@ Then we can either generate a CSV file with the results or publsih them:
 
 ![Edit > Preferences > Publishing](doc/image/publishing.png)
 
-![Edit > Preferences > Miscelanea](doc/image/miscelanea.png)
+![Edit > Preferences > configure](doc/image/configure.png)

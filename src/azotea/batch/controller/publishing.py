@@ -30,7 +30,6 @@ from pubsub import pub
 # -------------
 
 from azotea.logger  import setLogLevel
-from azotea.batch.controller import NAMESPACE, log
 
 # ----------------
 # Module constants
@@ -38,10 +37,13 @@ from azotea.batch.controller import NAMESPACE, log
 
 PUBLISH_PAGE_SIZE = 50
 
+NAMESPACE = 'publ'
+
 # -----------------------
 # Module global variables
 # -----------------------
 
+log = Logger(namespace=NAMESPACE)
 
 # ------------------------
 # Module Utility Functions

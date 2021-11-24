@@ -38,7 +38,6 @@ import rawpy
 from azotea import __version__
 from azotea.utils.roi import Point, Rect
 from azotea.logger  import startLogging, setLogLevel
-from azotea.error import TooDifferentValuesBiasError, NotPowerOfTwoErrorBiasError
 
 # ----------------
 # Module constants

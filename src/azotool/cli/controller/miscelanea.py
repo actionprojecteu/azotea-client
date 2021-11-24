@@ -54,8 +54,29 @@ class MiscelaneaController:
         self.model  = model
         self.config = config
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        pub.subscribe(self.opticsReq,  'miscelanea_optics_req')
-        pub.subscribe(self.publishReq, 'miscelanea_publishing_req')
+        pub.subscribe(self.opticsReq,  'configure_optics_req')
+        pub.subscribe(self.publishReq, 'configure_publishing_req')
+        pub.subscribe(self.loggingReq, 'configure_logging_req')
+
+    @inlineCallbacks
+    def loggingReq(self, options):
+        try:
+            data = {}
+            if options.register:
+                data['regis'] = options.register
+            if options.processing:
+                data['sky'] = options.processing
+            if options.csv:
+                data['csv'] = options.csv
+            if options.publishing:
+                data['publ'] = options.publishing
+            log.info("Writting logging level configuration = {data}",data=data)
+            yield self.config.saveSection('logging', data)         
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            pub.sendMessage('file_quit')
 
     @inlineCallbacks
     def opticsReq(self, options):

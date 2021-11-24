@@ -87,6 +87,7 @@ class CameraController:
         info, warning = yield deferToThread(image_analyze_exif, path)
         if not info:
             raise ValueError(warning)
+        log.info("Analyzed EXIF froim image is {info}", info=info)
         old_info = yield self.model.load(info)    # lookup by model
         if not old_info:
             log.warn("Camera is not yet in the database")

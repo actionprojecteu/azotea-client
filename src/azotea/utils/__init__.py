@@ -11,12 +11,6 @@
 
 import datetime
 
-# ---------------
-# Twisted imports
-# ---------------
-
-from twisted.logger   import Logger
-
 #--------------
 # local imports
 # -------------
@@ -25,13 +19,9 @@ from twisted.logger   import Logger
 # Module constants
 # ----------------
 
-NAMESPACE = 'CTRL '
-
 # -----------------------
 # Module global variables
 # -----------------------
-
-log = Logger(namespace=NAMESPACE)
 
 # Assume bad result unless we set it to ok
 _exit_status_code = 1

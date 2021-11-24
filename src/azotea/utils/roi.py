@@ -23,8 +23,6 @@ import rawpy
 # local imports
 # -------------
 
-from azotea.utils import NAMESPACE, log
-
 # Support for internationalization
 _ = gettext.gettext
 
@@ -108,12 +106,10 @@ class Rect:
         return f"[{self.y1}:{self.y2},{self.x1}:{self.x2}]"
   
 def reshape_rect(filename, rect):
-    log.debug('Loading EXIF metadata from {f}',f=filename)
     with open(filename, 'rb') as f:
         exif = exifread.process_file(f, details=False)
         if not exif:
-            log.warn('Could not open EXIF metadata',filename)
-            return dict()
+            raise ValueError("Could not open EXIF metadata")
     # Get the real RAW dimensions instead
     with rawpy.imread(filename) as img:
         imageHeight, imageWidth = img.raw_image.shape

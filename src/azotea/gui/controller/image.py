@@ -44,14 +44,14 @@ from azotea import __version__
 from azotea.utils.roi import Point, Rect
 from azotea.utils.image import scan_non_empty_dirs, hash_func, exif_metadata, toDateTime, hash_and_exif_metadata
 from azotea.logger  import startLogging, setLogLevel
-from azotea.error import IncorrectTimestampError
+
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 
 # ----------------
 # Module constants
 # ----------------
 
-NAMESPACE = 'CTRL '
+NAMESPACE = 'regis'
 
 # -----------------------
 # Module global variables
