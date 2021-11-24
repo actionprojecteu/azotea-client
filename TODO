@@ -1,13 +1,7 @@
 MAS INMEDIATO TODAVIA
 =====================
-- que vuelva la opcion de especificar URL
-- regexp validadorea de URLs
-  - validators package
-  >>> import validators
-  >>> validators.url("http://google.com")
 - deferToThread(expesnive CSV operation)
 - Directoros multinivel en el registro
-
 
 INMEDIATO
 =========

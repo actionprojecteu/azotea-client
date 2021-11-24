@@ -183,6 +183,7 @@ def createParser():
     pubcre = subparser.add_parser('publishing',  help="create the 'publishing' section in the configuration")
     pubcre.add_argument('--username', type=str, required=True, help="Server username")
     pubcre.add_argument('--password', type=str, required=True, help="Server password")
+    pubcre.add_argument('--url',      type=str, default=None, help="Server URL")
    
     return parser
 

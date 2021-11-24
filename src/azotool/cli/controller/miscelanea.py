@@ -23,6 +23,7 @@ from twisted.internet.defer import inlineCallbacks
 # -------------------
 
 from pubsub import pub
+import validators
 
 #--------------
 # local imports
@@ -80,6 +81,12 @@ class MiscelaneaController:
                 'username'  : options.username,
                 'password'  : options.password,
             }
+            if options.url:
+                valid = validators.url(options.url)
+                if type(valid) == bool and valid:
+                    data['url'] = options.url
+                else:
+                    raise ValueError(str(valid))
             log.info("Writting publishing configuration = {data}",data=data)
             yield self.config.saveSection('publishing', data)   
         except Exception as e:

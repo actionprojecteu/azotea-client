@@ -26,6 +26,7 @@ from   tkinter import ttk
 from pubsub import pub
 import PIL
 from PIL import ImageTk
+import validators
 
 # ---------------
 # Twisted imports
@@ -54,16 +55,6 @@ NAMESPACE = 'GUI'
 # -----------------------
 
 log  = Logger(namespace=NAMESPACE)
-
-
-class URLSchemeError(ValueError):
-    pass 
-
-class URLHostameError(ValueError):
-    pass 
-
-class URLPathError(ValueError):
-    pass 
 
 
 class PublishingFrame(ttk.Frame):
@@ -127,15 +118,10 @@ class PublishingFrame(ttk.Frame):
 
     def _checkURL(self):
         url = self._input['url'].get()
-        parts = urllib.parse.urlparse(url, allow_fragments=False)
-        if parts.scheme != 'http' and parts.scheme != 'https':
-            raise URLSchemeError( _("Bad URL scheme: {0}".format(parts.scheme)))
-        if not parts.hostname:
-            raise URLHostnameError( _("Bad URL hostname: {0}".format(parts.hostname)))
-        if not parts.path:
-            raise URLPathError( _("Bad URL path: {0}".format(parts.path)))
+        valid = validators.url(url)
+        if type(valid) != bool:
+            raise ValueError(str(valid))
         return True
-       
 
     def _blankForm(self):
         for key, widget in self._input.items():
