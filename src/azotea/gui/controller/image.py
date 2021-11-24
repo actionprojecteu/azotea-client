@@ -42,7 +42,7 @@ import rawpy
 
 from azotea import __version__
 from azotea.utils.roi import Point, Rect
-from azotea.utils.image import hashfunc, exif_metadata, toDateTime, hash_and_exif_metadata
+from azotea.utils.image import scan_non_empty_dirs, hash_func, exif_metadata, toDateTime, hash_and_exif_metadata
 from azotea.logger  import startLogging, setLogLevel
 from azotea.error import IncorrectTimestampError
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
@@ -107,25 +107,15 @@ class ImageController:
             if ok:
                 images_dir = self.view.openDirectoryDialog()
                 if images_dir:
-                    with os.scandir(images_dir) as it:
-                        dirs  = [ entry.path for entry in it if entry.is_dir()  ]
-                        files = [ entry.path for entry in it if entry.is_file() ]
-                    N_Files = 0
-                    if dirs:
-                        if files:
-                            log.warn("Ignoring files in {wd}", wd=images_dir)
-                        i = 0
-                        for images_dir in sorted(dirs, reverse=True):
-                            result = yield self.doRegister(images_dir)
-                            if not result:
-                                break
-                            j, M_Files = result
-                            i += j
-                            N_Files += M_Files
-                    else:
+                    sub_dirs = yield deferToThread(scan_non_empty_dirs, images_dir)
+                    N_Files = 0; i = 0
+                    for images_dir in sorted(sub_dirs, reverse=True):
                         result = yield self.doRegister(images_dir)
-                        if result:
-                            i, N_Files = result
+                        if not result:
+                            break
+                        j, M_Files = result
+                        i += j
+                        N_Files += M_Files
                     if N_Files:
                         message = _("Registration: {0}/{1} images complete").format(i,N_Files)
                         self.view.messageBoxInfo(who=_("Register"),message=message)
@@ -286,11 +276,11 @@ class ImageController:
             self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
             save_list.append(row)
             if (i % 50) == 0:
-                log.info("Register: saving to database")
+                log.debug("Register: saving to database")
                 yield self.saveAndFix(save_list)
                 save_list = list()
         if save_list:
-            log.info("Register: saving to database")
+            log.debug("Register: saving to database")
             yield self.saveAndFix(save_list)
         return((i, N_Files))
         

@@ -34,7 +34,7 @@ from pubsub import pub
 
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.logger  import setLogLevel
-from azotea.utils.image import hashfunc, exif_metadata, toDateTime, hash_and_exif_metadata
+from azotea.utils.image import scan_non_empty_dirs, hash_func, exif_metadata, toDateTime, hash_and_exif_metadata
 from azotea.batch.controller import NAMESPACE, log
 
 
@@ -64,7 +64,7 @@ class ImageController:
         self.config = config
         self.default_focal_length = None
         self.default_f_number = None
-        self.images_dir = images_dir
+        self.root_dir = images_dir
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onRegisterReq, 'images_register_req')
          
@@ -82,26 +82,15 @@ class ImageController:
                 log.error("Missing default values")
                 pub.sendMessage('file_quit', exit_code = 1)
                 return
-            images_dir = self.images_dir
-            with os.scandir(images_dir) as it:
-                dirs  = [ entry.path for entry in it if entry.is_dir()  ]
-                files = [ entry.path for entry in it if entry.is_file() ]
-            N_Files = 0
-            if dirs:
-                if files:
-                    log.warn("Ignoring files in {wd}", wd=images_dir)
-                i = 0
-                for images_dir in sorted(dirs, reverse=True):
-                    result = yield self.doRegister(images_dir)
-                    if not result:
-                        break
-                    j, M_Files = result
-                    i += j
-                    N_Files += M_Files
-            else:
+            sub_dirs = yield deferToThread(scan_non_empty_dirs, self.root_dir)
+            N_Files = 0; i = 0
+            for images_dir in sorted(sub_dirs, reverse=True):
                 result = yield self.doRegister(images_dir)
-                if result:
-                    i, N_Files = result
+                if not result:
+                    break
+                j, M_Files = result
+                i += j
+                N_Files += M_Files
             if N_Files:
                 log.info("Register: {i}/{N} images complete", i=i, N=N_Files)
             else:
@@ -238,11 +227,11 @@ class ImageController:
             row['camera_id'] = int(new_camera['camera_id'])
             save_list.append(row)
             if (i % 50) == 0:
-                log.info("Register: saving to database")
+                log.debug("Register: saving to database")
                 yield self.saveAndFix(save_list)
                 save_list = list()
         if save_list:
-            log.info("Register: saving to database")
+            log.debug("Register: saving to database")
             yield self.saveAndFix(save_list)
         return((i, N_Files))
         

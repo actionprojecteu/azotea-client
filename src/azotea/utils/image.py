@@ -9,6 +9,7 @@
 # System wide imports
 # -------------------
 
+import os
 import datetime
 import hashlib
 from fractions import Fraction
@@ -42,7 +43,10 @@ from azotea.utils import NAMESPACE, log
 # Module Utility Functions
 # ------------------------
 
-def hashfunc(filepath):
+def scan_non_empty_dirs(root_dir):
+    return [dirpath for dirpath, dirs, files in os.walk(root_dir) if files]
+
+def hash_func(filepath):
     '''Compute a hash from the image'''
     BLOCK_SIZE = 1048576 # 1MByte, the size of each read from the file
     # md5() was the fastest algorithm I've tried
@@ -101,6 +105,6 @@ def toDateTime(tstamp):
 
 def hash_and_exif_metadata(filepath, row):
     log.debug('Computing {row.name} MD5 hash', row=row)
-    row['hash'] = hashfunc(filepath)
+    row['hash'] = hash_func(filepath)
     log.debug('Loading {row.name} EXIF metadata', row=row)
     row = exif_metadata(filepath, row)
