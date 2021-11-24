@@ -241,7 +241,13 @@ IMAGES=${AZOTEA_HOME}/images
 azotea --dbase ${DBASE} --log-file ${LOG} batch --images-dir ${IMAGES} --publish 
 ```
 
-The `--images-dir` option can specify a directory where the actual images are or a parent directory, that is:
+The `--images-dir` option can specify base directory where the actual images are or any parent directory. 
+It will recursively traverse and load images matching the extension  specified by the default camera i.e. `(*.CR2)`.
+
+We recommend organizing your images following a scheme like `YYYY-MM-DD` for the subdirectories.
+Directoris will be processed with descendent order, that is, from the 
+most recent name (i.e. 2021-11-02) to the least recent one. 
+This allows the most recent images to be processed first.
 
 ```
 ${AZOTEA_HOME}/images
@@ -253,17 +259,12 @@ ${AZOTEA_HOME}/images
                 +----/2021-11-02
 ```
 
-This allows more automation, as all subdirectories will be traversed. 
-We recommend using a scheme like `YYYY-MM-DD` for the subdirectories.
-Directoris will be processed with descendent order, that is, from the 
-most recent name (i.e. 2021-11-02) to the least recent one.
-
 ## CSV File generation
 
 CSV file generation in batch mode is done by using `azotool`. It has the 
 same options as in the GUI mode. We can use the `--console` option 
 if executed interactively or the `--log-file` option if executed within 
-an automation script.
+an automation script. See the script below for export options.
 
 ```bash
 #!/bin/bash
@@ -278,6 +279,7 @@ CSV_DIR=${AZOTEA_HOME}/csv
 azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --all
 azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --latest-night
 azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --latest-month
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --unpublished
 azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --range --from-date 2021-01-21 --to-date 2021-03-18
 ```
 

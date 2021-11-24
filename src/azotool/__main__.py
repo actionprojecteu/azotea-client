@@ -166,7 +166,7 @@ def createParser():
     group.add_argument('--latest-month', action='store_true', help='Latest month in database')
     group.add_argument('--latest-night', action='store_true', help='Latest night in database')
     group.add_argument('--all',          action='store_true', help='Export all nights')
-    group.add_argument('--pending',      action='store_true', help='Export observations not yet published to server')
+    group.add_argument('--unpublished',  action='store_true', help='Export observations not yet published to server')
     group.add_argument('--range',        action='store_true', help='Export a date range')
     # options for range export
     skyexp.add_argument('--from-date', type=mkdate, default=None, metavar='<YYYY-MM-DD>', help="Start date in range")

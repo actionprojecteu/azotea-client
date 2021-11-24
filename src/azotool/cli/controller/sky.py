@@ -75,7 +75,7 @@ class SkyController:
             date = dict()
             if options.all:
                 date['date_selection'] = DATE_SELECTION_ALL
-            elif options.pending:
+            elif options.unpublished:
                 date['date_selection'] = DATE_SELECTION_UNPUBLISHED
             elif options.latest_night:
                 date['date_selection'] = DATE_SELECTION_LATEST_NIGHT
