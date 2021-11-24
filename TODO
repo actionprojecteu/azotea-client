@@ -1,8 +1,6 @@
 MAS INMEDIATO TODAVIA
 =====================
 
-- Directoros multinivel en el registro
-
 INMEDIATO
 =========
 * ¿Validacion? _tkinter.TclError: expected floating-point number but got "39,6928888889"
