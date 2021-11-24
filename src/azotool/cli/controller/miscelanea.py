@@ -62,12 +62,12 @@ class MiscelaneaController:
     def loggingReq(self, options):
         try:
             data = {}
-            if options.register:
-                data['regis'] = options.register
+            if options.load:
+                data['regis'] = options.load
             if options.sky:
                 data['skybg'] = options.sky
-            if options.publishing:
-                data['publi'] = options.publishing
+            if options.publish:
+                data['publi'] = options.publish
             log.info("Writting logging level configuration = {data}",data=data)
             yield self.config.saveSection('logging', data)         
         except Exception as e:

@@ -188,9 +188,9 @@ def createParser():
     pubcre.add_argument('--url',      type=str, default=None, help="Server URL")
 
     logcnf = subparser.add_parser('logging',  help="create the 'publishing' section in the configuration")
-    logcnf.add_argument('--register',   type=str, choices=LOG_CHOICES, default=None, help="Image registration log level")
+    logcnf.add_argument('--load',   type=str, choices=LOG_CHOICES, default=None, help="Image loading log level")
     logcnf.add_argument('--sky',        type=str, choices=LOG_CHOICES, default=None, help="Sky processing log level")
-    logcnf.add_argument('--publishing', type=str, choices=LOG_CHOICES, default=None, help="publishing log level")
+    logcnf.add_argument('--publish', type=str, choices=LOG_CHOICES, default=None, help="Publishing log level")
    
     return parser
 

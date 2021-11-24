@@ -291,6 +291,28 @@ and set its rotation policy as needed. For the same reason, console output is no
 by default and must be explicitely activated with `--console`, Redirecting console `stdout` `stderr` 
 has the same effect as specifying a log file but it is a bit more cumbersome.
 
+You can configure the console/log file verbosity of the main three long running processes:
+* image loading into database
+* sky background computation
+* publishing results to a server
+
+The default log level is `info`
+
+See the `azotool configure logging  --help`
+
+```
+usage: azotool configure logging [-h] [--load {critical,error,warn,info,debug}] [--sky {critical,error,warn,info,debug}] [--publish {critical,error,warn,info,debug}]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --load {critical,error,warn,info,debug}
+                        Image loading log level
+  --sky {critical,error,warn,info,debug}
+                        Sky processing log level
+  --publish {critical,error,warn,info,debug}
+                        publishing log level
+````
+
 ### Exit codes
 
 Both `azotool` and `azotea` commands return the following exit codes are:
