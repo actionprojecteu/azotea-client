@@ -93,7 +93,7 @@ class ImageController:
                 i += j
                 N_Files += M_Files
             if N_Files:
-                log.info("Register: {i}/{N} images complete", i=i, N=N_Files)
+                log.info("Register: {i}/{N} images analyzed", i=i, N=N_Files)
             else:
                 extension = '*' + self.extension
                 log.warn("Register: No images found with the filter {ext}",ext=extension)
