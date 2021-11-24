@@ -176,78 +176,43 @@ y
 ------------------
 Agreement accepted
 ------------------
-2021-11-22T14:02:12+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
-2021-11-22T14:02:12+0100 [dbase#info] Database version = 01
-2021-11-22T14:02:12+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:12+0100 [dbase#info] Starting DAO
-2021-11-22T14:02:12+0100 [cli#info] Starting Command Service
-2021-11-22T14:02:12+0100 [cli#info] Sending event observer_create_req
-2021-11-22T14:02:12+0100 [cli#info] Versioned insert to observer_t: {'family_name': 'Juan', 'surname': 'Gómez Pérez', 'affiliation': 'Agrupación Astronómica de Alcafrán', 'acronym': 'AA-ACFN'}
-2021-11-22T14:02:12+0100 [cli#info] Setting default observer in configuration section as id = {'observer_id': 1}
-2021-11-22T14:02:12+0100 [cli#info] Stopping Command Service
-2021-11-22T14:02:12+0100 [dbase#info] Stopping Database Service
-2021-11-22T14:02:12+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:12+0100 [-] Main loop terminated.
-2021-11-22T14:02:12+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
-2021-11-22T14:02:12+0100 [dbase#info] Database version = 01
-2021-11-22T14:02:12+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:12+0100 [dbase#info] Starting DAO
-2021-11-22T14:02:12+0100 [cli#info] Starting Command Service
-2021-11-22T14:02:12+0100 [cli#info] Sending event location_create_req
-2021-11-22T14:02:12+0100 [cli#info] Insert to location_t: {'site_name': 'Alcafrán', 'location': 'Alcafrán', 'longitude': -2.7335649, 'latitude': 40.4966031, 'randomized': 0, 'utc_offset': 1}
-2021-11-22T14:02:12+0100 [cli#info] Setting default location in configuration section as id = {'location_id': 1}
-2021-11-22T14:02:13+0100 [cli#info] Stopping Command Service
-2021-11-22T14:02:13+0100 [dbase#info] Stopping Database Service
-2021-11-22T14:02:13+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:13+0100 [-] Main loop terminated.
-2021-11-22T14:02:13+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
-2021-11-22T14:02:13+0100 [dbase#info] Database version = 01
-2021-11-22T14:02:13+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:13+0100 [dbase#info] Starting DAO
-2021-11-22T14:02:13+0100 [cli#info] Starting Command Service
-2021-11-22T14:02:13+0100 [cli#info] Sending event camera_create_req
-2021-11-22T14:02:13+0100 [CTRL #info] analyzing bias levels([2049, 2049, 2050, 2049])
-2021-11-22T14:02:13+0100 [CTRL #info] global bias set to = 2048
-2021-11-22T14:02:13+0100 [cli#info] Insert/replace to camera_t: {'model': 'Canon EOS 550D', 'extension': '.CR2', 'bias': 2048, 'width': 5344, 'length': 3516, 'header_type': 'EXIF', 'bayer_pattern': 'GBRG'}
-2021-11-22T14:02:13+0100 [cli#info] Setting default camera in configuration section as id = {'camera_id': 4}
-2021-11-22T14:02:14+0100 [cli#info] Stopping Command Service
-2021-11-22T14:02:14+0100 [dbase#info] Stopping Database Service
-2021-11-22T14:02:14+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:14+0100 [-] Main loop terminated.
-2021-11-22T14:02:14+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
-2021-11-22T14:02:14+0100 [dbase#info] Database version = 01
-2021-11-22T14:02:14+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:14+0100 [dbase#info] Starting DAO
-2021-11-22T14:02:14+0100 [cli#info] Starting Command Service
-2021-11-22T14:02:14+0100 [cli#info] Sending event roi_create_req
-2021-11-22T14:02:14+0100 [cli#info] Insert/replace to roi_t: {'x1': 1086, 'y1': 679, 'x2': 1586, 'y2': 1079, 'display_name': '[679:1079,1086:1586]', 'comment': 'ROI for Canon EOS 550D, centered at P=(1336,879), width=500, height=400'}
-2021-11-22T14:02:14+0100 [cli#info] Setting default ROI in configuration section as id = {'roi_id': 1}
-2021-11-22T14:02:15+0100 [cli#info] Stopping Command Service
-2021-11-22T14:02:15+0100 [dbase#info] Stopping Database Service
-2021-11-22T14:02:15+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:15+0100 [-] Main loop terminated.
-2021-11-22T14:02:15+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
-2021-11-22T14:02:15+0100 [dbase#info] Database version = 01
-2021-11-22T14:02:15+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:15+0100 [dbase#info] Starting DAO
-2021-11-22T14:02:15+0100 [cli#info] Starting Command Service
-2021-11-22T14:02:15+0100 [cli#info] Sending event miscelanea_optics_req
-2021-11-22T14:02:15+0100 [cli#info] Writting in 'optics' configuration section = {'focal_length': 180, 'f_number': '3.5'}
-2021-11-22T14:02:15+0100 [cli#info] Stopping Command Service
-2021-11-22T14:02:15+0100 [dbase#info] Stopping Database Service
-2021-11-22T14:02:15+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:15+0100 [-] Main loop terminated.
-2021-11-22T14:02:15+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
-2021-11-22T14:02:15+0100 [dbase#info] Database version = 01
-2021-11-22T14:02:15+0100 [dbase#info] Opening DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:15+0100 [dbase#info] Starting DAO
-2021-11-22T14:02:15+0100 [cli#info] Starting Command Service
-2021-11-22T14:02:15+0100 [cli#info] Sending event miscelanea_publishing_req
-2021-11-22T14:02:15+0100 [cli#info] Writting in 'publishing' configuration section = {'username': 'foo', 'password': 'bar'}
-2021-11-22T14:02:15+0100 [cli#info] Stopping Command Service
-2021-11-22T14:02:15+0100 [dbase#info] Stopping Database Service
-2021-11-22T14:02:15+0100 [dbase#info] Closing DB Connection to /home/rafa/azotea/azotea.db
-2021-11-22T14:02:15+0100 [-] Main loop terminated.
+2021-11-24T09:54:18+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-24T09:54:18+0100 [dbase#info] Database version = 01
+2021-11-24T09:54:18+0100 [cli#info] Versioned insert observer: {'family_name': 'Juan', 'surname': 'Gómez Pérez', 'affiliation': 'Agrupación Astronómica de Alcafrán', 'acronym': 'AA-ACFN'}
+2021-11-24T09:54:18+0100 [cli#info] Setting default observer configuration as = {'observer_id': 1}
+2021-11-24T09:54:18+0100 [dbase#info] Stopping Database Service
+2021-11-24T09:54:18+0100 [-] Main loop terminated.
+2021-11-24T09:54:19+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-24T09:54:19+0100 [dbase#info] Database version = 01
+2021-11-24T09:54:19+0100 [cli#info] Randomized coordinates (-2.7335649, 40.4966031) -> (-2.7350233, 40.4950856)
+2021-11-24T09:54:19+0100 [cli#info] Insert to location: {'site_name': 'Alcafrán', 'location': 'Alcafrán', 'longitude': -2.7350233, 'latitude': 40.4950856, 'randomized': 1, 'utc_offset': 1}
+2021-11-24T09:54:19+0100 [cli#info] Setting default location configuration as = {'location_id': 1}
+2021-11-24T09:54:19+0100 [dbase#info] Stopping Database Service
+2021-11-24T09:54:19+0100 [-] Main loop terminated.
+2021-11-24T09:54:19+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-24T09:54:19+0100 [dbase#info] Database version = 01
+2021-11-24T09:54:20+0100 [CTRL #info] analyzing bias levels([2049, 2049, 2050, 2049])
+2021-11-24T09:54:20+0100 [CTRL #info] global bias set to = 2048
+2021-11-24T09:54:20+0100 [cli#info] Insert/replace camera data: {'model': 'Canon EOS 550D', 'extension': '.CR2', 'bias': 2048, 'width': 5344, 'length': 3516, 'header_type': 'EXIF', 'bayer_pattern': 'GBRG'}
+2021-11-24T09:54:20+0100 [cli#info] Setting default camera configuration as = {'camera_id': 4}
+2021-11-24T09:54:20+0100 [dbase#info] Stopping Database Service
+2021-11-24T09:54:20+0100 [-] Main loop terminated.
+2021-11-24T09:54:20+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-24T09:54:20+0100 [dbase#info] Database version = 01
+2021-11-24T09:54:21+0100 [cli#info] Insert/replace ROI: {'x1': 1086, 'y1': 679, 'x2': 1586, 'y2': 1079, 'display_name': '[679:1079,1086:1586]', 'comment': 'ROI for Canon EOS 550D, centered at P=(1336,879), width=500, height=400'}
+2021-11-24T09:54:21+0100 [cli#info] Setting default ROI configuration as = {'roi_id': 1}
+2021-11-24T09:54:22+0100 [dbase#info] Stopping Database Service
+2021-11-24T09:54:22+0100 [-] Main loop terminated.
+2021-11-24T09:54:22+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-24T09:54:22+0100 [dbase#info] Database version = 01
+2021-11-24T09:54:22+0100 [cli#info] Writting default optics configuration = {'focal_length': 180, 'f_number': '3.5'}
+2021-11-24T09:54:22+0100 [dbase#info] Stopping Database Service
+2021-11-24T09:54:22+0100 [-] Main loop terminated.
+2021-11-24T09:54:22+0100 [dbase#info] Starting Database Service on /home/rafa/azotea/azotea.db
+2021-11-24T09:54:22+0100 [dbase#info] Database version = 01
+2021-11-24T09:54:22+0100 [cli#info] Writting publishing configuration = {'username': 'foo', 'password': 'bar'}
+2021-11-24T09:54:22+0100 [dbase#info] Stopping Database Service
+2021-11-24T09:54:22+0100 [-] Main loop terminated.
 ```
 
 # Batch mode
