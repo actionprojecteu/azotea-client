@@ -260,7 +260,6 @@ class ImageController:
             try:
                 yield deferToThread(hash_and_exif_metadata, filepath, row)
             except Exception as e:
-                log.failure('{e}', e=e)
                 message = _("{0}: Error in fingerprint computation or EXIF metadata reading").format(row['name'])
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
                 return(None)

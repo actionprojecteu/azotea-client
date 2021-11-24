@@ -66,8 +66,8 @@ def exif_metadata(filename, row):
     with open(filename, 'rb') as f:
         exif = exifread.process_file(f, details=False)
     if not exif:
-        log.warn('Could not open EXIF metadata from {file}',file=filename)
-        return row
+        message = 'Could not open EXIF metadata'
+        raise ValueError(message)
     row['model']        = str(exif.get('Image Model', None)).strip()
     row['iso']          = str(exif.get('EXIF ISOSpeedRatings', None))
     row['focal_length'] = float(Fraction(str(exif.get('EXIF FocalLength', 0))))

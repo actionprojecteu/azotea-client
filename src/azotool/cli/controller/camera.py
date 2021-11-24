@@ -85,6 +85,8 @@ class CameraController:
         if not path:
             raise ValueError("--from-image path is missing")
         info, warning = yield deferToThread(image_analyze_exif, path)
+        if not info:
+            raise ValueError(warning)
         old_info = yield self.model.load(info)    # lookup by model
         if not old_info:
             log.warn("Camera is not yet in the database")

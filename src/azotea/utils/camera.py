@@ -80,10 +80,10 @@ def image_analyze_exif(filename):
     with open(filename, 'rb') as f:
         exif = exifread.process_file(f, details=False)
     if not exif:
-        log.warn('Could not open EXIF metadata from {file}',file=filename)
-        return None
+        message = "Could not open EXIF metadata from {0}".format(filename)
+        log.warn(message)
+        return None, message
     model = str(exif.get('Image Model', None)).strip()
-    warning = False
     with rawpy.imread(filename) as img:
         color_desc = img.color_desc.decode('utf-8')
         if color_desc != 'RGBG':
@@ -100,7 +100,7 @@ def image_analyze_exif(filename):
         bias = e.bias
         warning = str(e)
     else:
-        warning = None
+        warning = False
     info = {
         'model'         : model,
         'extension'     : extension,

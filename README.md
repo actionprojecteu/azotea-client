@@ -1,12 +1,12 @@
 # AZOTEA Client
 
-Sky background image reduction tool for the [AZOTEA project](https://guaix.ucm.es/azoteaproject) sky background image reduction tool.
+Sky background image reduction tool for the [AZOTEA project](https://guaix.ucm.es/azoteaproject).
 Development of this software has been possible through [ACTION - Participatory science toolkit against pollution](https://actionproject.eu/), Grant 824603.
 
 **Highlights**
 
 * Rich client GUI interactive mode.
-* Non interactive command line mode for automated data adquisition, reducition and publishing.
+* Non interactive command line mode for automated data adquisition, processing and publishing.
 
 # Table of Contents
 
@@ -44,7 +44,7 @@ pip install git+https://github.com/actionprojecteu/azotea-client.git@main # (4)
 * (1) creates a Python virtual environment under `${AZOTEA_HOME}`.
 * (2) creates additional subdirectiores under this virtual environment for log files and camera images. Please note that in this example, these directories are placed under `${AZOTEA_HOME}` for convenience, but they can be placed elsewhere.
 * (3) activates the virtual environment (**please note the starting dot**) so that all needed python packages are installed there and not system wide.
-* (4) installs the software from [its GitHub repository](https://github.com/actionprojecteu/azotea-client). We take the main branch.
+* (4) installs the software from [its GitHub repository](https://github.com/actionprojecteu/azotea-client). We download and install the main branch.
 
 There is an error showing `Building wheel for azotea-client (setup.py) ... error` but it seems ok.
 
@@ -75,35 +75,37 @@ The software requires the same configuration whether it is run either in GUI or 
 
 We'll walk through it using command line tools available for the batch mode, using a ficticious but prototypical example.
 
-Juan Gómez Pérez is a Spanish amateur astronomer, member of the *Agrupación Astronómica de Alcafrán* (AA-ACFN), wishing to join the AZOTEA project using his *Cannon EOS 550D* reflex camera. As he uses it for other purposes, the time set in the camera is the local time, not UTC. His observing site is within the small population of Alcafrán (40.4966031 N, 2.7335649 W). As he has an old 180mm f/3.5 objective lens, the RAW camera files don't automatically capture this information. He will be measuring sky background in the central rectangular field of view of 500x400 pixels.
+*Juan Gómez Pérez* is a Spanish amateur astronomer, member of the *Agrupación Astronómica de Alcafrán* (AA-ACFN), wishing to join the AZOTEA project using his *Cannon EOS 550D* reflex camera. As he uses it for other purposes, the time set in the camera is the local time, not UTC. His observing site is within the small population of Alcafrán *(40.4966031 N, 2.7335649 W)*. As he has an old *50mm f/3.5* objective lens, the camera  doesn't automatically capture this information. He will be measuring sky background in the central rectangular field of view of *500x400 pixels*.
 
 The following series of commands must be issued. This can be edited in a file and run together in a script. For simplicity's sake
 error codes are not checked.
 
 ```bash
 #!/bin/bash
-AZOTEA_HOME=${HOME}/azotea
+AZOTEA_HOME=${HOME}/azotea                                   # (1)
 export PATH=${AZOTEA_HOME}/bin:/usr/local/bin:/usr/bin:/bin
 export VIRTUAL_ENV=${AZOTEA_HOME}
 
-DBASE=${AZOTEA_HOME}/azotea.db
+DBASE=${AZOTEA_HOME}/azotea.db                              # (2)
 IMAGES=${AZOTEA_HOME}/images
+LOG=${AZOTEA_HOME}/log/azotea.log
+CSV_DIR=${AZOTEA_HOME}/csv
 
-azotool --console --dbase ${DBASE} consent view
+azotool --console --dbase ${DBASE} consent view            # (3)
 
 azotool --console --dbase ${DBASE} observer create --default --name Juan --surname Gómez Pérez \
-        --affiliation Agrupación Astronómica de Alcafrán --acronym AA-ACFN
+        --affiliation Agrupación Astronómica de Alcafrán --acronym AA-ACFN  # (4)
 
 azotool --console --dbase ${DBASE} location create --default --randomize --site-name Alcafrán --location Alcafrán \
-        --longitude -2.7335649 --latitude 40.4966031 --utc-offset 1
+        --longitude -2.7335649 --latitude 40.4966031 --utc-offset 1  # (5)
 
 azotool --console --dbase ${DBASE} camera create --default \
-        --from-image ${IMAGES}/2021-11-22/IMG_0164.CR2
+        --from-image ${IMAGES}/2021-11-22/IMG_0164.CR2   # (6)
 
 azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
-        --from-image ${IMAGES}/2021-11-22/IMG_0164.CR2
+        --from-image ${IMAGES}/2021-11-22/IMG_0164.CR2  # (7)
 
-azotool --console --dbase ${DBASE} miscelanea optics --focal-length 18 --f-number 3.5
+azotool --console --dbase ${DBASE} miscelanea optics --focal-length 50 --f-number 3.5  # (8)
 
 azotool --console --dbase ${DBASE} miscelanea publishing --username foo --password bar
 ```
@@ -111,15 +113,20 @@ azotool --console --dbase ${DBASE} miscelanea publishing --username foo --passwo
 1. *Environmental variables*
 
 The first two lines specify environmental variables so that the Python execution is done only within the virtual environment.
-The thrid line specifies the database file to be created where all the results and associated data are stored.
-*It is highly recommended that you specify such database in your azotea commands*. Otherwise, changing inadveridely from the current working directory a new, empty database file will be created and apparently it seems that you have lost all your data.
 
-2. *Consent*
+2. *Convenience variables*
+
+The ${DBASE} variable the database file to be created where all the results and associated data are stored.
+*It is highly recommended that you always specify such database in your azotea commands*. Otherwise, changing inadveridely from the current working directory a new, empty database file will be created and apparently it seems that you have lost all your data.
+Variable `${IMAGES}` point to the root directory where the sofware will find images for data processing. It can be placed as conveniently as you like, although in the example it is pointing  to a directory inside the virtual environment.
+Other convenient variables that you may set (not used here) `${LOG}` and `${CSV_DIR}` to specify a log file and the CSV directory where reports are generated., 
+
+3. *Consent*
 
 We need your consent to gather some personal data, before you can run the software. 
 The software will not run if you do not agree.
 
-3. *Observer data*
+4. *Observer data*
 
 We create observer's data specifying his/her name, surmname and affiliation data (with its acronym) 
 using the command line options shown.
@@ -127,7 +134,7 @@ using the command line options shown.
 In addition, we make sure that this is the default observer for the tool, by specifying `--default`. Image processing is always
 associated with a default observer.
 
-4. *Location data*
+5. *Location data*
 
 In a similar way, we create a default location, so that observations are associated to this default location. Note that for small locations such as villages, the `--site-name` can be equal to the `--location` name, as in this example. For other cases, they should be different. 
 I.e `--site-name Facultad de CC. Físicas UCM --location Madrid` 
@@ -138,16 +145,16 @@ For public premises such `Facultad de CC. Físicas UCM` this is not usually a co
 
 Finally the `-utc-offset` specifies a positve +1 offset respect to UTC, as in the rest of the Iberian Peninsula. No Daylight savings time is automatically handled.
 
-5. *Camera data*
+6. *Camera data*
 
 We proceed to enter the default camera data. By far the best way is to specify an example RAW file taken from this camera and the software will read all necessary data from it.
 
-6. *Region of interest*
+7. *Region of interest*
 
 In order to measure the sky background, we must specify a default Region of Interest (ROI). Usually, we wish this ROI to be a rectangle centered around the image centre. The best way to do it is, once more, specify the rectangle width and height and an image
 so that the software computes the actual rectangle corners.
 
-7. *Miscelaneous*
+8. *Miscelaneous*
 
 Last, we must specify defaults optics data (focal length in mm and f/ number) just in case there is no such data available in the image EXIF headers. Also the credentials can be specified so that the results are automatically uploaded to our server. (**NOTE: This is not yet available**)
 
@@ -266,12 +273,12 @@ export VIRTUAL_ENV=${AZOTEA_HOME}
 
 DBASE=${AZOTEA_HOME}/azotea.db
 LOG=${AZOTEA_HOME}/log/azotea.log
-CSV=${AZOTEA_HOME}/csv
+CSV_DIR=${AZOTEA_HOME}/csv
 
-azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --all
-azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --latest-night
-azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --latest-month
-azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV} --range --from-date 2021-01-21 --to-date 2021-03-18
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --all
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --latest-night
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --latest-month
+azotool --dbase ${DBASE} --console --log-file ${LOG} sky export --csv-dir ${CSV_DIR} --range --from-date 2021-01-21 --to-date 2021-03-18
 ```
 
 ## Automation issues

@@ -187,7 +187,6 @@ class ImageController:
         log.debug('Directory is {dir}.',dir=directory)
         extension = '*' + self.extension
         # AQUI EMPIEZA LO SERIO
-        session = self.session
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         bayer = self.bayer_pattern
@@ -209,21 +208,22 @@ class ImageController:
             }
             log.info("Register: Loading {n} ({i}/{N}) [{p}%]", i=i, N=N_Files, n=row['name'], p=(100*i//N_Files) )
             result = yield self.image.load(row)
-            row['session'] = session
+            row['session'] = self.session
             if result:
                 log.debug('Skipping already registered {row.name}.', row=row)
                 continue
             try:
                 yield deferToThread(hash_and_exif_metadata, filepath, row)
             except Exception as e:
-                log.failure('{e}', e=e)
-                log.error("Register: Error in fingerprint computation or EXIF metadata reading on {n} ({i}/{N}) [{p}%]",
-                        i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
-                return(None)
+                log.error("Register: Skipping {n} ({i}/{N}) [{p}%] => {e}",
+                        e=e, i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
+                continue
             new_camera = yield self.model.camera.lookup(row)
             if not new_camera:
-                log.error("Register: Camera model {m} not found in the database",m=row['model'])
-                return(None)
+                msg = 'Camera model {0} not found in the database'.format(ow['model'])
+                log.error("Register: Skipping {n} ({i}/{N}) [{p}%] => {m}",
+                        m=msg, i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
+                continue
             log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
             row['camera_id'] = int(new_camera['camera_id'])
             save_list.append(row)

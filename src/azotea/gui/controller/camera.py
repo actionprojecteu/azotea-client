@@ -86,6 +86,9 @@ class CameraController:
     def onChooseImageReq(self, path):
         try:
             info, warning = yield deferToThread(image_analyze_exif, path)
+            if not info:
+                self.view.messageBoxError(who='Preferences', message=warning)
+                return
             old_info = yield self.model.load(info)    # lookup by model
             if not old_info:
                 message = _("Camera not in database!")

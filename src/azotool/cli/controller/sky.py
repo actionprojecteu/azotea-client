@@ -36,7 +36,6 @@ from azotea import DATE_SELECTION_ALL, DATE_SELECTION_UNPUBLISHED
 from azotea import DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 from azotea.logger  import setLogLevel
 from azotool.cli   import NAMESPACE, log
-from azotea.utils.camera import image_analyze_exif
 from azotea.utils.sky import CSV_COLUMNS, postprocess
 
 # ----------------
