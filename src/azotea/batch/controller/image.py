@@ -83,6 +83,7 @@ class ImageController:
                 pub.sendMessage('file_quit', exit_code = 1)
                 return
             sub_dirs = yield deferToThread(scan_non_empty_dirs, self.root_dir)
+            self.session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
             N_Files = 0; i = 0
             for images_dir in sorted(sub_dirs, reverse=True):
                 result = yield self.doRegister(images_dir)
@@ -186,7 +187,7 @@ class ImageController:
         log.debug('Directory is {dir}.',dir=directory)
         extension = '*' + self.extension
         # AQUI EMPIEZA LO SERIO
-        session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
+        session = self.session
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         bayer = self.bayer_pattern
