@@ -179,6 +179,15 @@ class SkyBackgroundController:
     # Helper methods
     # --------------
 
+    def _exportCSV(self, path, contents):
+        '''This can be heavy I/O bound for large datasets'''
+        with open(path,'w') as fd:
+            writer = csv.writer(fd, delimiter=';')
+            writer.writerow(CSV_COLUMNS)
+            for row in contents:
+                row = map(postprocess, enumerate(row))
+                writer.writerow(row)
+
     @inlineCallbacks
     def doCheckDefaults(self):
         result = True
@@ -223,7 +232,6 @@ class SkyBackgroundController:
         return(result)
 
 
-
     @inlineCallbacks
     def doExport(self, date):
         filter_dict = {'observer_id': self.observer_id}
@@ -232,7 +240,7 @@ class SkyBackgroundController:
             filename = f'{self.observer_name}-all.csv'
             contents = yield self.sky.exportAll(filter_dict)
         elif date_selection == DATE_SELECTION_UNPUBLISHED:
-            filename = f'{self.observer_name}-pending.csv'
+            filename = f'{self.observer_name}-unpublished.csv'
             contents = yield self.sky.exportUnpublished(filter_dict)
         elif date_selection == DATE_SELECTION_LATEST_NIGHT:
             year, month, day = yield self.sky.getLatestNight(filter_dict)
@@ -253,15 +261,11 @@ class SkyBackgroundController:
             title     = _("Export CSV File"),
             extension = '.csv',
             filename  = filename
-        ) 
-        with open(path,'w') as fd:
-            writer = csv.writer(fd, delimiter=';')
-            writer.writerow(CSV_COLUMNS)
-            for row in contents:
-                row = map(postprocess, enumerate(row))
-                writer.writerow(row)
-        log.info("Export complete to {path}",path=path)
-
+        )
+        yield deferToThread(self._exportCSV, path, contents)
+        message = _("Export to {0} complete").format(path)
+        self.view.messageBoxInfo(who=_("Sky Background Processor"),message=message)
+        log.info("Export to {path} complete",path=path)
 
 
     @inlineCallbacks

@@ -97,6 +97,16 @@ class SkyController:
         else:
             pub.sendMessage('file_quit')
 
+
+    def _exportCSV(self, path, contents):
+        '''This can be heavy I/O bound for large datasets'''
+        with open(path,'w') as fd:
+            writer = csv.writer(fd, delimiter=';')
+            writer.writerow(CSV_COLUMNS)
+            for row in contents:
+                row = map(postprocess, enumerate(row))
+                writer.writerow(row)
+
     @inlineCallbacks
     def doCheckDefaultsExport(self):
         result = True
@@ -148,10 +158,6 @@ class SkyController:
             contents = yield self.sky.exportDateRange(filter_dict)
         os.makedirs(self.csv_dir, exist_ok=True)
         path = os.path.join(self.csv_dir, filename)
-        with open(path,'w') as fd:
-            writer = csv.writer(fd, delimiter=';')
-            writer.writerow(CSV_COLUMNS)
-            for row in contents:
-                row = map(postprocess, enumerate(row))
-                writer.writerow(row)
+        yield deferToThread(self._exportCSV, path, contents)
         log.info("Export {what} complete: {path}", what=date_selection, path=path)
+
