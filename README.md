@@ -116,7 +116,7 @@ The first two lines specify environmental variables so that the Python execution
 
 2. *Convenience variables*
 
-The ${DBASE} variable the database file to be created where all the results and associated data are stored.
+The `${DBASE}` variable the database file to be created where all the results and associated data are stored.
 *It is highly recommended that you always specify such database in your azotea commands*. Otherwise, changing inadveridely from the current working directory a new, empty database file will be created and apparently it seems that you have lost all your data.
 Variable `${IMAGES}` point to the root directory where the sofware will find images for data processing. It can be placed as conveniently as you like, although in the example it is pointing  to a directory inside the virtual environment.
 Other convenient variables that you may set (not used here) `${LOG}` and `${CSV_DIR}` to specify a log file and the CSV directory where reports are generated.
