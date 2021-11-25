@@ -10,6 +10,7 @@
 # -------------------
 
 import os
+import re
 import datetime
 import hashlib
 from fractions import Fraction
@@ -53,6 +54,17 @@ class IncorrectTimestampError(ValueError):
 # ------------------------
 # Module Utility Functions
 # ------------------------
+
+dark_regexp = re.compile(r'DARK')
+
+def is_dark(path):
+    def dark(name):
+        matchobj = dark_regexp.search(name.upper())
+        return True if matchobj else False
+    filename = os.path.basename(path)
+    dirname  = os.path.basename(os.path.dirname(path))
+    return dark(dirname) or dark(filename)
+
 
 def scan_non_empty_dirs(root, depth=None):
     if os.path.basename(root) == '':

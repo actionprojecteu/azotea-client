@@ -319,7 +319,7 @@ class SkyBrightness:
             o.surname || ', ' || o.family_name, 
             o.acronym, 
             l.site_name || ' - ' || l.location, 
-            'LIGHT', -- image type
+            i.imagetype, -- image type
             d.sql_date || 'T' || t.time, 
             i.name, 
             c.model, 
@@ -370,7 +370,7 @@ class SkyBrightness:
             o.surname || ', ' || o.family_name, 
             o.acronym, 
             l.site_name || ' - ' || l.location, 
-            'LIGHT', -- image type
+            i.imagetype, -- image type
             d.sql_date || 'T' || t.time, 
             i.name, 
             c.model, 
@@ -422,7 +422,7 @@ class SkyBrightness:
             o.surname || ', ' || o.family_name, 
             o.acronym, 
             l.site_name || ' - ' || l.location, 
-            'LIGHT', -- image type
+            i.imagetype, -- image type
             d.sql_date || 'T' || t.time, 
             i.name, 
             c.model, 
@@ -474,7 +474,7 @@ class SkyBrightness:
             o.surname || ', ' || o.family_name, 
             o.acronym, 
             l.site_name || ' - ' || l.location, 
-            'LIGHT', -- image type
+            i.imagetype, -- image type
             d.sql_date || 'T' || t.time, 
             i.name, 
             c.model, 
@@ -532,7 +532,7 @@ class SkyBrightness:
             o.surname || ', ' || o.family_name, 
             o.acronym, 
             l.site_name || ' - ' || l.location, 
-            'LIGHT', -- image type
+            i.imagetype, -- image type
             d.sql_date || 'T' || t.time, 
             i.name, 
             c.model, 

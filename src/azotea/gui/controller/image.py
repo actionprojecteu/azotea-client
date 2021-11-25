@@ -42,7 +42,7 @@ import rawpy
 
 from azotea import __version__
 from azotea.utils.roi import Point, Rect
-from azotea.utils.image import scan_non_empty_dirs, hash_func, exif_metadata, toDateTime, hash_and_exif_metadata
+from azotea.utils.image import is_dark, scan_non_empty_dirs, hash_func, exif_metadata, toDateTime, hash_and_exif_metadata
 from azotea.logger  import startLogging, setLogLevel
 
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
@@ -242,6 +242,7 @@ class ImageController:
             row = {
                 'name'        : os.path.basename(filepath), 
                 'directory'   : os.path.dirname(filepath),
+                'imagetype'   : 'DARK' if is_dark(filepath) else 'LIGHT',
                 'header_type' : self.header_type,
                 'observer_id' : self.observer_id,
                 'location_id' : self.location_id,
