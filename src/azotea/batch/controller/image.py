@@ -62,13 +62,12 @@ class ImageController:
 
     NAME = NAMESPACE
 
-    def __init__(self, model, config, images_dir):
+    def __init__(self, model, config):
         self.model = model
         self.image = model.image
         self.config = config
         self.default_focal_length = None
         self.default_f_number = None
-        self.root_dir = images_dir
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onRegisterReq, 'images_register_req')
          
@@ -78,7 +77,7 @@ class ImageController:
     # --------------
 
     @inlineCallbacks  
-    def onRegisterReq(self):
+    def onRegisterReq(self, root_dir, depth):
         try:
             lvl = yield self.config.load('logging', NAMESPACE)
             setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])
@@ -88,7 +87,7 @@ class ImageController:
                 log.error("Missing default values")
                 pub.sendMessage('file_quit', exit_code = 1)
                 return
-            sub_dirs = yield deferToThread(scan_non_empty_dirs, self.root_dir)
+            sub_dirs = yield deferToThread(scan_non_empty_dirs, root_dir, depth)
             self.session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
             N_Files = 0; i = 0
             for images_dir in sorted(sub_dirs, reverse=True):
@@ -179,26 +178,22 @@ class ImageController:
                 except  sqlite3.IntegrityError as e:
                     name, directory = yield self.image.getByHash(row)
                     if row['name'] == name:
+                        log.error("Fixing new directory for image '{name}'", name=row['name'])
+                        log.error("Setting to new directory '{dir}'", dir=row['directory'])
                         yield self.image.fixDirectory(row)
-                        log.warn('Fixing new directory for {name}', name=row['name'])
-                        log.warn('Setting to {dir}', dir=row['directory'])
                     else:
-                        log.warn("Discarding '{name}'", name=row['name'])
-                        log.warn("Keeping '{prev}' instead",name=row['name'], prev=name) 
+                        log.error("Discarding new image '{name}'", name=row['name'])
+                        log.error("Keeping '{prev}' image instead",name=row['name'], prev=name) 
 
 
     @inlineCallbacks
     def doRegister(self, directory):
-        if os.path.basename(directory) == '':
-            directory = directory[:-1]
-        log.debug('Directory is {dir}.',dir=directory)
+        log.warn("Scanning directory '{dir}'", dir=os.path.basename(directory))
         extension = '*' + self.extension
-        # AQUI EMPIEZA LO SERIO
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
-        bayer = self.bayer_pattern
-        log.warn("Scanning directory '{dir}'", dir=os.path.basename(directory))
         log.warn("Found {n} images matching '{ext}'", n=N_Files, ext=extension)
+        bayer = self.bayer_pattern
         if self.header_type == FITS_HEADER_TYPE:
             log.error("Unsupported header type {h} for the time being",h=header_type) 
             return(None)

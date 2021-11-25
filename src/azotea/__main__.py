@@ -72,7 +72,8 @@ def createParser():
     # -----------------------------
 
     parser_batch.add_argument('--images-dir', type=str, default=None, action='store', metavar='<path>', help='Images working directory')
-    parser_batch.add_argument('--publish', action='store_true',  help='optionally publsih to server')
+    parser_batch.add_argument('--depth',      type=int, default=None, help='Specify images dir max. scanning depth')
+    parser_batch.add_argument('--publish', action='store_true',  help='optionally publish to server')
     return parser
 
 
@@ -115,7 +116,8 @@ if options.command == 'gui':
 	guiService.setServiceParent(application)
 elif options.command == 'batch':
     images_dir   = options.images_dir
-    batchService = BatchService(images_dir)
+    depth = options.depth
+    batchService = BatchService(images_dir, depth)
     batchService.setName(BatchService.NAME)
     batchService.setServiceParent(application)
 

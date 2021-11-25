@@ -222,23 +222,20 @@ class ImageController:
 
     @inlineCallbacks
     def doRegister(self, directory):
-        if os.path.basename(directory) == '':
-            directory = directory[:-1]
-        log.debug('Directory is {dir}.',dir=directory)
+        log.warn("Scanning directory '{dir}'", dir=os.path.basename(directory))
         extension = '*' + self.extension
-        # AQUI EMPIEZA LO SERIO
-        self.view.mainArea.clearImageDataView()
         session = self.session
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
+        log.warn("Found {n} images matching '{ext}'", n=N_Files, ext=extension)
+        bayer = self.bayer_pattern
         i = 0
         save_list = list()
-        bayer = self.bayer_pattern
         if self.header_type == FITS_HEADER_TYPE:
             message = _("Unsupported header type {0} for the time being").format(header_type)
             self.view.messageBoxError(who=_("Register"),message=message)
             return(None)
-        log.debug('Found {n} candidates matching filter {ext}.',n=N_Files, ext=extension)
+        self.view.mainArea.clearImageDataView()
         for i, filepath in enumerate(file_list, start=1):
             if self._abort:
                 break

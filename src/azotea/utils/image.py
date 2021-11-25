@@ -54,8 +54,16 @@ class IncorrectTimestampError(ValueError):
 # Module Utility Functions
 # ------------------------
 
-def scan_non_empty_dirs(root_dir):
-    return [dirpath for dirpath, dirs, files in os.walk(root_dir) if files]
+def scan_non_empty_dirs(root, depth=None):
+    if os.path.basename(root) == '':
+        root = root[:-1]
+    dirs = [dirpath for dirpath, dirs, files in os.walk(root) if files]
+    dirs.append(root)   # Add it for images just under the root folder
+    if depth is None:
+        return dirs 
+    L = len(root.split(sep=os.sep))
+    return list(filter(lambda d: len(d.split(sep=os.sep)) - L <= depth, dirs))
+
 
 def hash_func(filepath):
     '''Compute a hash from the image'''
