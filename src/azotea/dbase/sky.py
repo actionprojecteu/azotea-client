@@ -43,11 +43,11 @@ class SkyBrightness:
     def summaryStatistics(self):
         def _summaryStatistics(txn):
             sql = '''
-                SELECT o.surname, o.family_name, s.display_name, count(*) as cnt 
+                SELECT o.surname, o.family_name, s.display_name, count(*) as cnt, s.published 
                 FROM image_t AS i
                 JOIN observer_t AS o USING(observer_id)
                 JOIN sky_brightness_v AS s USING(image_id)
-                GROUP BY observer_id, s.display_name
+                GROUP BY observer_id, s.display_name, s.published
                 ORDER BY cnt'''
             txn.execute(sql)
             return txn.fetchall()
