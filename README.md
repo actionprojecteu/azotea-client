@@ -241,8 +241,11 @@ IMAGES=${AZOTEA_HOME}/images
 azotea --dbase ${DBASE} --log-file ${LOG} batch --images-dir ${IMAGES} --publish 
 ```
 
-The `--images-dir` option can specify base directory where the actual images are or any parent directory. 
-It will recursively traverse and load images matching the extension  specified by the default camera i.e. `(*.CR2)`.
+The `--images-dir` option specifies an images base directory. 
+It will recursively traverse all subdirectories and load images matching the extension 
+specified by the default camera i.e. `(*.CR2)`.
+You can also specify a maximun subdirectory scanning depth using the optional `--depth <n>` flag. 
+A depth = 0 scans images only in the given `--images-dir` directory.
 
 We recommend organizing your images following a scheme like `YYYY-MM-DD` for the subdirectories.
 Directoris will be processed with descendent order, that is, from the 
