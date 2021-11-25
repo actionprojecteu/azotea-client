@@ -72,11 +72,12 @@ class BatchService(Service):
     # Service name
     NAME = NAMESPACE
 
-    def __init__(self, images_dir, depth, **kargs):
+    def __init__(self, images_dir, depth, only_load):
         super().__init__()   
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.images_dir = images_dir
         self.depth = depth
+        self.only_load = only_load
 
     #------------
     # Service API
@@ -111,6 +112,7 @@ class BatchService(Service):
                 ImageController(
                     model    = self.dbaseService.dao,
                     config   = self.dbaseService.dao.config,
+                    only_load = self.only_load
                 ),
                 SkyBackgroundController(
                     model    = self.dbaseService.dao,

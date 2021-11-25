@@ -70,7 +70,8 @@ def createParser():
 
     parser_batch.add_argument('--images-dir', type=str, default=None, action='store', metavar='<path>', help='Images working directory')
     parser_batch.add_argument('--depth',      type=int, default=None, help='Specify images dir max. scanning depth')
-    parser_batch.add_argument('--publish', action='store_true',  help='optionally publish to server')
+    parser_batch.add_argument('--publish',   action='store_true',  help='optionally publish to server')
+    parser_batch.add_argument('--only-load', action='store_true',  help='only loads images to dtaabase, do not compute sky background')
     return parser
 
 
@@ -115,7 +116,8 @@ if options.command == 'gui':
 elif options.command == 'batch':
     images_dir   = options.images_dir
     depth = options.depth
-    batchService = BatchService(images_dir, depth)
+    only_load = options.only_load
+    batchService = BatchService(images_dir, depth, only_load)
     batchService.setName(BatchService.NAME)
     batchService.setServiceParent(application)
 
