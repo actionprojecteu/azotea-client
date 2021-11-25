@@ -70,7 +70,7 @@ class ImageController:
         self.default_f_number = None
         self.only_load = only_load
         setLogLevel(namespace=NAMESPACE, levelStr='info')
-        pub.subscribe(self.onRegisterReq, 'images_register_req')
+        pub.subscribe(self.onLoadReq, 'images_load_req')
          
 
     # --------------
@@ -78,7 +78,7 @@ class ImageController:
     # --------------
 
     @inlineCallbacks  
-    def onRegisterReq(self, root_dir, depth):
+    def onLoadReq(self, root_dir, depth):
         try:
             lvl = yield self.config.load('logging', NAMESPACE)
             setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])

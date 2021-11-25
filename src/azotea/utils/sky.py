@@ -58,6 +58,8 @@ from azotea import DATE_SELECTION_ALL, DATE_SELECTION_DATE_RANGE, DATE_SELECTION
 # Module constants
 # ----------------
 
+RAWPY_EXCEPTIONS = (rawpy._rawpy.LibRawIOError, rawpy._rawpy.LibRawFileUnsupportedError)
+
 # RGGB => R = [x=0,y=0], G1 = [x=1,y=0], G2 = [x=0,y=1], B = [x=1,y=1]
 # BGGR => R = [x=1,y=1], G1 = [x=1,y=0], G2 = [x=0,y=1], B = [x=0,y=0]
 # GRBG => R = [x=1,y=0], G1 = [x=0,y=0], G2 = [x=1,y=1], B = [x=0,y=1]

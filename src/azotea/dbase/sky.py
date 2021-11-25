@@ -160,6 +160,7 @@ class SkyBrightness:
             sql = '''
                 SELECT image_id
                 FROM image_t
+                WHERE flagged = 0
                 EXCEPT 
                 SELECT DISTINCT image_id 
                 FROM sky_brightness_t;
@@ -611,6 +612,7 @@ class SkyBrightness:
             AND image_id IN (
                 SELECT image_id FROM image_t
                 WHERE  observer_id = :observer_id
+                -- creo que no hace falta comprobar el flagged status
             )
             '''
             self.log.debug(sql)

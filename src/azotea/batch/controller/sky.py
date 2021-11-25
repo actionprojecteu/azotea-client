@@ -33,7 +33,7 @@ from pubsub import pub
 
 from azotea.logger  import setLogLevel
 from azotea.utils.roi import Rect
-from azotea.utils.sky import processImage
+from azotea.utils.sky import processImage, RAWPY_EXCEPTIONS
 
 # ----------------
 # Module constants
@@ -141,8 +141,8 @@ class SkyBackgroundController:
                 log.info("Sky bg in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
             try:
                 yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
-            except Exception as e:
-                log.error("Corrupt {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+            except RAWPY_EXCEPTIONS as e:
+                log.error("Corrupt  {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
                 yield self.image.flagAsBad(row)
                 continue
             save_list.append(row)

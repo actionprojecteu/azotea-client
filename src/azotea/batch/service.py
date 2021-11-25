@@ -72,12 +72,13 @@ class BatchService(Service):
     # Service name
     NAME = NAMESPACE
 
-    def __init__(self, images_dir, depth, only_load):
+    def __init__(self, images_dir, depth, only_load, only_sky):
         super().__init__()   
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.images_dir = images_dir
         self.depth = depth
         self.only_load = only_load
+        self.only_sky  = only_sky
 
     #------------
     # Service API
@@ -137,7 +138,10 @@ class BatchService(Service):
         # patch PublishingController
         self.controllers[-1].observerCtrl = self.controllers[1]
 
-        pub.sendMessage('images_register_req', root_dir=self.images_dir, depth=self.depth)     
+        if self.only_sky:
+            pub.sendMessage('sky_brightness_stats_req') 
+        else:
+            pub.sendMessage('images_load_req', root_dir=self.images_dir, depth=self.depth)     
         
 
     def stopService(self):

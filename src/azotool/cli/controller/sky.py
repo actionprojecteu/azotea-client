@@ -65,15 +65,15 @@ class SkyController:
         self.config = config
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onExportReq,  'sky_export_req')
-        pub.subscribe(self.onSummaryReq,  'sky_summary_req')
+        pub.subscribe(self.onSummaryReq, 'sky_summary_req')
 
 
     @inlineCallbacks
     def onSummaryReq(self, options):
         try:
             result = yield self.sky.summaryStatistics()
-            result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], t[3], bool(t[4])), result))
-            headers=("Observer", "ROI", "# Images", "Published?")
+            result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], bool(t[4]), t[3]), result))
+            headers=("Observer", "ROI", "Published?", "# Sky Bg", )
             log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
         except Exception as e:
             log.failure('{e}',e=e)

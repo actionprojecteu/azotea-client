@@ -50,7 +50,7 @@ from azotea import DATE_SELECTION_ALL, DATE_SELECTION_UNPUBLISHED
 from azotea import DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 from azotea.utils import chop
 from azotea.utils.roi import Point, Rect
-from azotea.utils.sky import CSV_COLUMNS, postprocess, widget_datetime, processImage
+from azotea.utils.sky import RAWPY_EXCEPTIONS, CSV_COLUMNS, postprocess, widget_datetime, processImage
 from azotea.logger  import startLogging, setLogLevel
 
 
@@ -292,19 +292,18 @@ class SkyBackgroundController:
             }
             try:
                 yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
-            except Exception as e:
-                log.error("Corrupt {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+            except RAWPY_EXCEPTIONS as e:
+                log.error("Corrupt  {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
                 yield self.image.flagAsBad(row)
                 self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=True)
                 continue
-            else:
-                self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=False)
-                self.view.mainArea.displaySkyMeasurement(name, row)
-                save_list.append(row)
-                if (i % 50) == 0:
-                    log.debug("Sky Background Processor: saving to database")
-                    yield self.sky.save(save_list)
-                    save_list = list()
+            self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=False)
+            self.view.mainArea.displaySkyMeasurement(name, row)
+            save_list.append(row)
+            if (i % 50) == 0:
+                log.debug("Sky Background Processor: saving to database")
+                yield self.sky.save(save_list)
+                save_list = list()
         if save_list:
             log.debug("Sky Background Processor: saving to database")
             yield self.sky.save(save_list)

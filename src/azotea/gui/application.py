@@ -215,7 +215,7 @@ class MenuBar(ttk.Frame):
         preferences.start()
 
     def onMenuImageLoad(self):
-        pub.sendMessage('images_register_req')
+        pub.sendMessage('images_load_req')
 
     def onMenuSkyBrightness(self):
         pub.sendMessage('sky_brightness_stats_req')
