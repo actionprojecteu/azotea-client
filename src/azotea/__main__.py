@@ -29,10 +29,8 @@ from twisted.application import service
 from azotea import __version__
 from azotea.utils import get_status_code
 from azotea.logger  import startLogging
-from azotea.gui.service import GraphicalService
 from azotea.batch.service import BatchService
 from azotea.dbase.service import DatabaseService
-
 import azotea.consent.form
 
 # ----------------
@@ -48,7 +46,6 @@ import azotea.consent.form
 # ------------------------
 
 def createParser():
-    # create the top-level parser
     name = os.path.split(os.path.dirname(sys.argv[0]))[-1]
     parser    = argparse.ArgumentParser(prog=name, description='AZOTEA GUI')
 
@@ -96,8 +93,8 @@ options = createParser().parse_args(sys.argv[1:])
 handle_agreement(options)
 
 startLogging(
-	console  = options.console,
-	filepath = options.log_file
+    console  = options.console,
+    filepath = options.log_file
 )
 
 # -------------------
@@ -111,9 +108,10 @@ dbaseService.setName(DatabaseService.NAME)
 dbaseService.setServiceParent(application)
 
 if options.command == 'gui':
-	guiService = GraphicalService()
-	guiService.setName(GraphicalService.NAME)
-	guiService.setServiceParent(application)
+    from azotea.gui.service import GraphicalService
+    guiService = GraphicalService()
+    guiService.setName(GraphicalService.NAME)
+    guiService.setServiceParent(application)
 elif options.command == 'batch':
     images_dir   = options.images_dir
     depth = options.depth
