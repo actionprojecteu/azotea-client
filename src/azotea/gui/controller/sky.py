@@ -115,7 +115,7 @@ class SkyBackgroundController:
                 yield self.doStatistics()
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -160,7 +160,7 @@ class SkyBackgroundController:
                 pass
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -172,7 +172,7 @@ class SkyBackgroundController:
                 yield self.doExport(date)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
     # --------------
     # Helper methods

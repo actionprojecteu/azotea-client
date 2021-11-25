@@ -86,7 +86,7 @@ class ImageController:
             ok = yield self.doCheckDefaults()
             if not ok:
                 log.error("Missing default values")
-                pub.sendMessage('file_quit', exit_code = 1)
+                pub.sendMessage('quit', exit_code = 1)
                 return
             sub_dirs = yield deferToThread(scan_non_empty_dirs, root_dir, depth)
             self.session = int(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S'))
@@ -105,10 +105,10 @@ class ImageController:
                 log.warn("No images found matching {ext}",ext=extension)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
             if self.only_load:
-                pub.sendMessage('file_quit')
+                pub.sendMessage('quit')
             else:
                 pub.sendMessage("sky_brightness_stats_req")
 

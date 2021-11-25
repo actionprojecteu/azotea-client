@@ -84,7 +84,7 @@ class PublishingController:
             setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])
             # NOT AVAILABLE FOR THE TIME BEING
             log.warn("Publishing is not available for the time being")
-            pub.sendMessage('file_quit')
+            pub.sendMessage('quit')
             return
 
             result = yield self.doCheckDefaults()
@@ -96,12 +96,12 @@ class PublishingController:
                     log.info("Publishing Processor: Publishing {total} measurements. This may take a while", total=total)
                     yield self.doPublish(total)
             else:
-                pub.sendMessage('file_quit', exit_code = 1)
+                pub.sendMessage('quit', exit_code = 1)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('quit')
 
     # --------------
     # Helper methods
@@ -182,7 +182,7 @@ class PublishingController:
         else:
             log.error("Publishing Processor: {message}", message=message)
             exit_code = 1
-        pub.sendMessage('file_quit', exit_code = exit_code)
+        pub.sendMessage('quit', exit_code = exit_code)
 
 
 

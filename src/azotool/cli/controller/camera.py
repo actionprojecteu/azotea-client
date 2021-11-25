@@ -75,9 +75,9 @@ class CameraController:
                 yield self.config.saveSection('camera',info_id)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('quit')
 
 
     @inlineCallbacks
@@ -87,7 +87,7 @@ class CameraController:
         info, warning = yield deferToThread(image_analyze_exif, path)
         if not info:
             raise ValueError(warning)
-        log.info("Analyzed EXIF froim image is {info}", info=info)
+        log.info("Analyzed EXIF from image is {info}", info=info)
         old_info = yield self.model.load(info)    # lookup by model
         if not old_info:
             log.warn("Camera is not yet in the database")

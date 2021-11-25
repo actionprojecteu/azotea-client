@@ -102,7 +102,7 @@ class LocationController:
                     preferences.locationFrame.detailsResp(self.default_details)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
     @inlineCallbacks
     def onDetailsReq(self, data):
@@ -113,7 +113,7 @@ class LocationController:
             self.view.menuBar.preferences.locationFrame.detailsResp(info)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -136,7 +136,7 @@ class LocationController:
             self.view.menuBar.preferences.locationFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -152,7 +152,7 @@ class LocationController:
             pub.sendMessage('location_list_req')  # send a message to itself to update the views
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -163,7 +163,7 @@ class LocationController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.locationFrame.deleteErrorResponse()
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
             yield self.onListReq()
             self.view.menuBar.preferences.locationFrame.deleteOkResponse(count)

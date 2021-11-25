@@ -103,7 +103,7 @@ class ROIController:
                     preferences.roiFrame.detailsResp(self.default_details)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
     @inlineCallbacks
     def onDetailsReq(self, data):
@@ -114,7 +114,7 @@ class ROIController:
             self.view.menuBar.preferences.roiFrame.detailsResp(info)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -127,7 +127,7 @@ class ROIController:
             self.view.menuBar.preferences.roiFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -143,7 +143,7 @@ class ROIController:
             pub.sendMessage('roi_list_req')  # send a message to itself to update the views
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -154,7 +154,7 @@ class ROIController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.roiFrame.deleteErrorResponse(count)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
             yield self.onListReq()
             self.view.menuBar.preferences.roiFrame.deleteOkResponse(count)
@@ -167,7 +167,7 @@ class ROIController:
             self.view.menuBar.preferences.roiFrame.automaticROIResp(info)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
     # --------------
     # Helper methods

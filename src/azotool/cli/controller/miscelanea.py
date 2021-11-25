@@ -72,9 +72,9 @@ class MiscelaneaController:
             yield self.config.saveSection('logging', data)         
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('quit')
 
     @inlineCallbacks
     def opticsReq(self, options):
@@ -87,9 +87,9 @@ class MiscelaneaController:
             yield self.config.saveSection('optics', data)     
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('quit')
 
    
 
@@ -110,6 +110,6 @@ class MiscelaneaController:
             yield self.config.saveSection('publishing', data)   
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('quit')

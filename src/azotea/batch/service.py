@@ -87,7 +87,7 @@ class BatchService(Service):
         log.info("Starting Batch Service with images directory {wd}", wd=self.images_dir)
         if self.images_dir is None:
             log.error("No images directory")
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
             return
         
         super().startService()

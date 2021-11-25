@@ -88,7 +88,7 @@ class ApplicationController:
             self.view.menuBar.doAbout(version)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
     @inlineCallbacks
     def onCheckPreferencesReq(self):
@@ -112,7 +112,7 @@ class ApplicationController:
                 self.view.start()
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -124,7 +124,7 @@ class ApplicationController:
             yield self.onCheckPreferencesReq()
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -138,7 +138,7 @@ class ApplicationController:
                 pub.sendMessage('check_preferences_req')
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
        
 

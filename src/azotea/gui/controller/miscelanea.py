@@ -78,7 +78,7 @@ class MiscelaneaController:
             self.view.menuBar.preferences.miscelaneaFrame.detailsResp(optics_opts)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     def onSaveReq(self, data):
@@ -89,7 +89,7 @@ class MiscelaneaController:
             self.view.menuBar.preferences.miscelaneaFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -102,7 +102,7 @@ class MiscelaneaController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.miscelaneaFrame.deleteErrorResponse(count)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
             self.view.menuBar.preferences.miscelaneaFrame.deleteOkResponse(count)
 

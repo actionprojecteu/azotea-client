@@ -76,7 +76,7 @@ class ImageController:
             log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('quit')
 

@@ -98,7 +98,7 @@ class CameraController:
                 self.view.messageBoxWarn(who='Preferences', message=warning)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
     @inlineCallbacks
     def onListReq(self):
@@ -116,7 +116,7 @@ class CameraController:
                     preferences.cameraFrame.detailsResp(self.default_details)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -128,7 +128,7 @@ class CameraController:
             self.view.menuBar.preferences.cameraFrame.detailsResp(info)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
     @inlineCallbacks
     def onSaveReq(self, data):
@@ -139,7 +139,7 @@ class CameraController:
             self.view.menuBar.preferences.cameraFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -155,7 +155,7 @@ class CameraController:
             pub.sendMessage('camera_list_req')  # send a message to itself to update the views
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -166,7 +166,7 @@ class CameraController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.cameraFrame.deleteErrorResponse(count)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
             yield self.onListReq()
             self.view.menuBar.preferences.cameraFrame.deleteOkResponse(count)

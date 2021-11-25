@@ -85,15 +85,15 @@ class SkyBackgroundController:
             if result:
                 yield self.doStatistics()
             else:
-                pub.sendMessage('file_quit', exit_code = 1)
+                pub.sendMessage('quit', exit_code = 1)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
             if self.publish:
                 pub.sendMessage("publishing_publish_req")
             else:
-                pub.sendMessage('file_quit')
+                pub.sendMessage('quit')
 
     # --------------
     # Helper methods

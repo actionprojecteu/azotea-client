@@ -79,7 +79,7 @@ class Application(tk.Tk):
         
     def quit(self):
         self.destroy()
-        pub.sendMessage('file_quit', exit_code=0)
+        pub.sendMessage('quit', exit_code=0)
 
     def start(self):
         self.menuBar.start()
@@ -130,7 +130,7 @@ class Application(tk.Tk):
             text_path = CONSENT_TXT,
             logo_path = CONSENT_UCM,
             accept_event = 'save_consent_req',
-            reject_event = 'file_quit',
+            reject_event = 'quit',
             reject_code = 126,
         )
         
@@ -192,7 +192,7 @@ class MenuBar(ttk.Frame):
 
     def quit(self):
         '''This halts completely the main Twisted loop'''
-        pub.sendMessage('file_quit', exit_code=0)
+        pub.sendMessage('quit', exit_code=0)
 
     def doAbout(self, db_version):
         version = _("Version {0}\nDatabase version {1}").format(__version__, db_version)

@@ -106,7 +106,7 @@ class PublishingController:
             self.view.menuBar.preferences.publishingFrame.detailsResp(publishing_opts)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -121,7 +121,7 @@ class PublishingController:
             self.view.menuBar.preferences.publishingFrame.saveOkResp()
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     @inlineCallbacks
@@ -134,7 +134,7 @@ class PublishingController:
         except Exception as e:
             log.failure('{e}',e=e)
             self.view.menuBar.preferences.publishingFrame.deleteErrorResponse(count)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
             self.view.menuBar.preferences.publishingFrame.deleteOkResponse(count)
 
@@ -163,7 +163,7 @@ class PublishingController:
                         yield self.doPublish(total)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
 
 
     # --------------

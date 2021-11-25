@@ -153,7 +153,7 @@ class DatabaseService(Service):
         levels  = read_debug_levels(connection)
         version = read_database_version(connection)
         log.info("Database version = {version}", version=version)
-        pub.subscribe(self.quit,  'file_quit')
+        pub.subscribe(self.quit,  'quit')
         # Remainder Service initialization
         super().startService()
         connection.commit()

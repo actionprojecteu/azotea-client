@@ -76,9 +76,9 @@ class ROIController:
                 yield self.config.saveSection('ROI',info_id)
         except Exception as e:
             log.failure('{e}',e=e)
-            pub.sendMessage('file_quit', exit_code = 1)
+            pub.sendMessage('quit', exit_code = 1)
         else:
-            pub.sendMessage('file_quit')
+            pub.sendMessage('quit')
 
 
     @inlineCallbacks
