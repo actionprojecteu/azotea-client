@@ -25,6 +25,7 @@ DEPENDENCIES = [
     'matplotlib', # Fancy plots for the GUI
     'astropy',    # FITS support (for the time being)
     'validators', # to validate things like URLs, email, etc.
+    'tabulate'    # pretty printing tables to console
 ]
 
 CLASSIFIERS  = [

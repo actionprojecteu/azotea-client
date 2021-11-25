@@ -75,6 +75,7 @@ def createParser():
     parser_roi    = subparser.add_parser('roi', help='roi commands')
     parser_misc = subparser.add_parser('configure', help='miscelanea commands')
     parser_sky  = subparser.add_parser('sky', help='sky background commands')
+    parser_img  = subparser.add_parser('image', help='images commands')
    
     # -----------------------------------------
     # Create second level parsers for 'consent'
@@ -172,6 +173,8 @@ def createParser():
     skyexp.add_argument('--from-date', type=mkdate, default=None, metavar='<YYYY-MM-DD>', help="Start date in range")
     skyexp.add_argument('--to-date',   type=mkdate, default=None, metavar='<YYYY-MM-DD>', help='End date in range')
 
+    skyview = subparser.add_parser('view',  help="view sky summary data")
+
     # --------------------------------------------
     # Create second level parsers for 'configure'
     # --------------------------------------------
@@ -191,6 +194,15 @@ def createParser():
     logcnf.add_argument('--load',   type=str, choices=LOG_CHOICES, default=None, help="Image loading log level")
     logcnf.add_argument('--sky',        type=str, choices=LOG_CHOICES, default=None, help="Sky processing log level")
     logcnf.add_argument('--publish', type=str, choices=LOG_CHOICES, default=None, help="Publishing log level")
+
+    # ------------------------------------------
+    # Create second level parsers for 'image'
+    # ------------------------------------------
+
+    subparser = parser_img.add_subparsers(dest='subcommand')
+
+    imgview = subparser.add_parser('view',  help="View image summary data")
+   
    
     return parser
 

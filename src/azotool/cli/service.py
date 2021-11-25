@@ -44,6 +44,7 @@ from azotool.cli.controller.observer   import ObserverController
 from azotool.cli.controller.location   import LocationController
 from azotool.cli.controller.camera     import CameraController
 from azotool.cli.controller.sky        import SkyController
+from azotool.cli.controller.image      import ImageController
 from azotool.cli.controller.roi        import ROIController
 from azotool.cli.controller.miscelanea import MiscelaneaController
 
@@ -99,6 +100,10 @@ class CommandService(Service):
                 config = self.dbaseService.dao.config,
             ),
             MiscelaneaController(
+                model  = self.dbaseService.dao,
+                config = self.dbaseService.dao.config,
+            ),
+            ImageController(
                 model  = self.dbaseService.dao,
                 config = self.dbaseService.dao.config,
             ),

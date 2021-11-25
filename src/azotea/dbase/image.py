@@ -79,3 +79,15 @@ class ImageTable(Table):
             txn.execute(sql, filter_dict)
             return txn.fetchone()
         return self._pool.runInteraction(_getInitialMetadata, filter_dict)
+
+    def summaryStatistics(self):
+        def _summaryStatistics(txn):
+            sql = '''
+                SELECT o.surname, o.family_name, count(*) as cnt 
+                FROM image_t AS i
+                JOIN observer_t AS o USING(observer_id)
+                GROUP BY observer_id
+                ORDER BY cnt'''
+            txn.execute(sql)
+            return txn.fetchall()
+        return self._pool.runInteraction(_summaryStatistics)

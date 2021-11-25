@@ -16,6 +16,7 @@ Development of this software has been possible through [ACTION - Participatory s
 * [Batch mode](https://github.com/actionprojecteu/azotea-client#batch-mode)
   - [Image processing](https://github.com/actionprojecteu/azotea-client#image-processing)
   - [CSV file generation](https://github.com/actionprojecteu/azotea-client#csv-file-generation)
+  - [Summaries](https://github.com/actionprojecteu/azotea-client#summaries)
   - [Automation issues](https://github.com/actionprojecteu/azotea-client#automation-issues)
     - [Log file & console output](https://github.com/actionprojecteu/azotea-client#log-file--console-output)
     - [Exit codes](https://github.com/actionprojecteu/azotea-client#exit-codes)
@@ -261,6 +262,23 @@ ${AZOTEA_HOME}/images
                 (...)
                 +----/2021-11-02
 ```
+## Summaries
+
+Afte the processing is done, you can see thr processing summary by issuing
+
+```bash
+#!/bin/bash
+AZOTEA_HOME=${HOME}/azotea
+export PATH=${AZOTEA_HOME}/bin:/usr/local/bin:/usr/bin:/bin
+export VIRTUAL_ENV=${AZOTEA_HOME}
+
+DBASE=${AZOTEA_HOME}/azotea.db
+
+azotool --dbase ${DBASE} --console image view
+azotool --dbase ${DBASE} --console sky view
+```
+
+
 
 ## CSV File generation
 

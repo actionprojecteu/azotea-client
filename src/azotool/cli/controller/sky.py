@@ -26,6 +26,7 @@ from twisted.internet.threads import deferToThread
 # Third party imports
 # -------------------
 
+import tabulate
 from pubsub import pub
 
 #--------------
@@ -64,6 +65,23 @@ class SkyController:
         self.config = config
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onExportReq,  'sky_export_req')
+        pub.subscribe(self.onViewReq,  'sky_view_req')
+
+
+    @inlineCallbacks
+    def onViewReq(self, options):
+        try:
+            result = yield self.sky.summaryStatistics()
+            result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], t[3]), result))
+            headers=("Observer", "ROI", "# Images")
+            log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('file_quit', exit_code = 1)
+        else:
+            pub.sendMessage('file_quit')
+
+
 
     @inlineCallbacks
     def onExportReq(self, options):

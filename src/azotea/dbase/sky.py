@@ -40,6 +40,19 @@ class SkyBrightness:
         setLogLevel(namespace='sky_brightness_t', levelStr=log_level)
 
 
+    def summaryStatistics(self):
+        def _summaryStatistics(txn):
+            sql = '''
+                SELECT o.surname, o.family_name, s.display_name, count(*) as cnt 
+                FROM image_t AS i
+                JOIN observer_t AS o USING(observer_id)
+                JOIN sky_brightness_v AS s USING(image_id)
+                GROUP BY observer_id, s.display_name
+                ORDER BY cnt'''
+            txn.execute(sql)
+            return txn.fetchall()
+        return self._pool.runInteraction(_summaryStatistics)
+
     def countAll(self, filter_dict):
         def _countAll(txn, filter_dict):
             sql = '''
