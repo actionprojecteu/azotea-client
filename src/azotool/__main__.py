@@ -173,7 +173,7 @@ def createParser():
     skyexp.add_argument('--from-date', type=mkdate, default=None, metavar='<YYYY-MM-DD>', help="Start date in range")
     skyexp.add_argument('--to-date',   type=mkdate, default=None, metavar='<YYYY-MM-DD>', help='End date in range')
 
-    skyview = subparser.add_parser('view',  help="view sky summary data")
+    skyview = subparser.add_parser('summary',  help="view sky summary data")
 
     # --------------------------------------------
     # Create second level parsers for 'configure'
@@ -201,7 +201,7 @@ def createParser():
 
     subparser = parser_img.add_subparsers(dest='subcommand')
 
-    imgview = subparser.add_parser('view',  help="View image summary data")
+    imgview = subparser.add_parser('summary',  help="View image summary data")
    
    
     return parser

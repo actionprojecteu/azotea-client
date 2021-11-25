@@ -83,10 +83,10 @@ class ImageTable(Table):
     def summaryStatistics(self):
         def _summaryStatistics(txn):
             sql = '''
-                SELECT o.surname, o.family_name, count(*) as cnt 
+                SELECT o.surname, o.family_name, i.imagetype, count(*) as cnt 
                 FROM image_t AS i
                 JOIN observer_t AS o USING(observer_id)
-                GROUP BY observer_id
+                GROUP BY observer_id, i.imagetype
                 ORDER BY cnt'''
             txn.execute(sql)
             return txn.fetchall()
