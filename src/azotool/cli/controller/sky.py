@@ -72,7 +72,7 @@ class SkyController:
     def onViewReq(self, options):
         try:
             result = yield self.sky.summaryStatistics()
-            result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], t[3], t[4]), result))
+            result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], t[3], bool(t[4])), result))
             headers=("Observer", "ROI", "# Images", "Published?")
             log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
         except Exception as e:
