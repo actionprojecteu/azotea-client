@@ -178,12 +178,13 @@ class ImageController:
                     yield self.image.save(row)
                 except  sqlite3.IntegrityError as e:
                     name, directory = yield self.image.getByHash(row)
-                    log.warn("Possible duplicate image: '{name}' with existing '{prev}' in {dir}",name=row['name'], prev=name, dir=directory)
                     if row['name'] == name:
                         yield self.image.fixDirectory(row)
-                        log.info('Fixed directory for {name} to {dir}', name=row['name'], dir=row['directory'])
+                        log.warn('Fixing new directory for {name}', name=row['name'])
+                        log.warn('Setting to {dir}', dir=row['directory'])
                     else:
-                        log.warn("Image '{name}' is completely discarded, using '{prev}' instead",name=row['name'], prev=name) 
+                        log.warn("Discarding '{name}'", name=row['name'])
+                        log.warn("Keeping '{prev}' instead",name=row['name'], prev=name) 
 
 
     @inlineCallbacks
@@ -196,8 +197,8 @@ class ImageController:
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         bayer = self.bayer_pattern
-        log.warn("{n} images {ext} in sub-directory '{dir}'.",
-            n=N_Files, ext=extension, dir=os.path.basename(directory))
+        log.warn("Scanning directory '{dir}'", dir=os.path.basename(directory))
+        log.warn("Found {n} images matching '{ext}'", n=N_Files, ext=extension)
         if self.header_type == FITS_HEADER_TYPE:
             log.error("Unsupported header type {h} for the time being",h=header_type) 
             return(None)
