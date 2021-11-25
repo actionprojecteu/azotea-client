@@ -54,7 +54,7 @@ TIME_OPTIONS_NIGHT   = 'Last night'
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'GUI'
+NAMESPACE = 'gui'
 
 # -----------------------
 # Module global variables

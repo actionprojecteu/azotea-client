@@ -48,7 +48,7 @@ from azotea.gui.widgets.contrib import ToolTip, LabelInput
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'GUI'
+NAMESPACE = 'gui'
 
 # -----------------------
 # Module global variables

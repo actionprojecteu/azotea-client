@@ -52,7 +52,7 @@ from azotea.gui.controller.publishing  import PublishingController
 # Module constants
 # ----------------
 
-NAMESPACE = 'CTRL '
+NAMESPACE = 'ctrl'
 
 # -----------------------
 # Module global variables

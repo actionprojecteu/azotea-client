@@ -46,7 +46,7 @@ from azotea import DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'GUI'
+NAMESPACE = 'gui'
 
 # -----------------------
 # Module global variables

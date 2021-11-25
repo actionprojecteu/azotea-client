@@ -48,7 +48,7 @@ from azotea.gui.preferences.base import PreferencesBaseFrame
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'GUI'
+NAMESPACE = 'gui'
 
 # -----------------------
 # Module global variables

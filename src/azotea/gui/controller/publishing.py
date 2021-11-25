@@ -47,7 +47,7 @@ _ = gettext.gettext
 
 PUBLISH_PAGE_SIZE = 50
 
-NAMESPACE = 'CTRL '
+NAMESPACE = 'publi'
 
 # -----------------------
 # Module global variables

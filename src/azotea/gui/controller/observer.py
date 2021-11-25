@@ -46,7 +46,7 @@ from azotea.logger  import startLogging, setLogLevel
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'CTRL '
+NAMESPACE = 'ctrl'
 
 # -----------------------
 # Module global variables

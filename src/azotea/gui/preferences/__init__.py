@@ -46,7 +46,7 @@ from azotea.gui.preferences.publishing import PublishingFrame
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'GUI'
+NAMESPACE = 'gui'
 
 # -----------------------
 # Module global variables

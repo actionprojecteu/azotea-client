@@ -45,7 +45,7 @@ from azotea.gui.widgets.combos import DimensionCombo
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'GUI'
+NAMESPACE = 'gui'
 
 # -----------------------
 # Module global variables

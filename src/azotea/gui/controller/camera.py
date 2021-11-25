@@ -45,7 +45,7 @@ from azotea.utils.camera import image_analyze_exif
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'CTRL '
+NAMESPACE = 'ctrl'
 
 # -----------------------
 # Module global variables

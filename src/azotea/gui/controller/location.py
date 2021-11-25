@@ -47,7 +47,7 @@ from azotea.utils.location import randomize
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'CTRL '
+NAMESPACE = 'ctrl'
 
 # -----------------------
 # Module global variables

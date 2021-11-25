@@ -52,7 +52,7 @@ from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 # Support for internationalization
 _ = gettext.gettext
 
-NAMESPACE = 'GUI'
+NAMESPACE = 'gui'
 
 # -----------------------
 # Module global variables
