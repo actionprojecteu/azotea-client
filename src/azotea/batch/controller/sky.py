@@ -136,10 +136,15 @@ class SkyBackgroundController:
             }
             if self.logLevel == 'warn':
                 if  (i % 100) == 0:
-                    log.warn("Sky in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+                    log.warn("Sky bg in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
             else:
-                log.info("Sky in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
-            yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
+                log.info("Sky bg in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+            try:
+                yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
+            except Exception as e:
+                log.error("Corrupt {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+                yield self.image.flagAsBad(row)
+                continue
             save_list.append(row)
             if (i % 50) == 0:
                 log.debug("Saving to database")

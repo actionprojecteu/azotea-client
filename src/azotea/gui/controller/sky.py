@@ -293,9 +293,10 @@ class SkyBackgroundController:
             try:
                 yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
             except Exception as e:
-                log.failure('{e}', e=e)
+                log.error("Corrupt {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+                yield self.image.flagAsBad(row)
                 self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=True)
-                return(None)
+                continue
             else:
                 self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=False)
                 self.view.mainArea.displaySkyMeasurement(name, row)

@@ -43,7 +43,17 @@ class ImageTable(Table):
         self.log.debug("{sql}", sql=sql)
         return sql
 
-
+    def flagAsBad(self, filter_dict):
+        '''Flag as bad image'''
+        def _flagAsBad(txn, filter_dict):
+            txn.execute(
+                '''
+                UPDATE image_t
+                SET flagged = 1
+                WHERE image_id = :image_id
+                ''',filter_dict)
+        return self._pool.runInteraction(_flagAsBad, filter_dict)
+    
     def fixDirectory(self, filter_dict):
         def _fixDirectory(txn, filter_dict):
             txn.execute(
@@ -83,10 +93,10 @@ class ImageTable(Table):
     def summaryStatistics(self):
         def _summaryStatistics(txn):
             sql = '''
-                SELECT o.surname, o.family_name, i.imagetype, count(*) as cnt 
+                SELECT o.surname, o.family_name, i.imagetype, i.flagged, count(*) as cnt 
                 FROM image_t AS i
                 JOIN observer_t AS o USING(observer_id)
-                GROUP BY observer_id, i.imagetype
+                GROUP BY observer_id, i.imagetype, i.flagged
                 ORDER BY cnt'''
             txn.execute(sql)
             return txn.fetchall()

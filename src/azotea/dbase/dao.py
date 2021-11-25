@@ -107,7 +107,7 @@ class DataAccesObject():
             table               = 'image_t',
             id_column           = 'image_id',
             natural_key_columns = ('name','directory'), 
-            other_columns       = ('hash','iso','gain','exptime','focal_length','f_number','session', 'imagetype',
+            other_columns       = ('hash','iso','gain','exptime','focal_length','f_number','session', 'imagetype', 'flagged',
                                    'date_id','time_id','camera_id','observer_id','location_id'),
             insert_mode         = tables.INSERT,
             log_level           = img_dbg,

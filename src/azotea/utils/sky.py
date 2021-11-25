@@ -162,6 +162,13 @@ def region_stats(img, cfa, color, rect):
      average, variance = round(section.mean(),1), round(section.var(),3)
      return average, variance
 
+def region_stats(img, cfa, color, rect):
+     x, y = CFA_PATTERNS[cfa][color]['x'], CFA_PATTERNS[cfa][color]['y']
+     debayered_plane = img.raw_image[y::2, x::2]
+     #section = debayered_plane[rect.y1:rect.y2, rect.x1:rect.x2]
+     average, variance = round(0,1), round(1,3)
+     return average, variance
+
 
 def processImage(name, directory, rect, cfa_pattern, row):
      # THIS IS HEAVY STUFF TO BE IMPLEMENTED IN A THREAD
@@ -171,3 +178,5 @@ def processImage(name, directory, rect, cfa_pattern, row):
         row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(img, cfa_pattern, 'G1', rect)
         row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(img, cfa_pattern, 'G2', rect)
         row['aver_signal_B'] , row['vari_signal_B']  = region_stats(img, cfa_pattern, 'B', rect)
+
+   

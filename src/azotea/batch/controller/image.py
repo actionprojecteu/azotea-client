@@ -208,6 +208,7 @@ class ImageController:
                 'name'        : os.path.basename(filepath), 
                 'directory'   : os.path.dirname(filepath),
                 'imagetype'   : 'DARK' if is_dark(filepath) else 'LIGHT',
+                'flagged'     : 0, # Assume a good image for the time being
                 'header_type' : self.header_type,
                 'observer_id' : self.observer_id,
                 'location_id' : self.location_id,

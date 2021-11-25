@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS image_t
     focal_length        REAL,              -- Either from configuration or EXIF
     f_number            REAL,              -- Either from configuration or EXIF
     imagetype           TEXT,              -- Either 'LIGHT' or 'DARK'
+    flagged             INTEGER,           -- 0 = image is ok, 1 = flagged as corrupt image
 
     session             INTEGER NOT NULL,  -- session identifier
     date_id             INTEGER NOT NULL,  -- decoded from tstamp & cached for later insert in in sky brightness table
