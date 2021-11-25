@@ -79,7 +79,8 @@ class SkyBackgroundController:
     def onStatisticsReq(self):
         try:
             lvl = yield self.config.load('logging', NAMESPACE)
-            setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])
+            self.logLevel = lvl[NAMESPACE]
+            setLogLevel(namespace=NAMESPACE, levelStr=self.logLevel)
             result = yield self.doCheckDefaults()
             if result:
                 yield self.doStatistics()
@@ -133,8 +134,12 @@ class SkyBackgroundController:
                 'roi_id'     : self.roi_id,
                 'image_id'   : image_id,
             }
+            if self.logLevel == 'warn':
+                if  (i % 100) == 0:
+                    log.warn("Sky in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
+            else:
+                log.info("Sky in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
             yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
-            log.info("Sky in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
             save_list.append(row)
             if (i % 50) == 0:
                 log.debug("Saving to database")
