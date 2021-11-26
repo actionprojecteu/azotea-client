@@ -51,7 +51,6 @@ from azotea.dbase import log, NAMESPACE, tables, image, sky
 class DataAccesObject():
 
     def __init__(self, pool, *args, **kargs):
-        setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.pool = pool
         self.start(*args)
         

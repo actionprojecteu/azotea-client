@@ -50,8 +50,6 @@ from azotea.dbase import NAMESPACE, log
 # Module constants
 # ----------------
 
-DATABASE_FILE = 'azotea.db'
-
 SQL_TEST_STRING = "SELECT COUNT(*) FROM image_t"
 
 # -----------------------
@@ -120,7 +118,6 @@ class DatabaseService(Service):
 
     def __init__(self, path, create_only, **kargs):
         super().__init__()   
-        setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.path = path
         self.pool = None
         self.preferences = None
@@ -139,20 +136,21 @@ class DatabaseService(Service):
     # ------------
 
     def startService(self):
+        setLogLevel(namespace=NAMESPACE, levelStr='warn')
         log.info("Starting Database Service on {database}", database=self.path)
         connection, new_database = create_database(self.path)
         if new_database:
-            log.info("Created new database file at {f}",f=self.path)
+            log.warn("Created new database file at {f}",f=self.path)
         just_created, file_list = create_schema(connection, SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR, SQL_TEST_STRING)
         if just_created:
             for sql_file in file_list:
-                log.info("Populating data model from {f}", f=os.path.basename(sql_file))
+                log.warn("Populating data model from {f}", f=os.path.basename(sql_file))
         else:
             for sql_file in file_list:
-                log.info("Applying updates to data model from {f}", f=os.path.basename(sql_file))
+                log.warn("Applying updates to data model from {f}", f=os.path.basename(sql_file))
         levels  = read_debug_levels(connection)
         version = read_database_version(connection)
-        log.info("Database version = {version}", version=version)
+        log.warn("Database {database}, version = {version}", database=self.path, version=version)
         pub.subscribe(self.quit,  'quit')
         # Remainder Service initialization
         super().startService()
