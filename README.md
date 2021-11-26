@@ -39,8 +39,8 @@ where global options are:
 
 * `--version`     Print program version and exit.
 * `-h`  `--help`  Show program commands, subcommands and options.
-* `-d`, `--dbase` Mandatory database file path
-* `-c`, `--console` Optionally logs to console. Needed for interactive use
+* `-d`, `--dbase` Mandatory database file path.
+* `-c`, `--console` Optionally logs to console. Needed for interactive use.
 * `-l`, `--log file` Optional log file. Recommended for unattended use.
 
 For a detailed view of all commands, subcommands and specific versions, please use the global `--help` option at every level.
