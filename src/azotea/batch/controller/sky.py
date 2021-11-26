@@ -61,15 +61,15 @@ class SkyBackgroundController:
 
     NAME = NAMESPACE
     
-    def __init__(self, config, model):
+    def __init__(self, config, model, next_event):
         self.model  = model
         self.sky    = model.sky
         self.image  = model.image
         self.roi    = model.roi
         self.config = config
+        self.next_event = next_event
         self.observerCtrl = None
         self.roiCtrl      = None
-        self.publish = False
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onStatisticsReq,  'sky_brightness_stats_req')   
 
@@ -92,8 +92,8 @@ class SkyBackgroundController:
             log.failure('{e}',e=e)
             pub.sendMessage('quit', exit_code = 1)
         else:
-            if self.publish:
-                pub.sendMessage("publishing_publish_req")
+            if self.next_event:
+                pub.sendMessage(self.next_event)
             else:
                 pub.sendMessage('quit')
 

@@ -72,13 +72,15 @@ class BatchService(Service):
     # Service name
     NAME = NAMESPACE
 
-    def __init__(self, images_dir, depth, only_load, only_sky):
+    def __init__(self, images_dir, depth, only_load, only_sky, only_pub, also_pub):
         super().__init__()   
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         self.images_dir = images_dir
-        self.depth = depth
-        self.only_load = only_load
-        self.only_sky  = only_sky
+        self.depth      = depth
+        self.only_load  = only_load
+        self.only_sky   = only_sky
+        self.only_pub   = only_pub
+        self.also_pub   = also_pub
 
     #------------
     # Service API
@@ -90,8 +92,36 @@ class BatchService(Service):
             log.error("No images directory")
             pub.sendMessage('quit', exit_code = 1)
             return
-        
         super().startService()
+        if self.only_load:
+            start_event = 'images_load_req'
+            next_event_img = None
+            next_event_sky = None
+            next_event_pub = None
+        elif self.only_sky:
+            start_event = 'sky_brightness_stats_req'
+            next_event_img = None
+            next_event_sky = None
+            next_event_pub = None
+        elif self.only_pub:
+            start_event = 'publishing_publish_req'
+            next_event_img = None
+            next_event_sky = None
+            next_event_pub = None
+        elif self.also_pub:
+            start_event = 'images_load_req'
+            next_event_img = 'sky_brightness_stats_req'
+            next_event_sky = 'publishing_publish_req'
+            next_event_pub = None
+        else:
+            start_event = 'images_load_req'
+            next_event_img = 'sky_brightness_stats_req'
+            next_event_sky = None
+            next_event_pub = None
+
+
+            
+
         self.dbaseService = self.parent.getServiceNamed(DatabaseService.NAME)
         self.controllers = (
                 CameraController(
@@ -111,17 +141,19 @@ class BatchService(Service):
                     config = self.dbaseService.dao.config,
                 ),
                 ImageController(
-                    model    = self.dbaseService.dao,
-                    config   = self.dbaseService.dao.config,
-                    only_load = self.only_load
+                    model      = self.dbaseService.dao,
+                    config     = self.dbaseService.dao.config,
+                    next_event = next_event_img,
                 ),
                 SkyBackgroundController(
-                    model    = self.dbaseService.dao,
-                    config   = self.dbaseService.dao.config,
+                    model      = self.dbaseService.dao,
+                    config     = self.dbaseService.dao.config,
+                    next_event = next_event_sky,
                 ),
                 PublishingController(
-                    model    = self.dbaseService.dao,
-                    config   = self.dbaseService.dao.config,
+                    model      = self.dbaseService.dao,
+                    config     = self.dbaseService.dao.config,
+                    next_event = next_event_pub,
                 ),
         )
         # Dirty monkey patching
@@ -138,10 +170,11 @@ class BatchService(Service):
         # patch PublishingController
         self.controllers[-1].observerCtrl = self.controllers[1]
 
-        if self.only_sky:
-            pub.sendMessage('sky_brightness_stats_req') 
+        if start_event == 'images_load_req':
+            pub.sendMessage(start_event, root_dir=self.images_dir, depth=self.depth)
         else:
-            pub.sendMessage('images_load_req', root_dir=self.images_dir, depth=self.depth)     
+            pub.sendMessage(start_event)
+                
         
 
     def stopService(self):

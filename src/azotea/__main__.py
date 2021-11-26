@@ -73,6 +73,7 @@ def createParser():
     group = parser_batch.add_mutually_exclusive_group()
     group.add_argument('--only-sky',  action='store_true', help='only compute sky background')
     group.add_argument('--only-load', action='store_true', help='only loads images to database')
+    group.add_argument('--only-publish', action='store_true', help='only publish to server')
     # only makes sense after image background computation
     parser_batch.add_argument('--publish',   action='store_true',  help='optionally publish to server')
     return parser
@@ -117,11 +118,14 @@ if options.command == 'gui':
     guiService.setName(GraphicalService.NAME)
     guiService.setServiceParent(application)
 elif options.command == 'batch':
-    images_dir   = options.images_dir
-    depth = options.depth
-    only_load = options.only_load
-    only_sky  = options.only_sky
-    batchService = BatchService(images_dir, depth, only_load, only_sky)
+    batchService = BatchService(
+        images_dir = options.images_dir, 
+        depth      = options.depth, 
+        only_load  = options.only_load, 
+        only_sky   = options.only_sky,
+        only_pub   = options.only_publish,
+        also_pub   = options.publish
+        )
     batchService.setName(BatchService.NAME)
     batchService.setServiceParent(application)
 

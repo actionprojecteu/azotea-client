@@ -38,7 +38,7 @@ from azotea.logger  import setLogLevel
 
 PUBLISH_PAGE_SIZE = 50
 
-NAMESPACE = 'publ'
+NAMESPACE = 'publi'
 
 # -----------------------
 # Module global variables
@@ -61,10 +61,11 @@ class PublishingError(Exception):
 
 class PublishingController:
     
-    def __init__(self, model, config):
+    def __init__(self, model, config, next_event):
         self.model = model
         self.sky    = model.sky
         self.config = config
+        self.next_event = None
         self.observerCtrl = None
         self.username = None
         self.password = None

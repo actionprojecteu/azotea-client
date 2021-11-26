@@ -63,13 +63,13 @@ class ImageController:
 
     NAME = NAMESPACE
 
-    def __init__(self, model, config, only_load):
+    def __init__(self, model, config, next_event):
         self.model = model
         self.image = model.image
         self.config = config
         self.default_focal_length = None
         self.default_f_number = None
-        self.only_load = only_load
+        self.next_event = next_event
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onLoadReq, 'images_load_req')
          
@@ -108,10 +108,10 @@ class ImageController:
             log.failure('{e}',e=e)
             pub.sendMessage('quit', exit_code = 1)
         else:
-            if self.only_load:
-                pub.sendMessage('quit')
+            if self.next_event:
+                pub.sendMessage(self.next_event)
             else:
-                pub.sendMessage("sky_brightness_stats_req")
+                pub.sendMessage('quit')
 
     # --------------
     # Helper methods
