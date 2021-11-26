@@ -53,7 +53,7 @@ VALUES ('publishing', 'tps', 1);
 -- the property names will be the logging namestaces
 
 INSERT INTO config_t(section, property, value) 
-VALUES ( 'logging', 'regis', 'info');
+VALUES ( 'logging', 'load', 'info');
 INSERT INTO config_t(section, property, value) 
 VALUES ( 'logging', 'skybg', 'info');
 INSERT INTO config_t(section, property, value) 

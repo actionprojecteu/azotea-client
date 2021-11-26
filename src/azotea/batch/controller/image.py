@@ -42,7 +42,8 @@ from azotea.batch.controller import NAMESPACE, log
 # Module constants
 # ----------------
 
-NAMESPACE = 'regis'
+NAMESPACE = 'load'
+BUFFER_SIZE = 50   # Cache size before doing database writes.
 
 # -----------------------
 # Module global variables
@@ -136,13 +137,13 @@ class ImageController:
         default_focal_length, default_f_number= yield self.getDefault()
      
         if default_camera_id:
-            self.camera_id     = int(default_camera_id)
+            self.default_camera_id = int(default_camera_id)
             self.extension     = default_camera['extension']
             self.header_type   = default_camera['header_type']
             self.bayer_pattern = default_camera['bayer_pattern']
             self.global_bias   = default_camera['bias']
         else:
-            self.camera_id = None
+            self.default_camera_id = None
             errors.append( "- No default camera selected.")
 
         if not self.default_focal_length:
@@ -222,21 +223,26 @@ class ImageController:
                 log.debug('Skipping already registered {row.name}.', row=row)
                 continue
             try:
-                yield deferToThread(hash_and_exif_metadata, filepath, row)
+                row = yield deferToThread(hash_and_exif_metadata, filepath, row)
             except Exception as e:
                 log.error("Skipping {n} ({i}/{N}) [{p}%] => {e}",
                         e=e, i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
                 continue
-            new_camera = yield self.model.camera.lookup(row)
-            if not new_camera:
-                msg = 'Camera model {0} not found in the database'.format(ow['model'])
+            existing_camera = yield self.model.camera.lookup(row)
+            if not existing_camera:
+                msg = 'Camera model {0} not found in the database'.format(row['model'])
                 log.error("Skipping {n} ({i}/{N}) [{p}%] => {m}",
                         m=msg, i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
                 continue
-            log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
-            row['camera_id'] = int(new_camera['camera_id'])
+            row['camera_id'] = int(existing_camera['camera_id'])
+            if row['camera_id'] != self.default_camera_id:
+                msg = 'Camera model {0} is not the default camera'.format(row['model'])
+                log.error("Skipping {n} ({i}/{N}) [{p}%] => {m}",
+                        m=msg, i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))
+                continue
+            # Finally, save the new row
             save_list.append(row)
-            if (i % 50) == 0:
+            if (i % BUFFER_SIZE) == 0:
                 log.debug("saving to database")
                 yield self.saveAndFix(save_list)
                 save_list = list()

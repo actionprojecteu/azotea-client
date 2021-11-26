@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS camera_t
 (
     camera_id           INTEGER,
     model               TEXT,         -- Camera Model (taken from EXIF data)
-    bias                INTEGER,      -- default bias, to be replicated in all channels if we canno read ir from EXIF
+    bias                INTEGER,      -- default bias, to be replicated in all channels if we cannot read it from EXIF
     extension           TEXT,         -- File extension procuced by a camera (i.e. *.NEF)
     header_type         TEXT,         -- Either 'EXIF' or 'FITS'
     bayer_pattern       TEXT,         -- Either "RGGB", "BGGR", "GRGB" , "GBGR"

@@ -57,10 +57,10 @@ def createParser():
 
     # Global options
     parser.add_argument('--version', action='version', version='{0} {1}'.format(name, __version__))
-    parser.add_argument('--console', action='store_true',  help='log to console.')
-    parser.add_argument('--log-file', type=str, default=None, action='store', metavar='<log file>', help='log to file')
-    parser.add_argument('--dbase',    type=str, default="azotea.db", action='store', metavar='<SQLite database path>', help='SQLite database to operate upon')
-   
+    parser.add_argument('-d', '--dbase',    type=str, required=True, action='store', metavar='<file path>', help='SQLite database to operate upon')
+    parser.add_argument('-c', '--console', action='store_true',  help='log to console.')
+    parser.add_argument('-l', '--log-file', type=str, default=None, action='store', metavar='<file path>', help='log to file')
+    
    
     # --------------------------
     # Create first level parsers

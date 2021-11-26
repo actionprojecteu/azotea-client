@@ -137,3 +137,4 @@ def toDateTime(tstamp):
 def hash_and_exif_metadata(filepath, row):
     row['hash'] = hash_func(filepath)
     row = exif_metadata(filepath, row)
+    return row 

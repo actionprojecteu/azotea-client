@@ -3,16 +3,6 @@ MAS INMEDIATO TODAVIA
 
 - log namepsaces & messages in gui controllers
 
-* Migrar la BD de Jaime a esto:
-alter table image_t add column imagetype text;
-alter table image_t add column flagged integer;
-
-update image_t set imagetype = 'LIGHT';
-update image_t set flagged = 0;
-
-update image_t set imagetype = 'DARK' WHERE upper(directory) like '%DARK%';
-update image_t set imagetype = 'DARK' WHERE upper(name) like '%DARK%';
-
 INMEDIATO
 =========
 * ¿Validacion? _tkinter.TclError: expected floating-point number but got "39,6928888889"

@@ -63,7 +63,7 @@ class MiscelaneaController:
         try:
             data = {}
             if options.load:
-                data['regis'] = options.load
+                data['load'] = options.load
             if options.sky:
                 data['skybg'] = options.sky
             if options.publish:

@@ -51,7 +51,8 @@ from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 # Module constants
 # ----------------
 
-NAMESPACE = 'regis'
+NAMESPACE = 'load'
+BUFFER_SIZE = 50   # Cache size before doing database writes.
 
 # -----------------------
 # Module global variables
@@ -164,13 +165,13 @@ class ImageController:
         default_location_id, default_location = yield self.locationCtrl.getDefault()
      
         if default_camera_id:
-            self.camera_id = int(default_camera_id)
+            self.default_camera_id = int(default_camera_id)
             self.extension     = default_camera['extension']
             self.header_type   = default_camera['header_type']
             self.bayer_pattern = default_camera['bayer_pattern']
             self.global_bias   = default_camera['bias']
         else:
-            self.camera_id = None
+            self.default_camera_id = None
             errors.append( _("- No default camera selected.") )
 
         if not self.default_focal_length:
@@ -257,24 +258,27 @@ class ImageController:
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
                 continue
             try:
-                yield deferToThread(hash_and_exif_metadata, filepath, row)
+                row = yield deferToThread(hash_and_exif_metadata, filepath, row)
             except Exception as e:
                 message = _("{0}: Error in fingerprint computation or EXIF metadata reading").format(row['name'])
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
                 return(None)
-            new_camera = yield self.model.camera.lookup(row)
-            if not new_camera:
+            existing_camera = yield self.model.camera.lookup(row)
+            if not existing_camera:
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
-                message = _("Camera model {0} not found in the database").format(row['model'])
-                log.warn(message)
+                message = _("Image {0} taken with {1}, that is not found in the database").format(row['name'], row['model'])
                 self.view.messageBoxError(who=_("Register"),message=message)
                 return(None)
-            log.debug('Resolved camera model {row.model} from the data base {info.camera_id}', row=row, info=new_camera)
-            row['camera_id'] = int(new_camera['camera_id'])
+            row['camera_id'] = int(existing_camera['camera_id'])
+            if row['camera_id'] != self.default_camera_id:
+                self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)
+                message = _("Image {0} taken with {1}, that is not the default camera").format(row['name'], row['model'])
+                self.view.messageBoxError(who=_("Register"),message=message)
+                return(None)
             self.view.mainArea.displayImageData(row['name'],row)
             self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
             save_list.append(row)
-            if (i % 50) == 0:
+            if (i % BUFFER_SIZE) == 0:
                 log.debug("Register: saving to database")
                 yield self.saveAndFix(save_list)
                 save_list = list()
