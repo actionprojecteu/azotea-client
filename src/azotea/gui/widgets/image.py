@@ -59,16 +59,6 @@ log  = Logger(namespace=NAMESPACE)
 # helper functions
 # -----------------
 
-def load_image(path):
-    with rawpy.imread(os.path.join(directory, name)) as img:
-        rgb = img.postprocess(
-            output_color   = rawpy.ColorSpace.raw, 
-            gamma          = (1, 1),
-            user_wb        = [1.0, 1.0, 1.0, 1.0], 
-            no_auto_bright = True
-        )
-        img_pil = PIL.Image.fromarray(rgb, 'RGB')
-        return ImageTk.PhotoImage(img_pil)
 
 # -----------------
 # Application Class

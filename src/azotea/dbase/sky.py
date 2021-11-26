@@ -30,6 +30,39 @@ from azotea.dbase.tables import Table, VersionedTable
 # Module constants
 # ----------------
 
+PUB_COLUMN_NAMES = (
+    'date_id', # date [0:1]
+    'time_id', # time [1:2]
+    'surname','family_name','acronym','affiliation','valid_since','valid_until','valid_state', # observer [3:10]
+    'site_name','location','longitude','latitude', 'randomized', 'utc_offset',                 # location [10:16]
+    'model','bias','extension','header_type','bayer_pattern','width','length',                 # camera [16:23]
+    'x1','y1','x2','y2','display_name','comment',                                              # roi [23:29]
+    'name','directory','hash','iso','gain','exptime','focal_length','f_number', 'imagetype', 'flagged', 'session', # image [29:40]
+    'aver_signal_R','vari_signal_R','aver_signal_G1','vari_signal_G1',                         # sky_brightness [40:48]
+    'aver_signal_G2','vari_signal_G2','aver_signal_B','vari_signal_B'
+)
+
+
+# ------------------------
+# Module Utility Functions
+# ------------------------
+
+def slice_func(row):
+    '''Slices a row into separate components for JSON publishing'''
+    result = {
+        'date'           : dict(zip(PUB_COLUMN_NAMES[0:1],   row[0:1])),
+        'time'           : dict(zip(PUB_COLUMN_NAMES[1:2],   row[1:2])),
+        'observer'       : dict(zip(PUB_COLUMN_NAMES[3:10],  row[3:10])),
+        'location'       : dict(zip(PUB_COLUMN_NAMES[10:16], row[10:16])),
+        'camera'         : dict(zip(PUB_COLUMN_NAMES[16:23], row[16:23])),
+        'roi'            : dict(zip(PUB_COLUMN_NAMES[23:29], row[23:29])),
+        'image'          : dict(zip(PUB_COLUMN_NAMES[29:40], row[29:40])),
+        'sky_brightness' : dict(zip(PUB_COLUMN_NAMES[40:48], row[40:48])),
+    }
+    result['image']['hash'] = result['image']['hash'].hex()
+    return result   
+
+
 CSV_VERSION = 1
 
 class SkyBrightness:
@@ -634,50 +667,34 @@ class SkyBrightness:
             return txn.fetchone()[0]
         return self._pool.runInteraction(_updatePublishingCount, filter_dict)
 
-    pub_column_names = ('date_id','time_id',
-        'surname','family_name','acronym','affiliation','valid_since','valid_until','valid_state',
-        'site_name','location','public_long','public_lat','utc_offset',
-        'model','bias','extension','header_type','bayer_pattern','width','length',
-        'x1','y1','x2','y2','display_name','comment',
-        'name','directory','hash','iso','gain','exptime','focal_length','f_number','session',
-        'aver_signal_R','vari_signal_R','aver_signal_G1','vari_signal_G1',
-        'aver_signal_G2','vari_signal_G2','aver_signal_B','vari_signal_B')
 
+    def getAll(self, filter_dict):
+        '''Get all data for publishing to server. filter_dict contains "observer_id", offset" and "limit"'''
 
-    def publishAll(self, filter_dict):
-
-        def toHex(aDict):
-            '''From binary BLOB to hex string representation'''
-            aDict['hash'] = aDict['hash'].hex()
-            return aDict
-
-        def _publishAll(txn, filter_dict):
+        def _getAll(txn, filter_dict):
             sql = '''
             SELECT
-            s.date_id, s.time_id,
+            i.date_id, i.time_id,
             o.surname, o.family_name, o.acronym, o.affiliation, o.valid_since, o.valid_until, o.valid_state,
-            l.site_name, l.location, l.public_long, l.public_lat, l.utc_offset,
+            l.site_name, l.location, l.longitude, l.latitude, l.randomized, l.utc_offset,
             c.model, c.bias, c.extension, c.header_type, c.bayer_pattern, c.width, c.length,
             s.x1, s.y1, s.x2, s.y2, s.display_name, s.comment,
-            i.name, i.directory, i.hash, i.iso, i.gain, i.exptime, i.focal_length, i.f_number, i.session,  
+            i.name, i.directory, i.hash, i.iso, i.gain, i.exptime, i.focal_length, i.f_number, i.imagetype, i.flagged, i.session,  
             s.aver_signal_R,  s.vari_signal_R,  s.aver_signal_G1, s.vari_signal_G1, 
             s.aver_signal_G2, s.vari_signal_G2, s.aver_signal_B,  s.vari_signal_B
             FROM image_t AS i
-            JOIN roi_t      AS r USING(roi_id)
             JOIN sky_brightness_v AS s USING(image_id)
             JOIN camera_t   AS c USING(camera_id)
             JOIN observer_t AS o USING(observer_id)
             JOIN location_t AS l USING(location_id)
             WHERE i.observer_id = :observer_id
             AND   s.published = 0
-            ORDER BY i.date_id ASC, i.time_id ASC
+            -- ORDER BY i.date_id ASC, i.time_id ASC
             LIMIT :limit OFFSET :offset;
             '''
             self.log.debug(sql)
-            txn.execute(sql, filter_dict)
-            result = (dict(zip(self.pub_column_names,row)) for row in txn.fetchall())
-            return list(map(toHex, result))
-        return self._pool.runInteraction(_publishAll, filter_dict)
+            txn.execute(sql, filter_dict) 
+            return tuple(slice_func(row) for row in txn.fetchall())
+        return self._pool.runInteraction(_getAll, filter_dict)
 
 
-    

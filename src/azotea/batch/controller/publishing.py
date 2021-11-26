@@ -16,6 +16,7 @@ import time
 # ---------------
 
 from twisted.logger   import Logger
+from twisted.internet import reactor, task
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectionRefusedError
 
@@ -50,6 +51,13 @@ log = Logger(namespace=NAMESPACE)
 # Module Utility Functions
 # ------------------------
 
+def sleep(delay):
+    # Returns a deferred that calls do-nothing function
+    # after `delay` seconds
+    return task.deferLater(reactor, delay, lambda: None)
+
+
+
 class PublishingError(Exception):
     '''Server response code was not acceptable'''
     def __str__(self):
@@ -58,6 +66,8 @@ class PublishingError(Exception):
             s = ' {0}: {1}'.format(s, str(self.args[0]))
         s = '{0}.'.format(s)
         return s
+
+
 
 class PublishingController:
     
@@ -83,11 +93,6 @@ class PublishingController:
         try:
             lvl = yield self.config.load('logging', NAMESPACE)
             setLogLevel(namespace=NAMESPACE, levelStr=lvl[NAMESPACE])
-            # NOT AVAILABLE FOR THE TIME BEING
-            log.warn("Publishing is not available for the time being")
-            pub.sendMessage('quit')
-            return
-
             result = yield self.doCheckDefaults()
             if result:
                 total = yield self.sky.getPublishingCount({'observer_id': self.observer_id})
@@ -144,7 +149,6 @@ class PublishingController:
             result = False
         return(result)
 
-
     @inlineCallbacks
     def doPublish(self, total):
         filter_dict = {'observer_id': self.observer_id}
@@ -156,42 +160,17 @@ class PublishingController:
         for page in range(N):
             filter_dict['limit']  = page_size
             filter_dict['offset'] = page * page_size
-            result = yield self.sky.publishAll(filter_dict)
+            result = yield self.sky.getAll(filter_dict)
             log.info("Publishing Processor: PUBLISH page {page}, limit {limit}, size of result = {size}", page=page, limit=page_size, size=len(result))
             auth = (self.username, self.password)
-            try:
-                response = yield treq.post(self.url, auth=auth, json=result, timeout=30)
-            except ConnectionRefusedError as e:
-                log.failure("Exception => {e}",e=str(e))
-                failed = True; message = _("Connection refused.")
+            response = yield treq.post(self.url, auth=auth, json=result, timeout=30)
+            log.info("{http} {status}",http=response.version, status=response.phrase)
+            if not (200 <= response.code <= 299):
+                failed = True; 
+                message = "Server HTTP response code {0} was not acceptable".format(response.code)
+                log.error("Publishing Processor: {message}", message=message)
                 break
-            except Exception as e:
-                log.failure("General Catcher. Exception {t}: {e}",t=type(e), e=str(e))
-                failed = True; message = str(e)
-                break
-            else:
-                log.info("{http} {status}",http=response.version, status=response.phrase)
-                if not (200 <= response.code <= 299):
-                    failed = True; 
-                    message = "Server HTTP response code {0} was not acceptable".format(response.code)
-                    break
-                time.sleep(self.delay)
+            yield sleep(self.delay)
         if not failed:
             log.info("All went good. Updating publishing state for observer id {o}",o=self.observer_id)
             yield self.sky.updatePublishingCount(filter_dict)
-            exit_code = 0
-        else:
-            log.error("Publishing Processor: {message}", message=message)
-            exit_code = 1
-        pub.sendMessage('quit', exit_code = exit_code)
-
-
-
-          
-
-
-
-
-           
-
-

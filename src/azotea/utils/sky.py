@@ -135,7 +135,7 @@ LOCATION = CSV_COLUMNS.index('location')
 # Module Utility Functions
 # ------------------------
 
-def postprocess(item):
+def csv_postprocess(item):
     '''From Variance to StdDev in several columns'''
     index, value = item
     if index == LOCATION:

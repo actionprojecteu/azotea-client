@@ -50,7 +50,7 @@ from azotea import DATE_SELECTION_ALL, DATE_SELECTION_UNPUBLISHED
 from azotea import DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 from azotea.utils import chop
 from azotea.utils.roi import Point, Rect
-from azotea.utils.sky import RAWPY_EXCEPTIONS, CSV_COLUMNS, postprocess, widget_datetime, processImage
+from azotea.utils.sky import RAWPY_EXCEPTIONS, CSV_COLUMNS, csv_postprocess, widget_datetime, processImage
 from azotea.logger  import startLogging, setLogLevel
 
 
@@ -185,7 +185,7 @@ class SkyBackgroundController:
             writer = csv.writer(fd, delimiter=';')
             writer.writerow(CSV_COLUMNS)
             for row in contents:
-                row = map(postprocess, enumerate(row))
+                row = map(csv_postprocess, enumerate(row))
                 writer.writerow(row)
 
     @inlineCallbacks

@@ -37,7 +37,7 @@ from azotea import DATE_SELECTION_ALL, DATE_SELECTION_UNPUBLISHED
 from azotea import DATE_SELECTION_DATE_RANGE, DATE_SELECTION_LATEST_NIGHT, DATE_SELECTION_LATEST_MONTH
 from azotea.logger  import setLogLevel
 from azotool.cli   import NAMESPACE, log
-from azotea.utils.sky import CSV_COLUMNS, postprocess
+from azotea.utils.sky import CSV_COLUMNS, csv_postprocess
 
 # ----------------
 # Module constants
@@ -125,7 +125,7 @@ class SkyController:
             writer = csv.writer(fd, delimiter=';')
             writer.writerow(CSV_COLUMNS)
             for row in contents:
-                row = map(postprocess, enumerate(row))
+                row = map(csv_postprocess, enumerate(row))
                 writer.writerow(row)
 
     @inlineCallbacks

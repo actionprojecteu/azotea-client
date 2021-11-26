@@ -220,7 +220,7 @@ class PublishingController:
         for page in range(N):
             filter_dict['limit']  = page_size
             filter_dict['offset'] = page * page_size
-            result = yield self.sky.publishAll(filter_dict)
+            result = yield self.sky.getAll(filter_dict)
             log.info("PUBLISH page {page}, limit {limit}, size of result = {size}", page=page, limit=page_size, size=len(result))
             auth = (self.username, self.password)
             try:
