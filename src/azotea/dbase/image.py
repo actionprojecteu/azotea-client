@@ -97,7 +97,7 @@ class ImageTable(Table):
                 FROM image_t AS i
                 JOIN observer_t AS o USING(observer_id)
                 GROUP BY observer_id, i.imagetype, i.flagged
-                ORDER BY cnt'''
+                ORDER BY cnt, observer_id, i.imagetype'''
             txn.execute(sql)
             return txn.fetchall()
         return self._pool.runInteraction(_summaryStatistics)
