@@ -59,6 +59,7 @@ from azotea.logger  import startLogging, setLogLevel
 # ----------------
 
 NAMESPACE = 'sky'
+BUFFER_SIZE = 100   # Cache size before doing database writes.
 
 # -----------------------
 # Module global variables
@@ -300,7 +301,7 @@ class SkyBackgroundController:
             self.view.statusBar.update( _("SKY BACKGROUND"), name, (100*i//N_stats), error=False)
             self.view.mainArea.displaySkyMeasurement(name, row)
             save_list.append(row)
-            if (i % 50) == 0:
+            if (i % BUFFER_SIZE) == 0:
                 log.debug("Sky Background Processor: saving to database")
                 yield self.sky.save(save_list)
                 save_list = list()

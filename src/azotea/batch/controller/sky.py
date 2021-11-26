@@ -40,6 +40,8 @@ from azotea.utils.sky import processImage, RAWPY_EXCEPTIONS
 # ----------------
 
 NAMESPACE = 'skybg'
+BUFFER_SIZE = 50   # Cache size before doing database writes.
+PAGE_SIZE   = 2*BUFFER_SIZE # Display progress every N images
 
 # -----------------------
 # Module global variables
@@ -135,7 +137,7 @@ class SkyBackgroundController:
                 'image_id'   : image_id,
             }
             if self.logLevel == 'warn':
-                if  (i % 100) == 0:
+                if  (i % PAGE_SIZE) == 0:
                     log.warn("Sky bg in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
             else:
                 log.info("Sky bg in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
@@ -146,7 +148,7 @@ class SkyBackgroundController:
                 yield self.image.flagAsBad(row)
                 continue
             save_list.append(row)
-            if (i % 50) == 0:
+            if (i % BUFFER_SIZE) == 0:
                 log.debug("Saving to database")
                 yield self.sky.save(save_list)
                 save_list = list()
