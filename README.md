@@ -45,7 +45,6 @@ where global options are:
 
 For a detailed view of all commands, subcommands and specific versions, please use the global `--help` option at every level.
 
-
 # Installation
 
 This is a Python tool that runs on *only* in Python 3 (tested on Python 3.6) 
@@ -285,7 +284,7 @@ ${AZOTEA_HOME}/images
 ```
 ## Summaries
 
-After the processing is done, you can see a processing summary by issuing `azotool image view`: 
+After the processing is done, you can see a processing summary by issuing `azotool image summary`: 
 
 ```
 2021-11-25T10:55:21+0100 [dbase#info] Starting Database Service on /home/jgomez/azotea/azotea.db
@@ -300,7 +299,7 @@ After the processing is done, you can see a processing summary by issuing `azoto
 2021-11-25T10:55:21+0100 [-] Main loop terminated.
 ```
 
-or `azotool sky view`
+or `azotool sky summary`
 
 ```
 2021-11-25T10:55:21+0100 [dbase#info] Starting Database Service on /home/jgomez/azotea/azotea.db
