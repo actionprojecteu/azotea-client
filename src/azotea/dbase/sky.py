@@ -48,7 +48,7 @@ class SkyBrightness:
                 JOIN observer_t AS o USING(observer_id)
                 JOIN sky_brightness_v AS s USING(image_id)
                 GROUP BY observer_id, s.display_name, s.published
-                ORDER BY cnt, observer_id, s.display_name'''
+                ORDER BY o.surname, o.family_name, s.display_name,cnt DESC'''
             txn.execute(sql)
             return txn.fetchall()
         return self._pool.runInteraction(_summaryStatistics)
