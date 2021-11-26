@@ -10,7 +10,7 @@ Development of this software has been possible through [ACTION - Participatory s
 
 # Table of Contents
 
-* [Command line structure](https://github.com/actionprojecteu/azotea-client#icommand-line-structure)
+* [Command line structure](https://github.com/actionprojecteu/azotea-client#command-line-structure)
 * [Installation](https://github.com/actionprojecteu/azotea-client#installation)
 * [Configuration](https://github.com/actionprojecteu/azotea-client#configuration)
   - [Configuration by command line](https://github.com/actionprojecteu/azotea-client#configuration-by-command-line)
@@ -38,7 +38,7 @@ azotool <global options> <command> <subcommand> <subcommand options>
 where global options are:
 
 * `--version`     Print program version and exit.
-* `-h`  `--help`  Show program commads, subcommands and options.
+* `-h`  `--help`  Show program commands, subcommands and options.
 * `-d`, `--dbase` Mandatory database file path
 * `-c`, `--console` Optionally logs to console. Needed for interactive use
 * `-l`, `--log file` Optional log file. Recommended for unattended use.
