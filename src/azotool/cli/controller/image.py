@@ -72,11 +72,11 @@ class ImageController:
         try:
             result = yield self.image.summaryStatistics()
             result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], bool(t[3]), t[4]), result))
-            headers=("Observer", "Type", "Corrupted?", "# Images")
+            headers=("Observer", "Type", "Corrupted?", "# Loaded images")
             log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
             result = yield self.image.rangeSummary()
             result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], t[3], t[4]), result))
-            headers=("Observer", "From", "To", "# Images")
+            headers=("Observer", "From", "To", "# Loaded images")
             log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
         except Exception as e:
             log.failure('{e}',e=e)

@@ -137,7 +137,6 @@ class DatabaseService(Service):
 
     def startService(self):
         setLogLevel(namespace=NAMESPACE, levelStr='warn')
-        log.info("Starting Database Service on {database}", database=self.path)
         connection, new_database = create_database(self.path)
         if new_database:
             log.warn("Created new database file at {f}",f=self.path)
@@ -150,7 +149,7 @@ class DatabaseService(Service):
                 log.warn("Applying updates to data model from {f}", f=os.path.basename(sql_file))
         levels  = read_debug_levels(connection)
         version = read_database_version(connection)
-        log.warn("Database {database}, version = {version}", database=self.path, version=version)
+        log.warn("Starting Database Service on {database}, version = {version}", database=self.path, version=version)
         pub.subscribe(self.quit,  'quit')
         # Remainder Service initialization
         super().startService()

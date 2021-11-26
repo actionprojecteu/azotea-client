@@ -73,7 +73,11 @@ class SkyController:
         try:
             result = yield self.sky.summaryStatistics()
             result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], bool(t[4]), t[3]), result))
-            headers=("Observer", "ROI", "Published?", "# Sky Bg", )
+            headers=("Observer", "ROI", "Published?", "# Processed images", )
+            log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
+            result = yield self.sky.rangeSummary()
+            result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], t[3], t[4]), result))
+            headers=("Observer", "From", "To", "# Processed images", )
             log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
         except Exception as e:
             log.failure('{e}',e=e)
