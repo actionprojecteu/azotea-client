@@ -10,6 +10,7 @@ Development of this software has been possible through [ACTION - Participatory s
 
 # Table of Contents
 
+* [Command line structure](https://github.com/actionprojecteu/azotea-client#icommand-line-structure)
 * [Installation](https://github.com/actionprojecteu/azotea-client#installation)
 * [Configuration](https://github.com/actionprojecteu/azotea-client#configuration)
   - [Configuration by command line](https://github.com/actionprojecteu/azotea-client#configuration-by-command-line)
@@ -24,6 +25,26 @@ Development of this software has been possible through [ACTION - Participatory s
   - [Launch the program in GUI mode](https://github.com/actionprojecteu/azotea-client#launch-the-program-in-gui-mode)
   - [Image processing in GUI mode](https://github.com/actionprojecteu/azotea-client#image-processing-in-gui-mode)
   - [Screenshots](https://github.com/actionprojecteu/azotea-client#screenshots)
+
+# Command line structure
+
+This package provides two executables: `azotea` and `azotool`. Both have the same structure:
+
+```
+azotea  <global options> <command> <subcommand> <subcommand options>
+azotool <global options> <command> <subcommand> <subcommand options>
+```
+
+where global options are:
+
+* `--version`     Print program version and exit.
+* `-h`  `--help`  Show program commads, subcommands and options.
+* `-d`, `--dbase` Mandatory database file path
+* `-c`, `--console` Optionally logs to console. Needed for interactive use
+* `-l`, `--log file` Optional log file. Recommended for unattended use.
+
+For a detailed view of all commands, subcommands and specific versions, please use the global `--help` option at every level.
+
 
 # Installation
 
