@@ -1,12 +1,11 @@
 MAS INMEDIATO TODAVIA
 =====================
 
-- log namepsaces & messages in gui controllers
-* Documento de CSV de AZOTEA. Revisar y actualizar
-
-
 INMEDIATO
 =========
+
+* Documento de CSV de AZOTEA. Revisar y actualizar
+
 * ¿Validacion? _tkinter.TclError: expected floating-point number but got "39,6928888889"
 * Probar la generacion del megaexport
 * Falla el constraint check de borra imagenes/medidas.

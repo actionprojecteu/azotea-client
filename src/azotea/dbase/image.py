@@ -101,3 +101,16 @@ class ImageTable(Table):
             txn.execute(sql)
             return txn.fetchall()
         return self._pool.runInteraction(_summaryStatistics)
+
+    def rangeSummary(self):
+        def _rangeSummary(txn):
+            sql = '''
+                SELECT o.surname, o.family_name, MIN(d.sql_date), MAX(d.sql_date), count(*) as cnt 
+                FROM image_t AS i
+                JOIN observer_t AS o USING(observer_id)
+                JOIN date_t AS d USING(date_id)
+                GROUP BY observer_id
+                ORDER BY o.surname, o.family_name'''
+            txn.execute(sql)
+            return txn.fetchall()
+        return self._pool.runInteraction(_rangeSummary)
