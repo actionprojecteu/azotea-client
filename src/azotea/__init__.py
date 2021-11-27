@@ -61,4 +61,4 @@ SQL_INITIAL_DATA_DIR = resource_filename(__name__, os.path.join('dbase', 'sql', 
 SQL_UPDATES_DATA_DIR = resource_filename(__name__, os.path.join('dbase', 'sql', 'updates' ))
 
 del get_versions
-del name
+
