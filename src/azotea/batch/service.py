@@ -36,6 +36,7 @@ from pubsub import pub
 # local imports
 # -------------
 
+from azotea import FULL_VERSION_STRING
 from azotea.logger import setLogLevel
 from azotea.dbase.service   import DatabaseService
 from azotea.batch.controller.image    import ImageController
@@ -87,6 +88,7 @@ class BatchService(Service):
     # ------------
 
     def startService(self):
+        log.warn("{full_version}",full_version=FULL_VERSION_STRING)
         log.info("Starting Batch Service with images directory {wd}", wd=self.images_dir)
         if self.images_dir is None:
             log.error("No images directory")

@@ -48,7 +48,7 @@ __version__ = get_versions()['version']
 
 name = os.path.split(os.path.dirname(sys.argv[0]))[-1]
 
-VERSION_STRING = "{4} {0} on Twisted {1}, Python {2}.{3}".format(
+FULL_VERSION_STRING = "{4} {0} on Twisted {1}, Python {2}.{3}".format(
 		__version__, 
 		__twisted_version__, 
 		sys.version_info.major, 

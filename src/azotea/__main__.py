@@ -26,7 +26,7 @@ from twisted.application import service
 # local imports
 # -------------
 
-from azotea import __version__
+from azotea import name, __version__
 from azotea.utils import get_status_code
 from azotea.logger  import startLogging
 from azotea.batch.service import BatchService
@@ -46,7 +46,7 @@ import azotea.consent.form
 # ------------------------
 
 def createParser():
-    name = os.path.split(os.path.dirname(sys.argv[0]))[-1]
+    
     parser    = argparse.ArgumentParser(prog=name, description='AZOTEA GUI')
 
     # Global options
@@ -102,9 +102,9 @@ startLogging(
     filepath = options.log_file
 )
 
-# -------------------
-# Applcation assembly
-# -------------------
+# --------------------
+# Application assembly
+# --------------------
 
 application = service.Application("azotea")
 
