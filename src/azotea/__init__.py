@@ -46,7 +46,7 @@ DATE_SELECTION_UNPUBLISHED  = 'Since last published'
 
 __version__ = get_versions()['version']
 
-name = os.path.split(os.path.dirname(sys.argv[0]))
+name = os.path.split(os.path.dirname(sys.argv[0]))[-1]
 
 FULL_VERSION_STRING = "{4} {0} on Twisted {1}, Python {2}.{3}".format(
 		__version__, 
@@ -62,4 +62,3 @@ SQL_UPDATES_DATA_DIR = resource_filename(__name__, os.path.join('dbase', 'sql', 
 
 del get_versions
 del name
-

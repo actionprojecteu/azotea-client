@@ -88,7 +88,8 @@ class BatchService(Service):
     # ------------
 
     def startService(self):
-        log.warn("{full_version}",full_version=FULL_VERSION_STRING)
+        # 'azotea' calzado a pelo poque parece que no se captura de la command line
+        log.warn("azotea {full_version}",full_version=FULL_VERSION_STRING)
         log.info("Starting Batch Service with images directory {wd}", wd=self.images_dir)
         if self.images_dir is None:
             log.error("No images directory")
