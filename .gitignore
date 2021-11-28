@@ -134,3 +134,4 @@ src/*.bak
 src/*.csv
 src/*.sh
 images/
+migracion.md

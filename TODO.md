@@ -17,6 +17,20 @@ INMEDIATO
 - URL subpath para el agreement
 - UL subpath para las medidas
 
+* A migrar:
+- Izquierdo, Jaime                       Imagen de prueba [X]
+- Zamorano, Jaime                        Imagen de prueba [X]
+- Rodriguez, Diego                       Imagen de prueba [X]
+- De Ferra, Enrique                      Imagen de prueba [X]
+- De la Torre, Francisco Javier (Madrid) Imagen de prueba [X]
+- García, Estebam (Motilla)              Imagen de prueba [X]
+- Garrofé, Inma (Mollerussa)             Imagen de prueba [X]
+- Hilera, Ignacio (Vitoria)              Imagen de prueba [X]
+- Morales, Angel (Ribarroja)             Imagen de prueba [X]
+- Navarro, Jose Luis (Hontecillas)       Imagen de prueba [X]
+- Otero, Pablo (Madrid)                  Imagen de prueba [X]
+- Jordán, Fernando (Requena)             Imagen de prueba [ ]
+- García, Antonio                        Imagen de prueba [ ]
 
 MEDIO PLAZO
 ===========
