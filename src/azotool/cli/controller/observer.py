@@ -64,7 +64,10 @@ class ObserverController:
                 'acronym'    : ' '.join(options.acronym),
             }
             log.info('Versioned insert observer: {data}', data=data)
-            yield self.model.save(data)
+            if options.fix:
+                yield self.model.saveFix(data)
+            else:
+                yield self.model.save(data)
             if options.default:
                 log.debug('Getting id from observer_t')
                 info_id = yield self.model.lookup(data)

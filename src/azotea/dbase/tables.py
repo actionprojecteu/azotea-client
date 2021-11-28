@@ -370,6 +370,14 @@ class VersionedTable(Table):
         '''
         return self._pool.runInteraction(self._deleteVersions, nk_dict)
 
+    def saveFix(self, all_dict):
+        '''
+        Fixed the latest version of a row in a versioned table.
+        It avoids generating a new version, so this is only for emergency fixes. 
+        It defeats the purpose of a versioned table.
+        '''
+        return self._pool.runInteraction(self._fix_latest_version, all_dict)
+
 
     # --------------------------------
     # Private overriden helper methods
@@ -439,7 +447,7 @@ class VersionedTable(Table):
         return sql
 
 
-    def _sqlVersionedReplace(self):
+    def _sqlVersionedExpire(self):
         table = self._table 
         unique_conditions = " AND ".join([f"{column} = :{column}" for column in self._natural_key_columns])
         sql = f"UPDATE {table} SET valid_until = :valid_until, valid_state = 'Expired' \
@@ -448,6 +456,58 @@ class VersionedTable(Table):
 
 
     def _insert_qior(self, txn, data):
+        # Cache internal data
+        table = self._table
+        natural_key_columns = self._natural_key_columns
+        other_columns = self._other_columns
+        query_sql = self._sqlVersionedQuery()
+        expire_sql = self._sqlVersionedExpire()
+        insert_sql = self._sqlVersionedInsert()
+        now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        self.log.debug("{sql} <= {data}", sql=query_sql, data=data)
+        txn.execute(query_sql, data)
+        result = txn.fetchone()
+        if not result:
+            self.log.debug("Insert a brand new row in table {table}",table=table)
+            data['valid_state'] = 'Current'
+            data['valid_until'] = self.END_OF_TIMES
+            data['valid_since'] = now
+            self.log.debug("{sql} <= {data}", sql=insert_sql, data=data)
+            txn.execute(insert_sql, data)
+        else:
+            old_values = set(zip(other_columns, result[:-2]))    # Strip dates for comparison
+            new_row = data.copy()
+            [new_row.pop(key) for key in natural_key_columns]
+            new_values = set(new_row.items())
+            if new_values == old_values:
+                self.log.debug("table {table}, same old and new versioned attributes, do nothing", table=table)
+            else:
+                self.log.debug("table {table}, set a new version of versioned attributes", table=table)
+                data['valid_until'] = now
+                self.log.debug("{sql} <= {data}", sql=expire_sql, data=data)
+                txn.execute(expire_sql, data)
+                data['valid_state'] = 'Current'
+                data['valid_until'] = self.END_OF_TIMES
+                data['valid_since'] = now
+                self.log.debug("{sql} <= {data}", sql=insert_sql, data=data)
+                txn.execute(insert_sql, data)
+
+    # ------------------------------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------------------------------
+
+
+    def _sqlVersionedReplace(self):
+        table = self._table 
+        versioned_columns = ", ".join([f"{column} = :{column}" for column in self._other_columns])
+        unique_conditions = " AND ".join([f"{column} = :{column}" for column in self._natural_key_columns])
+        sql = f"UPDATE {table} SET  {versioned_columns}\
+                    WHERE valid_state = 'Current' AND {unique_conditions};"
+        return sql
+
+
+    def _fix_latest_version(self, txn, data):
+        '''fixes the current version of versioned attributes'''
         # Cache internal data
         table = self._table
         natural_key_columns = self._natural_key_columns
@@ -474,15 +534,10 @@ class VersionedTable(Table):
             if new_values == old_values:
                 self.log.debug("table {table}, same old and new versioned attributes, do nothing", table=table)
             else:
-                self.log.debug("table {table}, set a new version of versioned attributes", table=table)
-                data['valid_until'] = now
+                self.log.debug("table {table}, replace latest version of versioned attributes", table=table)
                 self.log.debug("{sql} <= {data}", sql=replace_sql, data=data)
                 txn.execute(replace_sql, data)
-                data['valid_state'] = 'Current'
-                data['valid_until'] = self.END_OF_TIMES
-                data['valid_since'] = now
-                self.log.debug("{sql} <= {data}", sql=insert_sql, data=data)
-                txn.execute(insert_sql, data)
+              
 
     # ------------------------------------------------------------------------------------------------
 

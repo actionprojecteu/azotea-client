@@ -98,6 +98,7 @@ def createParser():
     obscre.add_argument('--surname',     type=str, nargs='+', required=True, help="Observer's surname")
     obscre.add_argument('--affiliation', type=str, nargs='+', required=True, help='Complete affiliation name')
     obscre.add_argument('--acronym',     type=str, nargs='+', required=True, help='Affiliation acronym')
+    obscre.add_argument('--fix',         action='store_true', help='Fix only affiliation/acronym (advance use)')
     
     # ------------------------------------------
     # Create second level parsers for 'location'
