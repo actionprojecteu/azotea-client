@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS camera_t
     bias                INTEGER,      -- default bias, to be replicated in all channels if we cannot read it from EXIF
     extension           TEXT,         -- File extension procuced by a camera (i.e. *.NEF)
     header_type         TEXT,         -- Either 'EXIF' or 'FITS'
-    bayer_pattern       TEXT,         -- Either "RGGB", "BGGR", "GRGB" , "GBGR"
+    bayer_pattern       TEXT,         -- Either "RGGB", "BGGR", "GRBG" , "GBGR"
     width               INTEGER DEFAULT 0, -- Number of raw columns, without debayering
     length              INTEGER DEFAULT 0, -- Number of raw rows, without debayering
     UNIQUE(model),

@@ -131,7 +131,7 @@ def createParser():
     camcre.add_argument('--bias',        type=int, default=None, help="default bias, to be replicated in all channels if we cannot read ir from EXIF")
     camcre.add_argument('--extension',   type=str, default=None, help='File extension procuced by a camera (i.e. .NEF)')
     camcre.add_argument('--header-type', choices=('EXIF', 'FITS'), default=None,  help="Either 'EXIF' or 'FITS'")
-    camcre.add_argument('--bayer-pattern', choices=('RGGB', 'BGGR','GRGB','GBGR'), default=None, help='Bayer pattern grid')
+    camcre.add_argument('--bayer-pattern', choices=('RGGB', 'BGGR','GRBG','GBRG'), default=None, help='Bayer pattern grid')
     camcre.add_argument('--width',        type=int, default=0, help="Number of raw columns, with no debayering")
     camcre.add_argument('--length',       type=int, default=0, help="Number of raw rows, with no debayering")
 
