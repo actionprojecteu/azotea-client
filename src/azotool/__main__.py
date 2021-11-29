@@ -96,8 +96,8 @@ def createParser():
     obscre.add_argument('--default',     action='store_true', help='Set this observer as the default observer')
     obscre.add_argument('--name',        type=str, nargs='+', required=True, help="Observer's name")
     obscre.add_argument('--surname',     type=str, nargs='+', required=True, help="Observer's surname")
-    obscre.add_argument('--affiliation', type=str, nargs='+', required=True, help='Complete affiliation name')
-    obscre.add_argument('--acronym',     type=str, nargs='+', required=True, help='Affiliation acronym')
+    obscre.add_argument('--affiliation', type=str, nargs='+', default=None, help='Complete affiliation name')
+    obscre.add_argument('--acronym',     type=str, nargs='+', default=None, help='Affiliation acronym')
     obscre.add_argument('--fix',         action='store_true', help='Fix only affiliation/acronym (advance use)')
     
     # ------------------------------------------
