@@ -27,11 +27,13 @@ import rawpy
 # Module constants
 # ----------------
 
+BAYER_LETTER = ['B','G','R','G']
+
+BAYER_PTN_LIST = ('RGGB', 'BGGR', 'GRBG', 'GBRG')
+
 # -----------------------
 # Module global variables
 # -----------------------
-
-BAYER_LETTER = ['B','G','R','G']
 
 # -----------------------
 # Module global variables

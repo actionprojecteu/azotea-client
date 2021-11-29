@@ -39,6 +39,7 @@ from twisted.logger import Logger
 
 from azotea.gui import ICONS_DIR
 from azotea.utils import chop
+from azotea.utils.camera import BAYER_PTN_LIST
 from azotea.utils.roi import Point
 from azotea.gui.widgets.contrib import ToolTip, LabelInput
 from azotea.gui.widgets.combos import CameraCombo
@@ -64,8 +65,6 @@ log  = Logger(namespace=NAMESPACE)
 
 
 class CameraFrame(PreferencesBaseFrame):
-
-    BAYER_PTN = ('RGGB', 'BGGR', 'GRBG', 'GBRG')
    
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, combo_class=CameraCombo, **kwargs)
@@ -112,7 +111,7 @@ class CameraFrame(PreferencesBaseFrame):
         subframe = ttk.LabelFrame(container, text=_('Color Filter Array'))
         subframe.pack(side=tk.TOP,fill=tk.X, expand=True, padx=10, pady=5)
         self._subframe = subframe
-        self._control['bayer_pattern'] = ttk.Combobox(subframe, state='readonly', textvariable=bayer_pattern, values=self.BAYER_PTN)
+        self._control['bayer_pattern'] = ttk.Combobox(subframe, state='readonly', textvariable=bayer_pattern, values=BAYER_PTN_LIST)
         self._control['bayer_pattern'].grid(row=0, column=0, padx=5, pady=5)
         self._control['bayer_pattern'].bind('<<ComboboxSelected>>', self.onBayerSelected)
 
@@ -146,7 +145,7 @@ class CameraFrame(PreferencesBaseFrame):
     def detailsResp(self, data):
         super().detailsResp(data)
         if data:
-            index = self.BAYER_PTN.index(data['bayer_pattern'])
+            index = BAYER_PTN_LIST.index(data['bayer_pattern'])
             self._control['bayer_pattern'].current(index)
             icon = self._loadIcon(data['bayer_pattern'])
             icon.grid(row=0, column=1, padx=10, pady=10)
