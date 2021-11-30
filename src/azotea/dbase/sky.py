@@ -63,7 +63,7 @@ def slice_func(row):
     return result   
 
 
-CSV_VERSION = 1
+CSV_VERSION = 2
 
 class SkyBrightness:
 
@@ -76,7 +76,7 @@ class SkyBrightness:
     def summaryStatistics(self):
         def _summaryStatistics(txn):
             sql = '''
-                SELECT o.surname, o.family_name, s.display_name, count(*) as cnt, s.published 
+                SELECT o.surname, o.family_name, s.display_name, s.width, s.height, count(*) as cnt, s.published 
                 FROM image_t AS i
                 JOIN observer_t AS o USING(observer_id)
                 JOIN sky_brightness_v AS s USING(image_id)

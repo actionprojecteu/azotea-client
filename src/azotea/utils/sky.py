@@ -131,6 +131,12 @@ AVER_COL_INDEX = (
 OBSERVER_ORGANIZATION = CSV_COLUMNS.index('organization')
 LOCATION = CSV_COLUMNS.index('location')
 
+# -----------------------
+# Module global variables
+# -----------------------
+
+log = Logger(namespace='skybg')
+
 # ------------------------
 # Module Utility Functions
 # ------------------------
@@ -163,14 +169,6 @@ def region_stats(img, cfa, color, rect):
      section = debayered_plane[rect.y1:rect.y2, rect.x1:rect.x2]
      average, variance = round(section.mean(),1), round(section.var(),3)
      return average, variance
-
-def region_stats(img, cfa, color, rect):
-     x, y = CFA_PATTERNS[cfa][color]['x'], CFA_PATTERNS[cfa][color]['y']
-     debayered_plane = img.raw_image[y::2, x::2]
-     #section = debayered_plane[rect.y1:rect.y2, rect.x1:rect.x2]
-     average, variance = round(0,1), round(1,3)
-     return average, variance
-
 
 def processImage(name, directory, rect, cfa_pattern, row):
      # THIS IS HEAVY STUFF TO BE IMPLEMENTED IN A THREAD

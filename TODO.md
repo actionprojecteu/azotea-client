@@ -15,17 +15,10 @@ MIGRACION
 INMEDIATO
 =========
 
-* Modificaciones al modelo de datos:
-  - añadir width and height a sky_brightness_v
-  - CONSULTAR CON JAIME:
-   - quitar columnas *dark* de sky_brightness_t
-   - Documento de CSV de AZOTEA. Revisar y actualizar
-   - Que me pase la base de datos y se la apaño
+* Documento de CSV de AZOTEA. Revisar y actualizar a V2
 
 * azotuool image delete y azotool sky
 - options [--all|--unpublished|--range|--latest-night|--latest-month] y --commit para borrar de verdad
-
-* Herramienta de migracion (migration.py), dentro de azotool pero como un verdadero script aislado con sqlite a pelo
 
 * enviar aggrement al server:
 - URL subpath para el agreement

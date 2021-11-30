@@ -134,28 +134,15 @@ CREATE TABLE IF NOT EXISTS sky_brightness_t
     -- References to dimensions/parent table
     image_id            INTEGER NOT NULL,
     roi_id              INTEGER NOT NULL,
-
-    -- Sky Brighntess Measurements
+    -- Sky Brightness Measurements
     aver_signal_R      REAL,             -- R raw signal mean without dark substraction
-    vari_signal_R      REAL,             -- R raw signal variance without dark substraction
-    aver_dark_R        REAL DEFAULT 0.0, -- R dark level R1 either from master dark or dark_roi
-    vari_dark_R        REAL DEFAULT 0.0, -- R dark variance either from master dark or dark_roi
-
-    aver_signal_G1      REAL,             -- G1 raw signal mean without dark substraction
-    vari_signal_G1      REAL,             -- G1 raw signal variance without dark substraction
-    aver_dark_G1        REAL DEFAULT 0.0, -- G1 dark level either from master dark or dark_roi
-    vari_dark_G1        REAL DEFAULT 0.0, -- G1 dark variance either from master dark or dark_roi
-
-    aver_signal_G2      REAL,             -- G2 raw signal mean without dark substraction
-    vari_signal_G2      REAL,             -- G2 raw signal variance without dark substraction
-    aver_dark_G2        REAL DEFAULT 0.0, -- G2 dark level either from master dark or dark_roi
-    vari_dark_G2        REAL DEFAULT 0.0, -- G2 dark variance either from master dark or dark_roi
-
+    vari_signal_R      REAL,             -- R raw signal variance without dark substraction 
+    aver_signal_G1     REAL,             -- G1 raw signal mean without dark substraction
+    vari_signal_G1     REAL,             -- G1 raw signal variance without dark substraction
+    aver_signal_G2     REAL,             -- G2 raw signal mean without dark substraction
+    vari_signal_G2     REAL,             -- G2 raw signal variance without dark substraction
     aver_signal_B      REAL,             -- B raw signal mean without dark substraction
     vari_signal_B      REAL,             -- B raw signal variance without dark substraction
-    aver_dark_B        REAL DEFAULT 0.0, -- B dark level either master dark or dark_roi
-    vari_dark_B        REAL DEFAULT 0.0, -- B dark variance either master dark or dark_roi
-
     -- Management
     published         INTEGER DEFAULT 0, -- Published in server flag
 
@@ -182,25 +169,17 @@ AS SELECT
     -- Sky Brighntess Measurements
     s.aver_signal_R , 
     s.vari_signal_R, 
-    s.aver_dark_R,  
-    s.vari_dark_R , 
-
     s.aver_signal_G1, 
     s.vari_signal_G1, 
-    s.aver_dark_G1,  
-    s.vari_dark_G1 , 
-
     s.aver_signal_G2, 
     s.vari_signal_G2, 
-    s.aver_dark_G2, 
-    s.vari_dark_G2, 
-
     s.aver_signal_B, 
     s.vari_signal_B, 
-    s.aver_dark_B,  
-    s.vari_dark_B, 
     -- Management
-    s.published
+    s.published,
+    -- Derived fields
+    (r.y2 - r.y1) AS height,
+    (r.x2 - r.x1) AS width
 FROM sky_brightness_t AS s
 JOIN roi_t AS r USING(roi_id);
 
