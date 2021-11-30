@@ -373,7 +373,6 @@ class SkyBrightness:
             c.model, 
             i.iso, 
             s.display_name,
-            NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
             s.vari_signal_R, 
@@ -383,14 +382,6 @@ class SkyBrightness:
             s.vari_signal_G2,
             s.aver_signal_B,  
             s.vari_signal_B,
-            s.aver_dark_R,    
-            s.vari_dark_R,
-            s.aver_dark_G1,   
-            s.vari_dark_G1,
-            s.aver_dark_G2,   
-            s.vari_dark_G2,
-            s.aver_dark_B,    
-            s.vari_dark_B,
             c.bias
             FROM image_t AS i
             JOIN sky_brightness_v AS s USING(image_id)
@@ -424,7 +415,6 @@ class SkyBrightness:
             c.model, 
             i.iso, 
             s.display_name,
-            NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
             s.vari_signal_R, 
@@ -434,14 +424,6 @@ class SkyBrightness:
             s.vari_signal_G2,
             s.aver_signal_B,  
             s.vari_signal_B,
-            s.aver_dark_R,    
-            s.vari_dark_R,
-            s.aver_dark_G1,   
-            s.vari_dark_G1,
-            s.aver_dark_G2,   
-            s.vari_dark_G2,
-            s.aver_dark_B,    
-            s.vari_dark_B,
             c.bias
             FROM image_t AS i
             JOIN sky_brightness_v AS s USING(image_id)
@@ -476,7 +458,6 @@ class SkyBrightness:
             c.model, 
             i.iso, 
             s.display_name,
-            NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
             s.vari_signal_R, 
@@ -486,14 +467,6 @@ class SkyBrightness:
             s.vari_signal_G2,
             s.aver_signal_B,  
             s.vari_signal_B,
-            s.aver_dark_R,    
-            s.vari_dark_R,
-            s.aver_dark_G1,   
-            s.vari_dark_G1,
-            s.aver_dark_G2,   
-            s.vari_dark_G2,
-            s.aver_dark_B,    
-            s.vari_dark_B,
             c.bias
             FROM image_t    AS i
             JOIN date_t     AS d USING(date_id)
@@ -528,7 +501,6 @@ class SkyBrightness:
             c.model, 
             i.iso, 
             s.display_name,
-            NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
             s.vari_signal_R, 
@@ -538,14 +510,6 @@ class SkyBrightness:
             s.vari_signal_G2,
             s.aver_signal_B,  
             s.vari_signal_B,
-            s.aver_dark_R,    
-            s.vari_dark_R,
-            s.aver_dark_G1,   
-            s.vari_dark_G1,
-            s.aver_dark_G2,   
-            s.vari_dark_G2,
-            s.aver_dark_B,    
-            s.vari_dark_B,
             c.bias
             FROM image_t AS i
             JOIN sky_brightness_v  AS s USING(image_id) -- this is a view !
@@ -586,7 +550,6 @@ class SkyBrightness:
             c.model, 
             i.iso, 
             s.display_name,
-            NULL,   -- dark roi 
             i.exptime,
             s.aver_signal_R,  
             s.vari_signal_R, 
@@ -596,14 +559,6 @@ class SkyBrightness:
             s.vari_signal_G2,
             s.aver_signal_B,  
             s.vari_signal_B,
-            s.aver_dark_R,    
-            s.vari_dark_R,
-            s.aver_dark_G1,   
-            s.vari_dark_G1,
-            s.aver_dark_G2,   
-            s.vari_dark_G2,
-            s.aver_dark_B,    
-            s.vari_dark_B,
             c.bias
             FROM image_t AS i
             JOIN date_t  AS d USING(date_id)

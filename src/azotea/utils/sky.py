@@ -77,7 +77,7 @@ CSV_COLUMNS = (
     'csv_version',
     'session', 
     'observer', 
-    'organization', 
+    'affiliation', 
     'location', 
     'type', 
     'tstamp', 
@@ -85,7 +85,6 @@ CSV_COLUMNS = (
     'model', 
     'iso',
     'roi',
-    'dark_roi',
     'exptime',
     'aver_signal_R1',
     'std_signal_R1',
@@ -95,14 +94,6 @@ CSV_COLUMNS = (
     'std_signal_G3',
     'aver_signal_B4',
     'std_signal_B4',
-    'aver_dark_R1',
-    'std_dark_R1',
-    'aver_dark_G2',
-    'std_dark_G2',
-    'aver_dark_G3',
-    'std_dark_G3',
-    'aver_dark_B4',
-    'std_dark_B4',
     'bias',
 )
 
@@ -111,10 +102,6 @@ STDDEV_COL_INDEX = (
     CSV_COLUMNS.index('std_signal_G2'),
     CSV_COLUMNS.index('std_signal_G3'),
     CSV_COLUMNS.index('std_signal_B4'),
-    CSV_COLUMNS.index('std_dark_R1'),
-    CSV_COLUMNS.index('std_dark_G2'),
-    CSV_COLUMNS.index('std_dark_G3'),
-    CSV_COLUMNS.index('std_dark_B4'),
 )
 
 AVER_COL_INDEX = (
@@ -122,13 +109,9 @@ AVER_COL_INDEX = (
     CSV_COLUMNS.index('aver_signal_G2'),
     CSV_COLUMNS.index('aver_signal_G3'),
     CSV_COLUMNS.index('aver_signal_B4'),
-    CSV_COLUMNS.index('aver_dark_R1'),
-    CSV_COLUMNS.index('aver_dark_G2'),
-    CSV_COLUMNS.index('aver_dark_G3'),
-    CSV_COLUMNS.index('aver_dark_B4'),
 )
 
-OBSERVER_ORGANIZATION = CSV_COLUMNS.index('organization')
+OBSERVER_ORGANIZATION = CSV_COLUMNS.index('affiliation')
 LOCATION = CSV_COLUMNS.index('location')
 
 # -----------------------
@@ -178,5 +161,3 @@ def processImage(name, directory, rect, cfa_pattern, row):
         row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(img, cfa_pattern, 'G1', rect)
         row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(img, cfa_pattern, 'G2', rect)
         row['aver_signal_B'] , row['vari_signal_B']  = region_stats(img, cfa_pattern, 'B', rect)
-
-   
