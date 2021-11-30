@@ -1,6 +1,20 @@
 
+MIGRACION
+=========
+
+* Repasar los nombres de los sitios en la lista de usuarios vieja y nueva
+  - ver de donde saca la bd antigua los nombres viejos para actualizarlo ahi tambien
+  - hasta que no se quite el cron antiguo el actualizar la BD antigua a pelo no vale
+* BD nueva
+  - añadir en el cron todos los usuarios que tengan imagenes para que sean reducidas alli
+  - esa sera la BD nueva que tomemos como definitiva para la migracion d everdad
+* En la migración hay que migrar de la BD antigua solo hasta una fecha limite, distinta por observador
+* depurar el programa de Migracion
+
+
 INMEDIATO
 =========
+
 * Modificaciones al modelo de datos:
   - añadir width and height a sky_brightness_v
   - CONSULTAR CON JAIME:
