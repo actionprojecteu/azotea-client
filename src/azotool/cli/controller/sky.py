@@ -72,7 +72,7 @@ class SkyController:
     def onSummaryReq(self, options):
         try:
             result = yield self.sky.summaryStatistics()
-            result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], t[3], t[4], bool(t[6]), t[5]), result))
+            result=list(map(lambda t: (', '.join((t[0],t[1])), t[2], t[3], t[4], bool(t[5]), t[6]), result))
             headers=("Observer", "ROI", "Width", "Height", "Published?", "# Processed images", )
             log.info("\n{t}", t=tabulate.tabulate(result, headers=headers, tablefmt='grid'))
             result = yield self.sky.rangeSummary()
