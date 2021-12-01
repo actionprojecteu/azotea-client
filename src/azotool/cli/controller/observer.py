@@ -56,14 +56,12 @@ class ObserverController:
 
     @inlineCallbacks
     def createReq(self, options):
-        options.affiliation = [] if options.affiliation is None else options.affiliation
-        options.acronym     = [] if options.acronym is None else options.acronym
         try:
             data = {
                 'family_name': ' '.join(options.name),
                 'surname'    : ' '.join(options.surname),
-                'affiliation': ' '.join(options.affiliation),
-                'acronym'    : ' '.join(options.acronym),
+                'affiliation': ' '.join(options.affiliation) if options.affiliation is not None else None,
+                'acronym'    : ' '.join(options.acronym) if options.acronym is not None else None,
             }
             log.info('Versioned insert observer: {data}', data=data)
             if options.fix:
