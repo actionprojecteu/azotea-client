@@ -56,6 +56,8 @@ class ObserverController:
 
     @inlineCallbacks
     def createReq(self, options):
+        options.affiliation = [] if options.affiliation is None else options.affiliation
+        options.acronym     = [] if options.acronym is None else options.acronym
         try:
             data = {
                 'family_name': ' '.join(options.name),

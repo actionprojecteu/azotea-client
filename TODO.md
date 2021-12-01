@@ -15,8 +15,6 @@ MIGRACION
 INMEDIATO
 =========
 
-* Documento de CSV de AZOTEA. Revisar y actualizar a V2
-
 * azotuool image delete y azotool sky
 - options [--all|--unpublished|--range|--latest-night|--latest-month] y --commit para borrar de verdad
 
@@ -36,8 +34,8 @@ INMEDIATO
 - Morales, Angel (Ribarroja)             Imagen de prueba [X]
 - Navarro, Jose Luis (Hontecillas)       Imagen de prueba [X]
 - Otero, Pablo (Madrid)                  Imagen de prueba [X]
-- Jordán, Fernando (Requena)             Imagen de prueba [ ]
-- García, Antonio                        Imagen de prueba [ ]
+- Jordán, Fernando (Requena)             Imagen de prueba [X]
+- García, Antonio                        Imagen de prueba [X]
 
 MEDIO PLAZO
 ===========

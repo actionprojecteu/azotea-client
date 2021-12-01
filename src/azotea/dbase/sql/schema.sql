@@ -182,24 +182,3 @@ AS SELECT
     (r.x2 - r.x1) AS width
 FROM sky_brightness_t AS s
 JOIN roi_t AS r USING(roi_id);
-
-
-
-CREATE TABLE IF NOT EXISTS master_dark_t
-(
-    session             INTEGER,             -- session id
-    aver_R1             REAL    NOT NULL,    -- Red mean dark level
-    vari_R1             REAL    NOT NULL,    -- Red dark vari
-    aver_G1             REAL    NOT NULL,    -- Green 1 mean dark level
-    vari_G1             REAL    NOT NULL,    -- Green 1 dark variance
-    aver_G2             REAL    NOT NULL,    -- Green 2 mean dark level
-    vari_G2             REAL    NOT NULL,    -- Green 2 dark variance
-    aver_B              REAL    NOT NULL,    -- Blue mean dark level
-    vari_B              REAL    NOT NULL,    -- Blue dark variance
-    min_exptime         REAL    NOT NULL,    -- Minimun session exposure time
-    max_exptime         REAL    NOT NULL,    -- Maximun session exposure time
-    roi_id              INTEGER NOT NULL,    -- region of interest
-    N                   INTEGER NOT NULL,    -- number of darks used to average
-    FOREIGN KEY(roi_id) REFERENCES roi_t(roi_id),
-    PRIMARY KEY(session)
-);
