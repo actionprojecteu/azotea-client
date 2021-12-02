@@ -33,17 +33,18 @@ SQL_NEW_TEST = "SELECT COUNT(*) FROM observer_t"
 BUFFER_SIZE = 100
 
 LOCATION_DECODES = {
-    'Madrid'                        : {'site_name': 'Madrid', 'location': 'Madrid'},
+    'Madrid'                        : {'site_name': 'Madrid (por aclarar)', 'location': 'Madrid'},
+    'Barrio de San Juan Bautista, Madrid' : {'site_name': 'Barrio de San Juan Bautista', 'location': 'Madrid'},
     'Riba-roja de Túria (Valencia)' : {'site_name': 'Riba-roja de Túria', 'location': 'Riba-roja de Túria'},
     'Requena (Valencia)'            : {'site_name': 'Requena', 'location': 'Requena'},
     'Villalba'                      : {'site_name': 'Villalba', 'location': 'Villalba'},
-    'Madrid (Sur)'                  : {'site_name': '', 'location': 'Madrid'},
+    'Madrid (Sur)'                  : {'site_name': 'Madrid (Sur)', 'location': 'Madrid'},
     'Fuerteventura'                 : {'site_name': 'Fuerteventura', 'location': 'Fuerteventura'},
     'Motilla del Palancar (Cuenca)' : {'site_name': 'Motilla del Palancar', 'location': 'Motilla del Palancar'},
     'Vitoria'                       : {'site_name': 'Vitoria', 'location': 'Vitoria'},
     'Hontecillas (Cuenca)'          : {'site_name': 'Hontecillas', 'location': 'Hontecillas'},
     'Mollerussa (Lleida)'           : {'site_name': 'Mollerussa', 'location': 'Mollerussa'},
-    'Guadalajara (Centro)'          : {'site_name': 'Guadalajara (Centro)', 'location': 'Guadalajara'},
+    'Barrio del Alamin'             : {'site_name': 'Barrio del Alamin', 'location': 'Guadalajara'},
     'Villaverde del Ducado (Guadalajara)' : {'site_name': 'Villaverde del Ducado', 'location': 'Villaverde del Ducado'},
 }
 
@@ -156,7 +157,7 @@ def savemany_sky(conn, rows):
     cursor = conn.cursor()
     sql = '''
     INSERT INTO sky_brightness_t (
-        camera_id,      --  
+        image_id,      --  
         roi_id,         --  
         aver_signal_R,  -- R raw signal mean without dark substraction
         vari_signal_R , -- R raw signal variance without dark substraction
@@ -169,17 +170,17 @@ def savemany_sky(conn, rows):
         published      -- Published in server flag
     )
     VALUES (
-        camera_id,      --  
-        roi_id,         --  
-        aver_signal_R,  -- R raw signal mean without dark substraction
-        vari_signal_R , -- R raw signal variance without dark substraction
-        aver_signal_G1, -- G1 raw signal mean without dark substraction
-        vari_signal_G1, -- G1 raw signal variance without dark substraction
-        aver_signal_G2, -- G2 raw signal mean without dark substraction
-        vari_signal_G2, -- G2 raw signal variance without dark substraction
-        aver_signal_B , -- B raw signal mean without dark substraction
-        vari_signal_B,  -- B raw signal variance without dark substraction
-        published      -- Published in server flag
+        :image_id,      --  
+        :roi_id,         --  
+        :aver_signal_R,  -- R raw signal mean without dark substraction
+        :vari_signal_R , -- R raw signal variance without dark substraction
+        :aver_signal_G1, -- G1 raw signal mean without dark substraction
+        :vari_signal_G1, -- G1 raw signal variance without dark substraction
+        :aver_signal_G2, -- G2 raw signal mean without dark substraction
+        :vari_signal_G2, -- G2 raw signal variance without dark substraction
+        :aver_signal_B , -- B raw signal mean without dark substraction
+        :vari_signal_B,  -- B raw signal variance without dark substraction
+        :published      -- Published in server flag
     )
     '''
     try:
@@ -208,7 +209,6 @@ def get_location(newcon, row):
     row['location']  = decodes['location']
     cursor = newcon.cursor()
     sql = 'SELECT location_id FROM location_t WHERE site_name = :site_name AND location = :location'
-    log.info(f"ROW = {row}")
     cursor.execute(sql, row)
     result = cursor.fetchone()
     if result is None:
@@ -225,13 +225,13 @@ def get_camera(newcon, row):
     return result[0]
 
 def get_datetime(newcon, row):
-    tstamp = datetime.strptime(row['tstamp'], '%Y-%m-%D')
-    date_id = int(tstamp.strftime(tstamp, '%Y%m%D'))
-    time_id = int(tstamp.strftime(tstamp, '%H%M%S'))
+    tstamp = datetime.datetime.strptime(row['tstamp'], '%Y-%m-%dT%H:%M:%S')
+    date_id = int(tstamp.strftime('%Y%m%d'))
+    time_id = int(tstamp.strftime('%H%M%S'))
     return date_id, time_id
 
 def get_roi(newcon, row):
-    roi = row['display_name']
+    roi = row['roi']    # From old database
     regexp = re.compile(r'\[(\d+):(\d+),(\d+):(\d+)\]')
     matchobj = regexp.search(roi)
     if not matchobj:
@@ -239,17 +239,24 @@ def get_roi(newcon, row):
     x1 = matchobj.group(1); x2 = matchobj.group(2);
     y1 = matchobj.group(3); y2 = matchobj.group(4);
     # Reverser ROY syntax for the new database (NumPy format)
-    roi = f"[{y1}:{y2},{x1},{x2}]"
+    roi = f"[{y1}:{y2},{x1}:{x2}]"
+    row['roi'] = roi # Fix the new roi format
     cursor = newcon.cursor()
-    sql = 'SELECT roi_id FROM roi_t WHERE display_name = :display_name'
+    sql = 'SELECT roi_id FROM roi_t WHERE display_name = :roi'
     cursor.execute(sql, row)
     result = cursor.fetchone()
     if result is None:
-        raise ValueError(f"No roi id for {row['display_name']}")
+        raise ValueError(f"No roi id for {row['roi']}")
     return result[0]
 
-def get_image_id_by_hash(newconn, row):
+def insert_default_roi(newcon):
     cursor = newcon.cursor()
+    sql = 'INSERT OR IGNORE INTO roi_t(x1,y1,x2,y2,display_name,comment) VALUES (0,0,500,400,"[0:400,0:500]","default ROI for all cameras")'
+    cursor.execute(sql)
+    newcon.commit()
+
+def get_image_id_by_hash(newconn, row):
+    cursor = newconn.cursor()
     sql = 'SELECT image_id FROM image_t WHERE hash = :hash'
     cursor.execute(sql, row)
     result = cursor.fetchone()
@@ -268,8 +275,6 @@ def read_old_image(oldconn):
     location,
     -- Camera metadata
     model, focal_length, f_number,
-    -- ROI metadata
-    roi,      -- region of interest: [x1:x2,y1:y2]
      -- Date & time metadata
     tstamp,   -- ISO 8601 timestamp from EXIF
     -- Image metadata
@@ -318,50 +323,53 @@ def createParser():
 def image_loop(oldconn, newconn):
     global save_list
     save_list = list()
-    keys = ('family_name','surname','location_old','model','focal_length', 'f_number', 'display_name','tstamp','name','hash','iso','exptime','imagetype','session')
+    keys = ('family_name','surname','location_old','model','focal_length', 'f_number','tstamp','name','hash','iso','exptime','imagetype','session')
     for i, row in enumerate(read_old_image(oldconn), start=1):
         row = dict(zip(keys,row))
         row['observer_id'] = get_observer(newconn, row)
         row['location_id'] = get_location(newconn, row)
         row['camera_id']   = get_camera(newconn, row)
         row['date_id'], row['time_id'] = get_datetime(newconn, row)
-        row['directory'] = '' # Unfortunately, we have lost this info in the old database
+        row['directory'] = './' # Unfortunately, we have lost this info in the old database
         row['flagged'] = 0
-        row['gain']  = None
+        row['gain']    = None
         save_list.append(row)
         if (i % BUFFER_SIZE) == 0:
             log.info(f"Saving to new database image {i} and {BUFFER_SIZE}  previous")
-            #savemany_images(newconn, save_list)
+            savemany_images(newconn, save_list)
             save_list = list()
     if(len(save_list) > 0):
         log.info(f"Saving to new database remaining images")
-        #savemany_images(newconn, save_list)
+        savemany_images(newconn, save_list)
         save_list = list()
     newconn.commit()
 
 
 def sky_loop(oldconn, newconn):
+    insert_default_roi(newconn)
     global save_list
-    keys = ('hash', 'display_name', 
+    keys = ('hash', 'roi', 
         'aver_signal_R','vari_signal_R',
         'aver_signal_G1', 'vari_signal_G1', 
         'aver_signal_G2', 'vari_signal_G2',
         'aver_signal_B', 'vari_signal_B',
     )
+    log.info(f"Start to migrate sky brightness statistics")
     save_list = list()
     for i, row in enumerate(read_old_sky(oldconn), start=1):
         row = dict(zip(keys,row))
+        log.info(f"ROW {i} = {row}")
         row['image_id']  = get_image_id_by_hash(newconn, row)
         row['roi_id']    = get_roi(newconn, row)
         row['published'] = 0
         save_list.append(row)
         if (i % BUFFER_SIZE) == 0:
             log.info(f"Saving to new database sky brightness {i} and {BUFFER_SIZE} previous")
-            #savemany_sky(newconn, save_list)
+            savemany_sky(newconn, save_list)
             save_list = list()
     if(len(save_list) > 0):
         log.info(f"Saving to new database remaining sky brightness")
-        #savemany_sky(newconn, save_list)
+        savemany_sky(newconn, save_list)
         save_list = list()
     newconn.commit()
 
