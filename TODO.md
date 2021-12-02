@@ -12,6 +12,21 @@ MIGRACION
 * depurar el programa de Migracion
 
 
+```
+.headers on
+.mode csv
+.output directorio_problematico.csv
+SELECT i.name as imagen, 
+s.aver_signal_R  as canal_R1, s.vari_signal_R  as varianza_R1, 
+s.aver_signal_G1 as canal_G2, s.vari_signal_G1 as varianza_G2, 
+s.aver_signal_G2 as canal_G3, s.vari_signal_G2 as varianza_G3, 
+s.aver_signal_B  as canal_B4, s.vari_signal_B  as varianza_B4
+FROM image_t AS i
+JOIN sky_brightness_t AS s USING (image_id) 
+WHERE i.directory = '/Volumes/Samsung_T5/AZOTEA-TSRC-Villaverde/TSRC_2021/2021_01/2021_01_03';
+.quit
+```
+
 INMEDIATO
 =========
 
