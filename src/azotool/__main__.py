@@ -184,8 +184,8 @@ def createParser():
     subparser = parser_misc.add_subparsers(dest='subcommand')
 
     miscopt = subparser.add_parser('optics',  help="Create the 'optics' section in the configuration")
-    miscopt.add_argument('--focal-length',   type=int, required=True, help='Camera focal length in mm.')
-    miscopt.add_argument('--f-number',       type=str, required=True, help="Camera f/ ratio")
+    miscopt.add_argument('--focal-length',   type=float, required=True, help='Camera focal length in mm.')
+    miscopt.add_argument('--f-number',       type=float, required=True, help="Camera f/ ratio")
 
     pubcre = subparser.add_parser('publishing',  help="create the 'publishing' section in the configuration")
     pubcre.add_argument('--username', type=str, required=True, help="Server username")
