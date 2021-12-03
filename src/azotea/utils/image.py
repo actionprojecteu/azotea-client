@@ -66,9 +66,9 @@ def mk_test_img_type(regexp):
     return wrapper
 
 is_flat = mk_test_img_type(re.compile(r'FLAT'))
-is_dark = mk_test_img_type(re.compile(r'DARK'))
+is_dark = mk_test_img_type(re.compile(r'(DARK|OSCURO)'))
 is_bias = mk_test_img_type(re.compile(r'BIAS'))
-is_test = mk_test_img_type(re.compile(r'TEST'))
+is_test = mk_test_img_type(re.compile(r'(TEST|PRUEBA)'))
 
 def classify_image_type(path):
     if is_flat(path):
