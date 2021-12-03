@@ -2,14 +2,15 @@
 MIGRACION
 =========
 
-* Repasar los nombres de los sitios en la lista de usuarios vieja y nueva
-  - ver de donde saca la bd antigua los nombres viejos para actualizarlo ahi tambien
-  - hasta que no se quite el cron antiguo el actualizar la BD antigua a pelo no vale
-* BD nueva
-  - añadir en el cron todos los usuarios que tengan imagenes para que sean reducidas alli
-  - esa sera la BD nueva que tomemos como definitiva para la migracion d everdad
-* En la migración hay que migrar de la BD antigua solo hasta una fecha limite, distinta por observador
-* depurar el programa de Migracion
+* Modificar azotenodo pàra que:
+- publiuqe de la nueva BD
+- quite ese path tan largo y fro
+* proceso.
+  1. tenemos los dos corriendo en paralelo
+  2. Nos llevamos las dos copias a local y corremos el script de migracion
+  3. Subimos la base de datos migrada a  azotea-client
+  4. deshabilitamos el crontab de la antigua
+  5. el cron del zemnodo lo dejamos como está
 
 
 ```
@@ -25,6 +26,24 @@ FROM image_t AS i
 JOIN sky_brightness_t AS s USING (image_id) 
 WHERE i.directory = '/Volumes/Samsung_T5/AZOTEA-TSRC-Villaverde/TSRC_2021/2021_01/2021_01_03';
 .quit
+
+-- Informe sumario de imagenes y fechas por observador
+SELECT o.surname, o.family_name, MIN(d.sql_date), MAX(d.sql_date), count(*) as cnt
+FROM image_t AS i
+JOIN observer_t AS o USING (observer_id) 
+JOIN date_t AS d USING (date_id) 
+JOIN sky_brightness_v AS s USING (image_id)
+GROUP BY o.surname, o.family_name
+ORDER BY cnt DESC;
+
+SELECT o.surname, o.family_name, MIN(d.sql_date || 'T' || t.time), MAX(d.sql_date || 'T' || t.time), count(*) as cnt
+FROM image_t AS i
+JOIN observer_t AS o USING (observer_id) 
+JOIN date_t AS d USING (date_id)
+JOIN time_t AS t USING (time_id) 
+JOIN sky_brightness_v AS s USING (image_id)
+GROUP BY o.surname, o.family_name
+ORDER BY cnt DESC;
 ```
 
 INMEDIATO

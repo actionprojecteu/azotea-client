@@ -55,15 +55,33 @@ class IncorrectTimestampError(ValueError):
 # Module Utility Functions
 # ------------------------
 
-dark_regexp = re.compile(r'DARK')
+def mk_test_img_type(regexp):
+    def wrapper(path):
+        def test(name):
+            matchobj = regexp.search(name.upper())
+            return True if matchobj else False
+        filename = os.path.basename(path)
+        dirname  = os.path.basename(os.path.dirname(path))
+        return test(dirname) or test(filename)
+    return wrapper
 
-def is_dark(path):
-    def dark(name):
-        matchobj = dark_regexp.search(name.upper())
-        return True if matchobj else False
-    filename = os.path.basename(path)
-    dirname  = os.path.basename(os.path.dirname(path))
-    return dark(dirname) or dark(filename)
+is_flat = mk_test_img_type(re.compile(r'FLAT'))
+is_dark = mk_test_img_type(re.compile(r'DARK'))
+is_bias = mk_test_img_type(re.compile(r'BIAS'))
+is_test = mk_test_img_type(re.compile(r'TEST'))
+
+def classify_image_type(path):
+    if is_flat(path):
+        result = 'FLAT'
+    elif is_dark(path):
+        result = 'DARK'
+    elif is_bias(path):
+        result = 'BIAS'
+    elif is_test(path):
+        result = 'TEST'
+    else:
+        result = 'LIGHT';
+    return result
 
 
 def scan_non_empty_dirs(root, depth=None):
