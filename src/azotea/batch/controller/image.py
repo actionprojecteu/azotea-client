@@ -100,7 +100,7 @@ class ImageController:
                 i += j
                 N_Files += M_Files
             if N_Files:
-                log.warn("{i}/{N} images analyzed for registry", i=i, N=N_Files)
+                log.warn("{i}/{N} images analyzed for loading", i=i, N=N_Files)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('quit', exit_code = 1)
@@ -210,14 +210,15 @@ class ImageController:
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         log.warn("Found {n} images matching '{ext}'", n=N_Files, ext=extension)
+        i = 0
         identical = yield self.areSameImages(file_list)
         if identical:
-            return(None)
+            return(i, N_Files)
         bayer = self.bayer_pattern
         if self.header_type == FITS_HEADER_TYPE:
             log.error("Unsupported header type {h} for the time being",h=header_type) 
             return(None)
-        i = 0
+       
         save_list = list()
         for i, filepath in enumerate(file_list, start=1):
             row = {
