@@ -198,13 +198,13 @@ class ImageController:
 
     @inlineCallbacks
     def doRegister(self, directory):
-        log.warn("Scanning directory '{dir}'", dir=os.path.basename(directory))
         extension = '*' + self.extension
         file_list  = glob.glob(os.path.join(directory, extension))
         N0_Files = len(file_list)
         file_list = yield self.newImages(directory, file_list)
         N_Files = len(file_list)
-        log.warn("Found {n} images matching '{ext}', loading {m} images", n=N0_Files, m=N_Files, ext=extension)
+        log.warn("Scanning directory '{dir}'. Found {n} images matching '{ext}', loading {m} images", 
+            dir=os.path.basename(directory), n=N0_Files, m=N_Files, ext=extension)
         save_list = list()
         i = 0
         for i, filepath in enumerate(file_list, start=1):
