@@ -77,6 +77,18 @@ class ImageTable(Table):
         return self._pool.runInteraction(_getByHash, filter_dict)
 
 
+    def imagesInDirectory(self, filter_dict):
+        '''Gets all the metadata needed for sky brightness mmeasurements'''
+        def _imagesInDirectory(txn, filter_dict):
+            sql = '''
+                SELECT name
+                FROM image_t
+                WHERE directory = :directory;
+            '''
+            txn.execute(sql, filter_dict)
+            return txn.fetchall()
+        return self._pool.runInteraction(_imagesInDirectory, filter_dict)
+    
     def getInitialMetadata(self, filter_dict):
         '''Gets all the metadata needed for sky brightness mmeasurements'''
         def _getInitialMetadata(txn, filter_dict):

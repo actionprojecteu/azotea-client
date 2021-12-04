@@ -193,8 +193,14 @@ class SkyBackgroundController:
         result = True
         errors = list()
         log.debug('doCheckDefaults()')
-        default_roi_id, tmp = yield self.roiCtrl.getDefault()
-        if default_roi_id:
+        default_roi_id,      _ = yield self.roiCtrl.getDefault()
+        default_observer_id, _ = yield self.observerCtrl.getDefault()
+        if default_observer_id:
+            self.observer_id = int(default_observer_id)
+        else:
+            self.observer_id = None
+            errors.append( "- No default observer selected.")
+        if default_roi_id: 
             self.roi_id = int(default_roi_id)
         else:
             self.roi_id = None
@@ -271,10 +277,8 @@ class SkyBackgroundController:
     @inlineCallbacks
     def doStatistics(self):
         # Default settings extracted by doCheckDefaults()
-        conditions = {
-            'roi_id'     : self.roi_id,
-        }
-        roi_dict = yield self.roi.loadById({'roi_id': self.roi_id})
+        conditions = {'observer_id' : self.observer_id, 'roi_id': self.roi_id,}
+        roi_dict = yield self.roi.loadById(conditions)
         rect = Rect.from_dict(roi_dict)
         image_id_list = yield self.sky.pending(conditions)
         N_stats = len(image_id_list)

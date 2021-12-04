@@ -101,9 +101,6 @@ class ImageController:
                 N_Files += M_Files
             if N_Files:
                 log.warn("{i}/{N} images analyzed for registry", i=i, N=N_Files)
-            else:
-                extension = '*' + self.extension
-                log.warn("No images found matching {ext}",ext=extension)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('quit', exit_code = 1)
@@ -192,12 +189,30 @@ class ImageController:
 
 
     @inlineCallbacks
+    def areSameImages(self, file_list):
+        result = False
+        if not file_list:
+            return not result
+        directory = os.path.dirname(file_list[0])
+        input_set = set(os.path.basename(f) for f in file_list)
+        db_set = yield self.image.imagesInDirectory({'directory': directory})
+        db_set = set(img[0] for img in db_set)
+        if not (input_set - db_set):
+            log.warn("Images already loaded. Skipping directory")
+            result = True
+        return result
+
+
+    @inlineCallbacks
     def doRegister(self, directory):
         log.warn("Scanning directory '{dir}'", dir=os.path.basename(directory))
         extension = '*' + self.extension
         file_list  = sorted(glob.glob(os.path.join(directory, extension)))
         N_Files = len(file_list)
         log.warn("Found {n} images matching '{ext}'", n=N_Files, ext=extension)
+        identical = yield self.areSameImages(file_list)
+        if identical:
+            return(None)
         bayer = self.bayer_pattern
         if self.header_type == FITS_HEADER_TYPE:
             log.error("Unsupported header type {h} for the time being",h=header_type) 

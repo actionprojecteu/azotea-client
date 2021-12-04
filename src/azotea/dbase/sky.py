@@ -208,6 +208,7 @@ class SkyBrightness:
                 SELECT image_id
                 FROM image_t
                 WHERE flagged = 0
+                AND observer_id = :observer_id
                 EXCEPT 
                 SELECT DISTINCT image_id 
                 FROM sky_brightness_t;
