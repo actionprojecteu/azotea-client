@@ -100,7 +100,7 @@ class ImageController:
                 i += j
                 N_Files += M_Files
             if N_Files:
-                log.warn("{i}/{N} images analyzed for loading", i=i, N=N_Files)
+                log.warn("{i}/{N} images loaded", i=i, N=N_Files)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('quit', exit_code = 1)
