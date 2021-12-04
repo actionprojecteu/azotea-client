@@ -187,43 +187,30 @@ class ImageController:
                         log.error("Discarding new image '{name}'", name=row['name'])
                         log.error("Keeping '{prev}' image instead",name=row['name'], prev=name) 
 
-
     @inlineCallbacks
-    def areSameImages(self, file_list):
-        result = False
-        if not file_list:
-            return not result
-        directory = os.path.dirname(file_list[0])
+    def newImages(self, directory, file_list):
         input_set = set(os.path.basename(f) for f in file_list)
         db_set = yield self.image.imagesInDirectory({'directory': directory})
         db_set = set(img[0] for img in db_set)
-        if not (input_set - db_set):
-            log.warn("Images already loaded. Skipping directory")
-            result = True
-        return result
+        result = sorted(list(input_set - db_set))
+        return list(os.path.join(directory, f) for f in (input_set - db_set))
 
 
     @inlineCallbacks
     def doRegister(self, directory):
         log.warn("Scanning directory '{dir}'", dir=os.path.basename(directory))
         extension = '*' + self.extension
-        file_list  = sorted(glob.glob(os.path.join(directory, extension)))
+        file_list  = glob.glob(os.path.join(directory, extension))
+        N0_Files = len(file_list)
+        file_list = yield self.newImages(directory, file_list)
         N_Files = len(file_list)
-        log.warn("Found {n} images matching '{ext}'", n=N_Files, ext=extension)
-        i = 0
-        identical = yield self.areSameImages(file_list)
-        if identical:
-            return(i, N_Files)
-        bayer = self.bayer_pattern
-        if self.header_type == FITS_HEADER_TYPE:
-            log.error("Unsupported header type {h} for the time being",h=header_type) 
-            return(None)
-       
+        log.warn("Found {n} images matching '{ext}', loading {m} images", n=N0_Files, m=N_Files, ext=extension)
         save_list = list()
+        i = 0
         for i, filepath in enumerate(file_list, start=1):
             row = {
                 'name'        : os.path.basename(filepath), 
-                'directory'   : os.path.dirname(filepath),
+                'directory'   : directory,
                 'imagetype'   : classify_image_type(filepath),
                 'flagged'     : 0, # Assume a good image for the time being
                 'header_type' : self.header_type,
@@ -233,11 +220,7 @@ class ImageController:
                 'def_fn'      : self.default_f_number['f_number'],      # they are here just to fix EXIF optics reading
             }
             log.info("Loading {n} ({i}/{N}) [{p}%]", i=i, N=N_Files, n=row['name'], p=(100*i//N_Files) )
-            result = yield self.image.load(row)
             row['session'] = self.session
-            if result:
-                log.debug('Skipping already registered {row.name}.', row=row)
-                continue
             try:
                 row = yield deferToThread(hash_and_exif_metadata, filepath, row)
             except Exception as e:
