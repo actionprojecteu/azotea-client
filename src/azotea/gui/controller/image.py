@@ -222,27 +222,31 @@ class ImageController:
 
 
     @inlineCallbacks
+    def newImages(self, directory, file_list):
+        input_set = set(os.path.basename(f) for f in file_list)
+        db_set = yield self.image.imagesInDirectory({'directory': directory})
+        db_set = set(img[0] for img in db_set)
+        result = sorted(list(input_set - db_set))
+        return list(os.path.join(directory, f) for f in (input_set - db_set))
+
+    @inlineCallbacks
     def doRegister(self, directory):
-        log.warn("Scanning directory '{dir}'", dir=os.path.basename(directory))
         extension = '*' + self.extension
-        session = self.session
-        file_list  = sorted(glob.glob(os.path.join(directory, extension)))
+        file_list  = glob.glob(os.path.join(directory, extension))
+        N0_Files = len(file_list)
+        file_list = yield self.newImages(directory, file_list)
         N_Files = len(file_list)
-        log.warn("Found {n} images matching '{ext}'", n=N_Files, ext=extension)
-        bayer = self.bayer_pattern
-        i = 0
+        log.warn("Scanning directory '{dir}'. Found {n} images matching '{ext}', loading {m} images", 
+            dir=os.path.basename(directory), n=N0_Files, m=N_Files, ext=extension)
         save_list = list()
-        if self.header_type == FITS_HEADER_TYPE:
-            message = _("Unsupported header type {0} for the time being").format(header_type)
-            self.view.messageBoxError(who=_("Register"),message=message)
-            return(None)
+        i = 0
         self.view.mainArea.clearImageDataView()
         for i, filepath in enumerate(file_list, start=1):
             if self._abort:
                 break
             row = {
                 'name'        : os.path.basename(filepath), 
-                'directory'   : os.path.dirname(filepath),
+                'directory'   : directory,
                 'imagetype'   : classify_image_type(filepath),
                 'flagged'     : 0, # Assume a good image for the time being
                 'header_type' : self.header_type,
@@ -252,7 +256,7 @@ class ImageController:
                 'def_fn'      : self.default_f_number['f_number'],      # they are here just to fix EXIF optics reading
             }
             result = yield self.image.load(row)
-            row['session'] = session
+            row['session'] = self.session
             if result:
                 log.debug('Skipping already registered {row.name}.', row=row)
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
