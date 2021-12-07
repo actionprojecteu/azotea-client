@@ -7,21 +7,6 @@
 # ----------------------------------------------------------------------
 
 '''
-    +---------------------------+------------+------------+-------------------+
-    | Observer                  | From       | To         |   # Loaded images |
-    +===========================+============+============+===================+
-    | Hilera, Ignacio           | 2020-12-01 | 2021-12-01 |             42464 |
-    +---------------------------+------------+------------+-------------------+
-    | Izquierdo, Jaime          | 2020-12-01 | 2021-12-02 |             52393 |
-    +---------------------------+------------+------------+-------------------+
-    | Navarro Munaiz, José Luis | 2020-04-10 | 2021-12-02 |              9633 |
-    +---------------------------+------------+------------+-------------------+
-    | Otero, Pablo              | 2020-12-09 | 2021-12-01 |              1333 |
-    +---------------------------+------------+------------+-------------------+
-    | Rodriguez, Diego          | 2020-02-18 | 2021-11-22 |              1112 |
-    +---------------------------+------------+------------+-------------------+
-    | Zamorano, Jaime           | 2020-10-22 | 2020-12-12 |              4295 |
-    +---------------------------+------------+------------+-------------------+
 
         +---------------------------+------------+------------+-------------------+
         | Observer                  | From       | To         |   # Loaded images |
@@ -73,6 +58,7 @@ BUFFER_SIZE = 100
 LOCATION_DECODES = {
     'Colonia Jardín (Madrid)'       : {'site_name': 'Colonia Jardín', 'location': 'Madrid'},
     'Barrio de San Juan Bautista, Madrid' : {'site_name': 'Barrio de San Juan Bautista', 'location': 'Madrid'},
+    'Barrio de San Juan Bautista' : {'site_name': 'Barrio de San Juan Bautista', 'location': 'Madrid'},
     'Riba-roja de Túria (Valencia)' : {'site_name': 'Riba-roja de Túria', 'location': 'Riba-roja de Túria'},
     'Requena (Valencia)'            : {'site_name': 'Requena', 'location': 'Requena'},
     'Villalba'                      : {'site_name': 'Villalba', 'location': 'Villalba'},
@@ -86,7 +72,6 @@ LOCATION_DECODES = {
     'Villaverde del Ducado (Guadalajara)' : {'site_name': 'Villaverde del Ducado', 'location': 'Villaverde del Ducado'},
 }
 
-2020-02-18T20:28:54|20211204T202032
 
 TIME_RANGES = {
     'Hilera, Ignacio':           {'start_date': '2000-01-01T00:00:00', 'end_date': '2020-12-01T17:30:03'},
