@@ -20,6 +20,14 @@ from twisted.internet import reactor, task
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectionRefusedError
 
+# Support for self-signed certificates
+from twisted.web.client import BrowserLikePolicyForHTTPS, Agent
+from twisted.web.http import HTTPClient # Agnadido por mi
+from twisted.web.iweb import IPolicyForHTTPS # agnadido por mi
+from twisted.internet.ssl import CertificateOptions
+from twisted.internet import ssl
+from zope.interface import implementer
+
 # -------------------
 # Third party imports
 # -------------------
@@ -68,6 +76,26 @@ class PublishingError(Exception):
         return s
 
 
+@implementer(IPolicyForHTTPS)
+class WhitelistContextFactory(object):
+    def __init__(self, good_domains=None):
+        """
+        :param good_domains: List of domains. The URLs must be in bytes
+        """
+        if not good_domains:
+            self.good_domains = []
+        else:
+            self.good_domains = good_domains
+
+        # by default, handle requests like a browser would
+        self.default_policy = BrowserLikePolicyForHTTPS()
+
+    def creatorForNetloc(self, hostname, port):
+        # check if the hostname is in the the whitelist, otherwise return the default policy
+        if hostname in self.good_domains:
+            return ssl.CertificateOptions(verify=False)
+        return self.default_policy.creatorForNetloc(hostname, port)
+
 
 class PublishingController:
     
@@ -80,6 +108,7 @@ class PublishingController:
         self.username = None
         self.password = None
         self.url      = None
+        self.agent    = Agent(reactor, contextFactory=WhitelistContextFactory([b'example.net']))
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onPublishReq, 'publishing_publish_req')
 
@@ -163,7 +192,7 @@ class PublishingController:
             result = yield self.sky.getAll(filter_dict)
             log.info("Publishing Processor: PUBLISH page {page}, limit {limit}, size of result = {size}", page=page, limit=page_size, size=len(result))
             auth = (self.username, self.password)
-            response = yield treq.post(self.url, auth=auth, json=result, timeout=30)
+            response = yield treq.post(self.url, auth=auth, json=result, timeout=30, agent=self.agent)
             log.info("{http} {status}",http=response.version, status=response.phrase)
             if not (200 <= response.code <= 299):
                 failed = True; 
