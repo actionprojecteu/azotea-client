@@ -14,6 +14,7 @@ import sys
 import math
 import time
 import gettext
+from urllib.parse import urlparse
 
 # ---------------
 # Twisted imports
@@ -22,8 +23,8 @@ import gettext
 from twisted.logger   import Logger
 from twisted.internet import  reactor, defer
 from twisted.internet.defer import inlineCallbacks
-
 from twisted.internet.error import ConnectionRefusedError
+from twisted.web.client import Agent # Support for self-signed certificates
 
 # -------------------
 # Third party imports
@@ -37,6 +38,7 @@ from pubsub import pub
 # -------------
 
 from azotea.logger  import setLogLevel
+from azotea.utils.publishing import WhitelistContextFactory # Support for self-signed certificates
 
 # ----------------
 # Module constants
@@ -81,6 +83,7 @@ class PublishingController:
         self.username = None
         self.password = None
         self.url      = None
+        self.agent    = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onDetailsReq, 'publishing_details_req')
         pub.subscribe(self.onSaveReq,    'publishing_save_req')
@@ -179,6 +182,8 @@ class PublishingController:
             self.url       = publishing_opts['url']
             self.delay     = 1/float(publishing_opts['tps'])
             self.page_size = int(publishing_opts['page_size'])
+            domain         = bytes(urlparse(self.url).hostname, 'utf-8')
+            self.agent     = Agent(reactor, contextFactory=WhitelistContextFactory([domain]))
 
 
 

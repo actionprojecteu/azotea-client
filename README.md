@@ -59,13 +59,15 @@ mkdir -p ${AZOTEA_HOME}/images # (2)
 mkdir -p ${AZOTEA_HOME}/log    # (2)
 mkdir -p ${AZOTEA_HOME}/csv    # (2)
 . ${AZOTEA_HOME}/bin/activate  # (3)
-pip install git+https://github.com/actionprojecteu/azotea-client.git@main # (4)
+pip install -U pip             # (4)
+pip install git+https://github.com/actionprojecteu/azotea-client.git@main # (5)
 ```
 
 * (1) creates a Python virtual environment under `${AZOTEA_HOME}`.
 * (2) creates additional subdirectiores under this virtual environment for log files and camera images. Please note that in this example, these directories are placed under `${AZOTEA_HOME}` for convenience, but they can be placed elsewhere.
 * (3) activates the virtual environment (**please note the starting dot**) so that all needed python packages are installed there and not system wide.
-* (4) installs the software from [its GitHub repository](https://github.com/actionprojecteu/azotea-client). We download and install the main branch.
+* (4) updates `pip` (recommended).
+* (5) installs the software from [its GitHub repository](https://github.com/actionprojecteu/azotea-client). We download and install the main branch.
 
 There is an error showing `Building wheel for azotea-client (setup.py) ... error` but it seems ok.
 

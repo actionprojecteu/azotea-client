@@ -10,6 +10,7 @@
 # -------------------
 
 import time
+from urllib.parse import urlparse
 
 # ---------------
 # Twisted imports
@@ -19,14 +20,7 @@ from twisted.logger   import Logger
 from twisted.internet import reactor, task
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.error import ConnectionRefusedError
-
-# Support for self-signed certificates
-from twisted.web.client import BrowserLikePolicyForHTTPS, Agent
-from twisted.web.http import HTTPClient # Agnadido por mi
-from twisted.web.iweb import IPolicyForHTTPS # agnadido por mi
-from twisted.internet.ssl import CertificateOptions
-from twisted.internet import ssl
-from zope.interface import implementer
+from twisted.web.client import Agent # Support for self-signed certificates
 
 # -------------------
 # Third party imports
@@ -40,6 +34,7 @@ from pubsub import pub
 # -------------
 
 from azotea.logger  import setLogLevel
+from azotea.utils.publishing import WhitelistContextFactory # Support for self-signed certificates
 
 # ----------------
 # Module constants
@@ -76,25 +71,6 @@ class PublishingError(Exception):
         return s
 
 
-@implementer(IPolicyForHTTPS)
-class WhitelistContextFactory(object):
-    def __init__(self, good_domains=None):
-        """
-        :param good_domains: List of domains. The URLs must be in bytes
-        """
-        if not good_domains:
-            self.good_domains = []
-        else:
-            self.good_domains = good_domains
-
-        # by default, handle requests like a browser would
-        self.default_policy = BrowserLikePolicyForHTTPS()
-
-    def creatorForNetloc(self, hostname, port):
-        # check if the hostname is in the the whitelist, otherwise return the default policy
-        if hostname in self.good_domains:
-            return ssl.CertificateOptions(verify=False)
-        return self.default_policy.creatorForNetloc(hostname, port)
 
 
 class PublishingController:
@@ -108,7 +84,7 @@ class PublishingController:
         self.username = None
         self.password = None
         self.url      = None
-        self.agent    = Agent(reactor, contextFactory=WhitelistContextFactory([b'example.net']))
+        self.agent    = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.onPublishReq, 'publishing_publish_req')
 
@@ -151,6 +127,8 @@ class PublishingController:
             self.url       = publishing_opts['url']
             self.delay     = 1/float(publishing_opts['tps'])
             self.page_size = int(publishing_opts['page_size'])
+            domain         = bytes(urlparse(self.url).hostname, 'utf-8')
+            self.agent     = Agent(reactor, contextFactory=WhitelistContextFactory([domain]))
 
 
     # Check here credentials and URL

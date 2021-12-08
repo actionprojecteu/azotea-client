@@ -1,75 +1,14 @@
-
-MIGRACION
-=========
-
-* Modificar azotenodo pàra que:
-- publiuqe de la nueva BD
-- quite ese path tan largo y fro
-* proceso.
-  1. tenemos los dos corriendo en paralelo
-  2. Nos llevamos las dos copias a local y corremos el script de migracion
-  3. Subimos la base de datos migrada a  azotea-client
-  4. deshabilitamos el crontab de la antigua
-  5. el cron del zemnodo lo dejamos como está
-
-
-```
-.headers on
-.mode csv
-.output directorio_problematico.csv
-SELECT i.name as imagen, 
-s.aver_signal_R  as canal_R1, s.vari_signal_R  as varianza_R1, 
-s.aver_signal_G1 as canal_G2, s.vari_signal_G1 as varianza_G2, 
-s.aver_signal_G2 as canal_G3, s.vari_signal_G2 as varianza_G3, 
-s.aver_signal_B  as canal_B4, s.vari_signal_B  as varianza_B4
-FROM image_t AS i
-JOIN sky_brightness_t AS s USING (image_id) 
-WHERE i.directory = '/Volumes/Samsung_T5/AZOTEA-TSRC-Villaverde/TSRC_2021/2021_01/2021_01_03';
-.quit
-
--- Informe sumario de imagenes y fechas por observador
-SELECT o.surname, o.family_name, MIN(d.sql_date), MAX(d.sql_date), count(*) as cnt
-FROM image_t AS i
-JOIN observer_t AS o USING (observer_id) 
-JOIN date_t AS d USING (date_id) 
-JOIN sky_brightness_v AS s USING (image_id)
-GROUP BY o.surname, o.family_name
-ORDER BY cnt DESC;
-
-SELECT o.surname, o.family_name, MIN(d.sql_date || 'T' || t.time), MAX(d.sql_date || 'T' || t.time), count(*) as cnt
-FROM image_t AS i
-JOIN observer_t AS o USING (observer_id) 
-JOIN date_t AS d USING (date_id)
-JOIN time_t AS t USING (time_id) 
-JOIN sky_brightness_v AS s USING (image_id)
-GROUP BY o.surname, o.family_name
-ORDER BY cnt DESC;
-```
-
 INMEDIATO
 =========
 
 * azotuool image delete y azotool sky
 - options [--all|--unpublished|--range|--latest-night|--latest-month] y --commit para borrar de verdad
 
-* enviar aggrement al server:
+* enviar agreement al server:
 - URL subpath para el agreement
-- UL subpath para las medidas
+- URL subpath para las medidas
 
-* A migrar:
-- Izquierdo, Jaime                       Imagen de prueba [X]
-- Zamorano, Jaime                        Imagen de prueba [X]
-- Rodriguez, Diego                       Imagen de prueba [X]
-- De Ferra, Enrique                      Imagen de prueba [X]
-- De la Torre, Francisco Javier (Madrid) Imagen de prueba [X]
-- García, Estebam (Motilla)              Imagen de prueba [X]
-- Garrofé, Inma (Mollerussa)             Imagen de prueba [X]
-- Hilera, Ignacio (Vitoria)              Imagen de prueba [X]
-- Morales, Angel (Ribarroja)             Imagen de prueba [X]
-- Navarro, Jose Luis (Hontecillas)       Imagen de prueba [X]
-- Otero, Pablo (Madrid)                  Imagen de prueba [X]
-- Jordán, Fernando (Requena)             Imagen de prueba [X]
-- García, Antonio                        Imagen de prueba [X]
+
 
 MEDIO PLAZO
 ===========
@@ -128,8 +67,43 @@ rgb_base_linear = raw_base.postprocess(output_color=rawpy.ColorSpace.raw, gamma=
                                        user_wb=[1.0, 1.0, 1.0, 1.0], no_auto_bright=True)
 ```
 
-Interesnting links
-==================
+
+
+```sql
+.headers on
+.mode csv
+.output directorio_problematico.csv
+SELECT i.name as imagen, 
+s.aver_signal_R  as canal_R1, s.vari_signal_R  as varianza_R1, 
+s.aver_signal_G1 as canal_G2, s.vari_signal_G1 as varianza_G2, 
+s.aver_signal_G2 as canal_G3, s.vari_signal_G2 as varianza_G3, 
+s.aver_signal_B  as canal_B4, s.vari_signal_B  as varianza_B4
+FROM image_t AS i
+JOIN sky_brightness_t AS s USING (image_id) 
+WHERE i.directory = '/Volumes/Samsung_T5/AZOTEA-TSRC-Villaverde/TSRC_2021/2021_01/2021_01_03';
+.quit
+
+-- Informe sumario de imagenes y fechas por observador
+SELECT o.surname, o.family_name, MIN(d.sql_date), MAX(d.sql_date), count(*) as cnt
+FROM image_t AS i
+JOIN observer_t AS o USING (observer_id) 
+JOIN date_t AS d USING (date_id) 
+JOIN sky_brightness_v AS s USING (image_id)
+GROUP BY o.surname, o.family_name
+ORDER BY cnt DESC;
+
+SELECT o.surname, o.family_name, MIN(d.sql_date || 'T' || t.time), MAX(d.sql_date || 'T' || t.time), count(*) as cnt
+FROM image_t AS i
+JOIN observer_t AS o USING (observer_id) 
+JOIN date_t AS d USING (date_id)
+JOIN time_t AS t USING (time_id) 
+JOIN sky_brightness_v AS s USING (image_id)
+GROUP BY o.surname, o.family_name
+ORDER BY cnt DESC;
+```
+
+Interesting links
+=================
 
 * [TKINTER reference](https://anzeljg.github.io/rin2/book2/2405/docs/tkinter/index.html)
 
