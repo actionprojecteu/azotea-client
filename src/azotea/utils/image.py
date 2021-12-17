@@ -112,6 +112,7 @@ def hash_func(filepath):
 
 
 def exif_metadata(filename, row):
+    desperate_tstamp, _ = os.path.splitext(os.path.basename(filename))
     with open(filename, 'rb') as f:
         exif = exifread.process_file(f, details=False)
     if not exif:
@@ -122,7 +123,7 @@ def exif_metadata(filename, row):
     row['focal_length'] = float(Fraction(str(exif.get('EXIF FocalLength', 0))))
     row['f_number']     = float(Fraction(str(exif.get('EXIF FNumber', 0))))
     row['exptime']      = float(Fraction(str(exif.get('EXIF ExposureTime', 0))))
-    row['date_id'], row['time_id'], row['widget_date'], row['widget_time'] = toDateTime(str(exif.get('Image DateTime', None)))
+    row['date_id'], row['time_id'], row['widget_date'], row['widget_time'] = toDateTime(str(exif.get('Image DateTime', None)), desperate_tstamp)
    
     # Fixes missing Focal Length and F/ ratio
     row['focal_length'] = row['def_fl'] if row['focal_length'] == 0 else row['focal_length']
@@ -133,15 +134,24 @@ def exif_metadata(filename, row):
     return row
 
 
-def toDateTime(tstamp):
+def toDateTime(tstamp, desperate_tstamp):
     tstamp_obj = None
-    for fmt in ['%Y:%m:%d %H:%M:%S',]:
+    for fmt in ('%Y:%m:%d %H:%M:%S',):
         try:
             tstamp_obj = datetime.datetime.strptime(tstamp, fmt)
         except ValueError:
             continue
         else:
             break
+    # Try the desperate measure of using the file name as timestamp
+    if not tstamp_obj:
+        for fmt in ('%Y.%m.%d_%H:%M', '%Y.%m.%d_%H:%M:%S'):
+            try:
+                tstamp_obj = datetime.datetime.strptime(desperate_tstamp, fmt)
+            except ValueError:
+                continue
+            else:
+                break
     if not tstamp_obj:
         raise IncorrectTimestampError(tstamp)
     else:
