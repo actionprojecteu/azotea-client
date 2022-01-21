@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS location_t
 CREATE TABLE IF NOT EXISTS camera_t
 (
     camera_id           INTEGER,
-    model               TEXT,         -- Camera Model (taken from EXIF data)
+    model               TEXT,         -- Camera Model (taken from EXIF data or FITS header)
     bias                INTEGER,      -- default bias, to be replicated in all channels if we cannot read it from EXIF
     extension           TEXT,         -- File extension procuced by a camera (i.e. *.NEF)
     header_type         TEXT,         -- Either 'EXIF' or 'FITS'

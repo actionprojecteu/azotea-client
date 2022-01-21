@@ -32,7 +32,7 @@ from pubsub import pub
 
 from azotea.logger  import setLogLevel
 from azotool.cli   import NAMESPACE, log
-from azotea.utils.camera import image_analyze_exif
+from azotea.utils.camera import image_analyze
 
 
 # ----------------
@@ -84,7 +84,7 @@ class CameraController:
     def createByImage(self, path):
         if not path:
             raise ValueError("--from-image path is missing")
-        info, warning = yield deferToThread(image_analyze_exif, path)
+        info, warning = yield deferToThread(image_analyze, path)
         if not info:
             raise ValueError(warning)
         log.info("Analyzed EXIF from image is {info}", info=info)

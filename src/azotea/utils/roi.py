@@ -9,6 +9,7 @@
 # System wide imports
 # -------------------
 
+import os
 import re
 import gettext
 
@@ -18,6 +19,7 @@ import gettext
 
 import exifread
 import rawpy
+from astropy.io import fits
 
 #--------------
 # local imports
@@ -104,15 +106,16 @@ class Rect:
     def __repr__(self):
         '''string in NumPy section notation'''
         return f"[{self.y1}:{self.y2},{self.x1}:{self.x2}]"
-  
+
+
+
 def reshape_rect(filename, rect):
-    with open(filename, 'rb') as f:
-        exif = exifread.process_file(f, details=False)
-        if not exif:
-            raise ValueError("Could not open EXIF metadata")
-    # Get the real RAW dimensions instead
-    with rawpy.imread(filename) as img:
-        imageHeight, imageWidth = img.raw_image.shape
+    extension = os.path.splitext(filename)[1]
+    if extension.lower() in ('.fit', '.fits', '.fts'):
+        imageHeight, imageWidth, model = raw_dimensions_fits(filename, rect)
+    else:
+        imageHeight, imageWidth, model = raw_dimensions_exif(filename, rect)
+
     imageHeight = imageHeight //2 # From raw dimensions without debayering
     imageWidth =  imageWidth  //2  # to dimensions we actually handle
     width, height = rect.dimensions()
@@ -122,6 +125,22 @@ def reshape_rect(filename, rect):
     rect += Point(x1,y1)  # Shift ROI using this (x1,y1) point
     result = rect.to_dict()
     result['display_name'] = str(rect)
-    result['comment'] = _("ROI for {0}, centered at P={1}, width={2}, height={3}").format(str(exif.get('Image Model')),center,width,height)
+    result['comment'] = _("ROI for {0}, centered at P={1}, width={2}, height={3}").format(model,center,width,height)
     return result
 
+
+def raw_dimensions_fits(filename, rect):
+    with fits.open(filename, memmap=False) as hdu_list:
+        header = hdu_list[0].header
+    return header['NAXIS2'], header['NAXIS1'], header['INSTRUME']
+       
+def raw_dimensions_exif(filename, rect):
+    # This is to properly detect and EXIF image
+    with open(filename, 'rb') as f:
+        exif = exifread.process_file(f, details=False)
+        if not exif:
+            raise ValueError("Could not open EXIF metadata")
+    # Get the real RAW dimensions instead
+    with rawpy.imread(filename) as img:
+        imageHeight, imageWidth = img.raw_image.shape
+    return  imageHeight, imageWidth, str(exif.get('Image Model'))

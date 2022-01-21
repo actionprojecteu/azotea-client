@@ -18,6 +18,7 @@ import os.path
 
 import exifread
 import rawpy
+from astropy.io import fits 
 
 #--------------
 # local imports
@@ -31,6 +32,8 @@ BAYER_LETTER = ['B','G','R','G']
 
 BAYER_PTN_LIST = ('RGGB', 'BGGR', 'GRBG', 'GBRG')
 
+ALLOWED_FITS_WRITTERS =  ('SharpCap', )
+
 # -----------------------
 # Module global variables
 # -----------------------
@@ -42,6 +45,17 @@ BAYER_PTN_LIST = ('RGGB', 'BGGR', 'GRBG', 'GBRG')
 # ----------
 # Exceptions
 # ----------
+
+
+class UnsupportedFITSFormat(ValueError):
+    '''Unsupported FITS Format'''
+    def __str__(self):
+        s = self.__doc__
+        if self.args:
+            s = ' {0}: {1}'.format(s, str(self.args[0]))
+        s = '{0}.'.format(s)
+        return s
+
 
 class UnsupportedCFAError(ValueError):
     '''Unsupported Color Filter Array type'''
@@ -80,6 +94,53 @@ class TooDifferentValuesBiasError(BiasError):
 # Module Utility Functions
 # ------------------------
 
+def image_analyze(filename):
+    extension = os.path.splitext(filename)[1]
+    if extension.lower() in ('.fit', '.fits', '.fts'):
+        return image_analyze_fits(filename)
+    else:
+        return image_analyze_exif(filename)
+
+# -------------
+# FITS analysis
+# -------------
+
+def check_fits_writter(header):
+    # This is heuristic
+    software = header.get('SWCREATE', None)
+    if software not in ALLOWED_FITS_WRITTERS:
+        raise UnsupportedFITSFormat(f"FITS Image was not taken by one of these programs: {ALLOWED_FITS_WRITTERS}")
+    return software
+
+
+def image_analyze_fits(filename):
+    extension = os.path.splitext(filename)[1]
+    warning = False
+    with fits.open(filename, memmap=False) as hdu_list:
+        header        = hdu_list[0].header
+        check_fits_writter(header)
+        width         = header['NAXIS1']
+        length        = header['NAXIS2']
+        # This assumes SharpCap software for the time being
+        model         = header['INSTRUME']
+        bayer_pattern = header['BAYERPAT']
+
+    info = {
+        'model'         : model,
+        'extension'     : extension,
+        'bias'          : 0,
+        'width'         : width,
+        'length'        : length,
+        'header_type'   : 'FITS',
+        'bayer_pattern' : bayer_pattern,
+    }
+    return info, warning
+
+
+# --------------------
+# EXIF header analysis
+# --------------------
+
 def nearest_power_of_two(bias):
     if bias == 0:
         return 0, False
@@ -111,9 +172,9 @@ def analyze_bias(levels):
 
 def image_analyze_exif(filename):
     extension = os.path.splitext(filename)[1]
-    result = None
     with open(filename, 'rb') as f:
         exif = exifread.process_file(f, details=False)
+    # This ensures that non EXIF images are detected and an exeption is raised
     if not exif:
         message = 'Could not open EXIF metadata'
         raise ValueError(message)
