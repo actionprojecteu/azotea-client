@@ -34,7 +34,8 @@ from pubsub import pub
 
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.logger  import setLogLevel
-from azotea.utils.image import classify_image_type, scan_non_empty_dirs, hash_func, exif_metadata, toDateTime, hash_and_exif_metadata
+from azotea.utils.image import classify_image_type, scan_non_empty_dirs, hash_func, exif_metadata, toDateTime
+from azotea.utils.image import hash_and_metadata_exif, hash_and_metadata_fits
 from azotea.batch.controller import NAMESPACE, log
 
 
@@ -206,6 +207,10 @@ class ImageController:
         log.warn("Scanning directory '{dir}'. Found {n} images matching '{ext}', loading {m} images", 
             dir=os.path.basename(directory), n=N0_Files, m=N_Files, ext=extension)
         save_list = list()
+        if self.header_type == FITS_HEADER_TYPE:
+            hash_and_metadata_f = hash_and_metadata_fits
+        else:
+            hash_and_metadata_f = hash_and_metadata_exif
         i = 0
         for i, filepath in enumerate(file_list, start=1):
             row = {
@@ -222,7 +227,7 @@ class ImageController:
             log.info("Loading {n} ({i}/{N}) [{p}%]", i=i, N=N_Files, n=row['name'], p=(100*i//N_Files) )
             row['session'] = self.session
             try:
-                row = yield deferToThread(hash_and_exif_metadata, filepath, row)
+                row = yield deferToThread(hash_and_metadata_f, filepath, row)
             except Exception as e:
                 log.error("Skipping {n} ({i}/{N}) [{p}%] => {e}",
                         e=e, i=i, N=N_Files, n=row['name'], p=(100*i//N_Files))

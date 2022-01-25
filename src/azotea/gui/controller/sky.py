@@ -286,7 +286,7 @@ class SkyBackgroundController:
         for i, (image_id,) in enumerate(image_id_list, start=1):
             if self._abort:
                 break
-            name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
+            name, directory, header_type, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
             w_date, w_time = widget_datetime(date_id, time_id) 
             row = {
                 'image_id'   : image_id,
@@ -296,7 +296,7 @@ class SkyBackgroundController:
                 'exptime'    : exptime, # for display purposes only
             }
             try:
-                yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
+                yield deferToThread(processImage, name, directory, rect, header_type, cfa_pattern, row)
             except RAWPY_EXCEPTIONS as e:
                 log.error("Corrupt  {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
                 yield self.image.flagAsBad(row)

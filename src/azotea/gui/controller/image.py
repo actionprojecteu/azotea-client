@@ -42,7 +42,8 @@ import rawpy
 
 from azotea import __version__
 from azotea.utils.roi import Point, Rect
-from azotea.utils.image import classify_image_type, scan_non_empty_dirs, hash_func, exif_metadata, toDateTime, hash_and_exif_metadata
+from azotea.utils.image import classify_image_type, scan_non_empty_dirs, hash_func, exif_metadata, toDateTime
+from azotea.utils.image import hash_and_metadata_exif, hash_and_metadata_fits
 from azotea.logger  import startLogging, setLogLevel
 
 from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
@@ -239,6 +240,10 @@ class ImageController:
         log.warn("Scanning directory '{dir}'. Found {n} images matching '{ext}', loading {m} images", 
             dir=os.path.basename(directory), n=N0_Files, m=N_Files, ext=extension)
         save_list = list()
+        if self.header_type == FITS_HEADER_TYPE:
+            hash_and_metadata_f = hash_and_metadata_fits
+        else:
+            hash_and_metadata_f = hash_and_metadata_exif
         i = 0
         self.view.mainArea.clearImageDataView()
         for i, filepath in enumerate(file_list, start=1):
@@ -262,7 +267,7 @@ class ImageController:
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files))
                 continue
             try:
-                row = yield deferToThread(hash_and_exif_metadata, filepath, row)
+                row = yield deferToThread(hash_and_metadata_f, filepath, row)
             except Exception as e:
                 message = _("{0}: Error in fingerprint computation or EXIF metadata reading").format(row['name'])
                 self.view.statusBar.update( _("LOADING"), row['name'], (100*i//N_Files), error=True)

@@ -93,7 +93,7 @@ class ImageTable(Table):
         '''Gets all the metadata needed for sky brightness mmeasurements'''
         def _getInitialMetadata(txn, filter_dict):
             sql = '''
-                SELECT i.name, i.directory, i.exptime, c.bayer_pattern, i.camera_id,  i.date_id, i.time_id, i.observer_id, i.location_id
+                SELECT i.name, i.directory, c.header_type, i.exptime, c.bayer_pattern, i.camera_id,  i.date_id, i.time_id, i.observer_id, i.location_id
                 FROM image_t AS i
                 JOIN camera_t AS c USING (camera_id)
                 WHERE i.image_id = :image_id;

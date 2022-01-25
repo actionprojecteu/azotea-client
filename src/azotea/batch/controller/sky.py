@@ -137,7 +137,7 @@ class SkyBackgroundController:
         save_list = list()
         log.warn("Processing sky background in {N} images", N=N_stats)
         for i, (image_id,) in enumerate(image_id_list, start=1):
-            name, directory, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
+            name, directory, header_type, exptime, cfa_pattern, camera_id, date_id, time_id, observer_id, location_id = yield self.image.getInitialMetadata({'image_id':image_id})
             row = {
                 'roi_id'     : self.roi_id,
                 'image_id'   : image_id,
@@ -148,7 +148,7 @@ class SkyBackgroundController:
             else:
                 log.info("Sky bg in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
             try:
-                yield deferToThread(processImage, name, directory, rect, cfa_pattern, row)
+                yield deferToThread(processImage, name, directory, rect, header_type, cfa_pattern, row)
             except RAWPY_EXCEPTIONS as e:
                 log.error("Corrupt  {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
                 yield self.image.flagAsBad(row)

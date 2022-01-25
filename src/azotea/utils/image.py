@@ -20,10 +20,13 @@ from fractions import Fraction
 # ---------------------
 
 import exifread
+from astropy.io import fits
 
 #--------------
 # local imports
 # -------------
+
+from azotea.utils.fits import check_fits_writter, check_fits_file, check_fits_gain
 
 # ----------------
 # Module constants
@@ -112,7 +115,6 @@ def hash_func(filepath):
 
 
 def exif_metadata(filename, row):
-    desperate_tstamp, _ = os.path.splitext(os.path.basename(filename))
     with open(filename, 'rb') as f:
         exif = exifread.process_file(f, details=False)
     if not exif:
@@ -123,7 +125,7 @@ def exif_metadata(filename, row):
     row['focal_length'] = float(Fraction(str(exif.get('EXIF FocalLength', 0))))
     row['f_number']     = float(Fraction(str(exif.get('EXIF FNumber', 0))))
     row['exptime']      = float(Fraction(str(exif.get('EXIF ExposureTime', 0))))
-    row['date_id'], row['time_id'], row['widget_date'], row['widget_time'] = toDateTime(str(exif.get('Image DateTime', None)), desperate_tstamp)
+    row['date_id'], row['time_id'], row['widget_date'], row['widget_time'] = toDateTime(str(exif.get('Image DateTime', None)))
    
     # Fixes missing Focal Length and F/ ratio
     row['focal_length'] = row['def_fl'] if row['focal_length'] == 0 else row['focal_length']
@@ -133,25 +135,39 @@ def exif_metadata(filename, row):
     row['gain'] = None
     return row
 
+def fits_metadata(filename, row):
+    with fits.open(filename, memmap=False) as hdu_list:
+        header        = hdu_list[0].header
+        check_fits_writter(header)
+        # This assumes SharpCap software for the time being
+        row['model']   = header['INSTRUME']
+        row['iso']     = None  # Fixed value for AstroCameras (they do not define the ISO concept)
+        row['exptime'] = header['EXPTIME']
+        date_obs       = header['DATE-OBS']
+        row['date_id'], row['time_id'], row['widget_date'], row['widget_time'] = toDateTime(date_obs)
+        # For astro cameras this probably is not in the FITS header so we use the default values
+        row['f_number']     = row['def_fn']
+        row['focal_length'] = row['def_fl']
+        row['gain']  = check_fits_gain(filename)
+    return row
+        
 
-def toDateTime(tstamp, desperate_tstamp):
+def toDateTime(tstamp):
     tstamp_obj = None
-    for fmt in ('%Y:%m:%d %H:%M:%S',):
+
+    # This hack is for SharpCap FITS capture software, which includes
+    # seven decimals in factions of seconds, which is not supported in
+    # Python strptime %f format, reading up to 6 decimals
+    if len(tstamp) == 27:
+        tstamp = tstamp[:-1]
+
+    for fmt in ('%Y:%m:%d %H:%M:%S','%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S'):
         try:
             tstamp_obj = datetime.datetime.strptime(tstamp, fmt)
-        except ValueError:
+        except ValueError as e:
             continue
         else:
             break
-    # Try the desperate measure of using the file name as timestamp
-    if not tstamp_obj:
-        for fmt in ('%Y.%m.%d_%H:%M', '%Y.%m.%d_%H:%M:%S'):
-            try:
-                tstamp_obj = datetime.datetime.strptime(desperate_tstamp, fmt)
-            except ValueError:
-                continue
-            else:
-                break
     if not tstamp_obj:
         raise IncorrectTimestampError(tstamp)
     else:
@@ -162,7 +178,14 @@ def toDateTime(tstamp, desperate_tstamp):
         return date_id, time_id, widged_date, widget_time
 
 
-def hash_and_exif_metadata(filepath, row):
+def hash_and_metadata_fits(filepath, row):
+    row['hash'] = hash_func(filepath)
+    row = fits_metadata(filepath, row)
+    return row
+
+
+def hash_and_metadata_exif(filepath, row):
     row['hash'] = hash_func(filepath)
     row = exif_metadata(filepath, row)
-    return row 
+    return row
+

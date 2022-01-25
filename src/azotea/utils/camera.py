@@ -24,6 +24,8 @@ from astropy.io import fits
 # local imports
 # -------------
 
+from azotea.utils.fits import check_fits_writter, check_fits_file
+
 # ----------------
 # Module constants
 # ----------------
@@ -31,8 +33,6 @@ from astropy.io import fits
 BAYER_LETTER = ['B','G','R','G']
 
 BAYER_PTN_LIST = ('RGGB', 'BGGR', 'GRBG', 'GBRG')
-
-ALLOWED_FITS_WRITTERS =  ('SharpCap', )
 
 # -----------------------
 # Module global variables
@@ -45,16 +45,6 @@ ALLOWED_FITS_WRITTERS =  ('SharpCap', )
 # ----------
 # Exceptions
 # ----------
-
-
-class UnsupportedFITSFormat(ValueError):
-    '''Unsupported FITS Format'''
-    def __str__(self):
-        s = self.__doc__
-        if self.args:
-            s = ' {0}: {1}'.format(s, str(self.args[0]))
-        s = '{0}.'.format(s)
-        return s
 
 
 class UnsupportedCFAError(ValueError):
@@ -96,7 +86,7 @@ class TooDifferentValuesBiasError(BiasError):
 
 def image_analyze(filename):
     extension = os.path.splitext(filename)[1]
-    if extension.lower() in ('.fit', '.fits', '.fts'):
+    if check_fits_file(extension):
         return image_analyze_fits(filename)
     else:
         return image_analyze_exif(filename)
@@ -104,14 +94,6 @@ def image_analyze(filename):
 # -------------
 # FITS analysis
 # -------------
-
-def check_fits_writter(header):
-    # This is heuristic
-    software = header.get('SWCREATE', None)
-    if software not in ALLOWED_FITS_WRITTERS:
-        raise UnsupportedFITSFormat(f"FITS Image was not taken by one of these programs: {ALLOWED_FITS_WRITTERS}")
-    return software
-
 
 def image_analyze_fits(filename):
     extension = os.path.splitext(filename)[1]

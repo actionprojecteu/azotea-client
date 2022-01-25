@@ -25,6 +25,9 @@ from astropy.io import fits
 # local imports
 # -------------
 
+from azotea.utils.fits import check_fits_writter, check_fits_file
+
+
 # Support for internationalization
 _ = gettext.gettext
 
@@ -111,7 +114,7 @@ class Rect:
 
 def reshape_rect(filename, rect):
     extension = os.path.splitext(filename)[1]
-    if extension.lower() in ('.fit', '.fits', '.fts'):
+    if check_fits_file(extension):
         imageHeight, imageWidth, model = raw_dimensions_fits(filename, rect)
     else:
         imageHeight, imageWidth, model = raw_dimensions_exif(filename, rect)
@@ -132,6 +135,7 @@ def reshape_rect(filename, rect):
 def raw_dimensions_fits(filename, rect):
     with fits.open(filename, memmap=False) as hdu_list:
         header = hdu_list[0].header
+        check_fits_writter(header)
     return header['NAXIS2'], header['NAXIS1'], header['INSTRUME']
        
 def raw_dimensions_exif(filename, rect):
