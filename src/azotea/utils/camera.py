@@ -106,6 +106,9 @@ def image_analyze_fits(filename):
         # This assumes SharpCap software for the time being
         model         = header['INSTRUME']
         bayer_pattern = header['BAYERPAT']
+        # Bayer pattern in FITS files seems to be bottom up
+        # but we use top-bottom, so we need two swap both halves
+        bayer_pattern = bayer_pattern[2:4] + bayer_pattern[0:2]
 
     info = {
         'model'         : model,
