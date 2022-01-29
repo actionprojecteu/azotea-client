@@ -115,7 +115,7 @@ def fits_switcher(filepath, swcreator, swcomment, options):
         filepath      = filepath,
         swcreator     = swcreator, 
         swcomment     = swcomment,
-        model         = options.model,
+        model         = ' '.join (options.model) if options.model else None,
         image_type    = options.image_type,
         bayer_pattern = options.bayer_pattern,
         gain          = options.gain,
