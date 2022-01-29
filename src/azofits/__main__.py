@@ -117,11 +117,12 @@ def fits_switcher(filepath, swcreator, swcomment, options):
         swcreator     = swcreator, 
         swcomment     = swcomment,
         model         = ' '.join (options.model) if options.model else None,
-        image_type    = options.image_type,
         bayer_pattern = options.bayer_pattern,
         gain          = options.gain,
         x_pixsize     = options.x_pixsize,
         y_pixsize     = options.y_pixsize,
+        diameter      = options.diameter,
+        focal_length  = options.focal_length,
     )
 
 def process_fits_files(directories, options):
@@ -144,7 +145,6 @@ def process_fits_files(directories, options):
                         continue    # Already been processed
                     log.info(f"Processing '{basename}' [{i}/{N}].")
                     swcreator = header.get('SWCREATE')
-                    swcomment = header.comments['SWCREATE']
                     if swcreator is None and options.swcreator is None:
                         raise UnknownSoftwareCreatorError("Missing --swcreator option?")
                     elif swcreator is None and options.swcreator is not None:
@@ -152,6 +152,7 @@ def process_fits_files(directories, options):
                         hdul.close()
                         fits_switcher(filepath, swcreator, swcomment, options)
                     elif swcreator is not None and options.swcreator is None:
+                        swcomment = header.comments['SWCREATE']
                         hdul.close()
                         fits_switcher(filepath, swcreator, swcomment, options)
                     else:
@@ -192,8 +193,11 @@ def createParser():
     parser.add_argument('--gain',      type=float, default=None, help="CMOS detector GAIN settings")
     parser.add_argument('--model',     type=str, nargs='+', default=None, help="Camera model")
     parser.add_argument('--x-pixsize', type=float, default=None, help="Pixel width in um.")
-    parser.add_argument('--y-pixsize', type=float,default=None, help="Pixel height in um.")
-    parser.add_argument('--image-type', choices=IMAGE_TYPES,  default=None, help='Image type')
+    parser.add_argument('--y-pixsize', type=float, default=None, help="Pixel height in um.")
+    #parser.add_argument('--image-type', choices=IMAGE_TYPES,  default=None, help='Image type')
+    parser.add_argument('--diameter', type=float,  default=None, help='Optics diameter in mm')
+    parser.add_argument('--focal-length', type=float,  default=None, help='Focal length in mm')
+
    
     return parser
 

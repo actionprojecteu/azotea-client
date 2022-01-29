@@ -32,16 +32,20 @@ GAIN_REGEXP = re.compile(r'Gain=(\d+)')
 
 log = logging.getLogger("azofits")
 
-# Ex ception
+# ----------
+# Exceptions
+# ----------
 
-class MissingGainError(Exception):
-    '''SharpCap din not provide any gain value in metadata'''
+class FITSBaseError(Exception):
     def __str__(self):
         s = self.__doc__
         if self.args:
             s = ' {0}: {1}'.format(s, str(self.args[0]))
         s = '{0}.'.format(s)
         return s
+
+class MissingGainError(FITSBaseError):
+    '''SharpCap did not provide any gain value in metadata'''
 
 # -------------------------
 # Module auxiliar functions
@@ -65,7 +69,7 @@ def _fits_read_gain(filepath):
 # Module main function
 # --------------------
 
-def fits_edit(filepath, swcreator, swcomment, model, image_type, bayer_pattern, gain, x_pixsize, y_pixsize):
+def fits_edit(filepath, swcreator, swcomment, model, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize):
     basename = os.path.basename(filepath)
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     if gain is None:
@@ -115,11 +119,39 @@ def fits_edit(filepath, swcreator, swcomment, model, image_type, bayer_pattern, 
                 header['HISTORY'] = f'Forced BAYERPAT & COLORTYP from {old_bayer_pattern} to {bayer_pattern}'
         
         # Handling of LOG-GAIN
-        old_gain = header.get('LOG-GAIN')
-        if old_gain is None: 
+        old_value = header.get('LOG-GAIN')
+        if old_value is None: 
             header['LOG-GAIN'] = gain
             header.comments['LOG-GAIN'] = 'Logarithmic gain in 0.1 dB units'
-            header['HISTORY'] = 'Added LOG-GAIN'
+            header['HISTORY'] = f'Added/Changed FOCALLEN from {old_value} to {gain}'
+
+        # Handle APTDIA        
+        old_value = header.get('APTDIA')
+        if  diameter is not None and old_value != diameter:
+            header['APTDIA'] = diameter
+            header['HISTORY'] = f'Added/Changed APTDIA from {old_value} to {diameter}'
+            header.comments['APTDIA'] = "[mm]"
+
+        # Handle FOCALLEN        
+        old_value = header.get('FOCALLEN')
+        if  focal_length is not None and old_value != focal_length:
+            header['FOCALLEN'] = focal_length
+            header['HISTORY'] = f'Added/Changed FOCALLEN from {old_value} to {focal_length}'
+            header.comments['FOCALLEN'] = "[mm]"
+
+        # Handle XPIXSZ (value already in FITS header)     
+        old_value = header.get('XPIXSZ')
+        if x_pixsize is not None and old_value != x_pixsize:
+            header['XPIXSZ'] = x_pixsize
+            header['HISTORY'] = f'Added/Changed XPIXSZ from {old_value} to {focal_length}'
+            header.comments['XPIXSZ'] = "[um]"
+
+        # Handle YPIXSZ  (value already in FITS header)       
+        old_value = header.get('YPIXSZ')
+        if y_pixsize is not None and old_value != y_pixsize:
+            header['YPIXSZ'] = y_pixsize
+            header['HISTORY'] = f'Added/Changed YPIXSZ from {old_value} to {focal_length}'
+            header.comments['YPIXSZ'] = "[um]"
 
         # Handling of SWMODIFY
         swmodify = header.get('SWMODIFY')
