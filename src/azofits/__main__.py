@@ -116,7 +116,8 @@ def fits_switcher(filepath, swcreator, swcomment, options):
         filepath      = filepath,
         swcreator     = swcreator, 
         swcomment     = swcomment,
-        model         = ' '.join (options.model) if options.model else None,
+        camera        = ' '.join (options.camera) if options.camera else None,
+        bias          = options.bias,
         bayer_pattern = options.bayer_pattern,
         gain          = options.gain,
         x_pixsize     = options.x_pixsize,
@@ -134,16 +135,24 @@ def process_fits_files(directories, options):
         N = len(paths_set)
         if N:
             log.warning(f"Scanning directory '{directory}'. Found {N} FITS images matching '{EXTENSIONS}'")
-        for i, filepath in enumerate(sorted(paths_set), 1):
+        for i, filepath in enumerate(sorted(paths_set), start=1):
             try:
                 basename = os.path.basename(filepath)
                 with fits.open(filepath) as hdul:
                     header = hdul[0].header
                     swmodify = header.get('SWMODIFY')
                     if swmodify == 'azofits':
-                        log.info(f"Skipping already processed '{basename}' [{i}/{N}].")
+                        if options.quiet:
+                            if (i % 50 == 0):
+                                log.warning(f"Skipping edited '{basename}' [{i}/{N}] ({100*i//N}%).")
+                        else:
+                            log.info(f"Skipping edited '{basename}' [{i}/{N}] ({100*i//N}%).")
                         continue    # Already been processed
-                    log.info(f"Processing '{basename}' [{i}/{N}].")
+                    if options.quiet:
+                        if (i % 50 == 0):
+                            log.warning(f"Editing '{basename}' [{i}/{N}] ({100*i//N}%).")
+                    else:
+                        log.info(f"Editing '{basename}' [{i}/{N}] ({100*i//N}%).")
                     swcreator = header.get('SWCREATE')
                     if swcreator is None and options.swcreator is None:
                         raise UnknownSoftwareCreatorError("Missing --swcreator option?")
@@ -157,7 +166,7 @@ def process_fits_files(directories, options):
                         fits_switcher(filepath, swcreator, swcomment, options)
                     else:
                         if swcreator != options.swcreator:
-                            log.error(f"Skipping image '{basename}': Existing FITS SWCREATE value ({swcreator}) does not match --swcreate option ({options.swcreator})")
+                            log.warning(f"Not editing '{basename}': Existing FITS SWCREATE value ({swcreator}) does not match --swcreate option ({options.swcreator})")
                             continue
             except (FileNotFoundError, MissingGainError) as e:
                 log.critical("[%s] Fatal error => %s", __name__, str(e) )
@@ -189,9 +198,10 @@ def createParser():
 
     # FITS specific editing info    
     parser.add_argument('--swcreator', choices=SW_CREATORS.keys(), default=None, action='store', help='Name of software that created the FITS files')
+    parser.add_argument('--camera',     type=str, nargs='+', default=None, help="Camera model")
     parser.add_argument('--bayer-pattern', choices=BAYER_PTN_LIST, default=None, help='Bayer pattern layout')
     parser.add_argument('--gain',      type=float, default=None, help="CMOS detector GAIN settings")
-    parser.add_argument('--model',     type=str, nargs='+', default=None, help="Camera model")
+    parser.add_argument('--bias',      type=int,   default=0,    help="Global Bias for every image")
     parser.add_argument('--x-pixsize', type=float, default=None, help="Pixel width in um.")
     parser.add_argument('--y-pixsize', type=float, default=None, help="Pixel height in um.")
     #parser.add_argument('--image-type', choices=IMAGE_TYPES,  default=None, help='Image type')

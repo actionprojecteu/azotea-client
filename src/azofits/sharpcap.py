@@ -69,7 +69,7 @@ def _fits_read_gain(filepath):
 # Module main function
 # --------------------
 
-def fits_edit(filepath, swcreator, swcomment, model, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize):
+def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize):
     basename = os.path.basename(filepath)
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     if gain is None:
@@ -118,6 +118,13 @@ def fits_edit(filepath, swcreator, swcomment, model, bayer_pattern, gain, diamet
                 header.comments['COLORTYP'] = "Top down convention. (0,0) is upper left"
                 header['HISTORY'] = f'Forced BAYERPAT & COLORTYP from {old_bayer_pattern} to {bayer_pattern}'
         
+        # Handle PEDESTAL        
+        old_value = header.get('PEDESTAL')
+        if  bias is not None and old_value != bias:
+            header['PEDESTAL'] = bias
+            header.comments['PEDESTAL'] = "Substract this value to get zero-based ADUs"
+            header['HISTORY'] = f'Added/Changed PEDESTAL from {old_value} to {bias}'      
+
         # Handling of LOG-GAIN
         old_value = header.get('LOG-GAIN')
         if old_value is None: 

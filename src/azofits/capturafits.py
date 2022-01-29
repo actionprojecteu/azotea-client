@@ -39,7 +39,7 @@ class MissingGainError(FITSBaseError):
     '''missing --gain option in command line'''
 
 class MissingModelError(FITSBaseError):
-    '''missing --model option in command line'''
+    '''missing --camera option in command line'''
 
 class MissingBayerError(FITSBaseError):
     '''missing --bayer-pattern option in command line'''
@@ -56,7 +56,7 @@ class MissingExptimeObsError(FITSBaseError):
 
 log = logging.getLogger("azofits")
 
-def fits_edit(filepath, swcreator, swcomment, model, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize):
+def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize):
     basename = os.path.basename(filepath)
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     # Find the observation date from the file name !
@@ -71,7 +71,7 @@ def fits_edit(filepath, swcreator, swcomment, model, bayer_pattern, gain, diamet
         exptime  = None
     if gain is None:
         raise MissingGainError(filepath)
-    if model is None:
+    if camera is None:
         raise MissingModelError(filepath)
     if bayer_pattern is None:
         raise MissingBayerError(filepath)
@@ -82,10 +82,10 @@ def fits_edit(filepath, swcreator, swcomment, model, bayer_pattern, gain, diamet
         
         # Handle INSTRUME pattern        
         old_value = header.get('INSTRUME')
-        if model is not None and old_value != model:
-            header['INSTRUME'] = model
+        if camera is not None and old_value != camera:
+            header['INSTRUME'] = camera
             header.comments['INSTRUME'] = "Camera model"
-            header['HISTORY'] = f'Added/Changed INSTRUME from {old_value} to {model}'
+            header['HISTORY'] = f'Added/Changed INSTRUME from {old_value} to {camera}'
        
         # Handling missing DATE-OBS
         old_value = header.get('DATE-OBS')
@@ -105,6 +105,13 @@ def fits_edit(filepath, swcreator, swcomment, model, bayer_pattern, gain, diamet
             header['HISTORY'] = f'Added/Changed EXPTIME from {old_value} to {exptime}'
             header['HISTORY'] = f"Guessed DATE-OBS/EXPTIME from file name '{iso_basename}'"
 
+        # Handle PEDESTAL        
+        old_value = header.get('PEDESTAL')
+        if  bias is not None and old_value != bias:
+            header['PEDESTAL'] = bias
+            header.comments['PEDESTAL'] = "Substract this value to get zero-based ADUs"
+            header['HISTORY']  = f'Added/Changed PEDESTAL from {old_value} to {bias}'
+           
         # Handle BAYERPAT        
         old_value = header.get('BAYERPAT')
         if  gain is not None and  old_value != bayer_pattern:
@@ -151,7 +158,7 @@ def fits_edit(filepath, swcreator, swcomment, model, bayer_pattern, gain, diamet
         old_value = header.get('SWCREATE')
         if old_value != swcreator:
             header['SWCREATE'] = swcreator
-            header.comments['SWCREATE'] = 'Updated on ' + now
+            header.comments['SWCREATE'] = swcomment
             header['HISTORY'] = f'Added/Changed SWCREATE from {old_value} to {swcreator}'
 
         # Handling of SWMODIFY
