@@ -84,7 +84,7 @@ def fits_edit(filepath, swcreator, swcomment, model, image_type, bayer_pattern, 
         if bayoffy is not None:
             header['YBAYROFF'] = bayoffy
             del header['BAYOFFY']
-            header['HISTORY'] = 'Substituted keyword BAYOFFX -> XBAYROFF'
+            header['HISTORY'] = 'Substituted keyword BAYOFFY -> YBAYROFF'
        
         # Handling of excessive seconds decimals in DATE-OBS
         tstamp = header['DATE-OBS']
