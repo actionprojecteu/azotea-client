@@ -146,9 +146,12 @@ def fits_metadata(filepath, row):
         row['exptime'] = header['EXPTIME']
         date_obs       = header['DATE-OBS']
         row['date_id'], row['time_id'], row['widget_date'], row['widget_time'] = toDateTime(date_obs)
-        # For astro cameras this probably is not in the FITS header so we use the default values
-        row['f_number']     = row['def_fn']
-        row['focal_length'] = row['def_fl']
+        # For astro cameras this probably is not in the FITS header 
+        # so we use the default values
+        focal_length = header.get('FOCALLEN')
+        diameter     = header.get('APTDIA')
+        row['focal_length'] = row['def_fl'] if focal_length is None else focal_length
+        row['f_number']     = row['def_fn'] if focal_length is None and diameter is None else round(focal_length/diameter,1)
     return row
         
 
