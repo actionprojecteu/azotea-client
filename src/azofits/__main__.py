@@ -53,6 +53,7 @@ log = logging.getLogger("azofits")
 # ----------
 # Exceptions
 # ----------
+from azofits.sharpcap import MissingGainError
 
 class UnknownSoftwareCreatorError(Exception):
     '''Unknown FITS software creator'''
@@ -157,6 +158,10 @@ def process_fits_files(directories, options):
                         if swcreator != options.swcreator:
                             log.error(f"Skipping image '{basename}': Existing FITS SWCREATE value ({swcreator}) does not match --swcreate option ({options.swcreator})")
                             continue
+            except (FileNotFoundError, MissingGainError) as e:
+                log.critical("[%s] Fatal error => %s", __name__, str(e) )
+                continue
+
             except Exception as e:
                 raise e
 

@@ -66,7 +66,7 @@ RAWPY_EXCEPTIONS = (rawpy._rawpy.LibRawIOError, rawpy._rawpy.LibRawFileUnsupport
 # GRBG => R = [x=1,y=0], G1 = [x=0,y=0], G2 = [x=1,y=1], B = [x=0,y=1]
 # GBRG => R = [x=0,y=1], G1 = [x=0,y=0], G2 = [x=1,y=1], B = [x=1,y=0]
 
-CFA_PATTERNS = {
+CFA_OFFSETS = {
     # Esto era segun mi entendimiento
     'RGGB' : {'R':{'x': 0,'y': 0}, 'G1':{'x': 1,'y': 0}, 'G2':{'x': 0,'y': 1}, 'B':{'x': 1,'y': 1}}, 
     'BGGR' : {'R':{'x': 1,'y': 1}, 'G1':{'x': 1,'y': 0}, 'G2':{'x': 0,'y': 1}, 'B':{'x': 0,'y': 0}},
@@ -147,37 +147,29 @@ def widget_datetime(date_id, time_id):
     return dt.strftime("%Y-%m-%d"), dt.strftime("%H:%M:%S")
 
 
-def region_stats(raw_image, cfa, color, rect):
-     x, y = CFA_PATTERNS[cfa][color]['x'], CFA_PATTERNS[cfa][color]['y']
-     debayered_plane = raw_image[y::2, x::2]
+def region_stats(raw_pixels, bayer, color, rect):
+     x, y = CFA_OFFSETS[bayer][color]['x'], CFA_OFFSETS[bayer][color]['y']
+     debayered_plane = raw_pixels[y::2, x::2]
      section = debayered_plane[rect.y1:rect.y2, rect.x1:rect.x2]
      average, variance = round(section.mean(),1), round(section.var(),3)
      return average, variance
 
-def processImage_old(name, directory, rect, cfa_pattern, row):
-     # THIS IS HEAVY STUFF TO BE IMPLEMENTED IN A THREAD
-     with rawpy.imread(os.path.join(directory, name)) as img:
-        # Debayerize process and calculate stats
-        row['aver_signal_R'] , row['vari_signal_R']  = region_stats(img, cfa_pattern, 'R', rect)
-        row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(img, cfa_pattern, 'G1', rect)
-        row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(img, cfa_pattern, 'G2', rect)
-        row['aver_signal_B'] , row['vari_signal_B']  = region_stats(img, cfa_pattern, 'B', rect)
 
-def processImage(name, directory, rect, header_type, cfa_pattern, row):
+def processImage(name, directory, rect, header_type, bayer_pattern, row):
     # THIS IS HEAVY STUFF TO BE IMPLEMENTED IN A THREAD
     filepath = os.path.join(directory, name)
     if header_type == FITS_HEADER_TYPE:
         with fits.open(filepath, memmap=False) as hdu_list:
-            raw_image = hdu_list[0].data
-            row['aver_signal_R'] , row['vari_signal_R']  = region_stats(raw_image, cfa_pattern, 'R', rect)
-            row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(raw_image, cfa_pattern, 'G1', rect)
-            row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(raw_image, cfa_pattern, 'G2', rect)
-            row['aver_signal_B'] , row['vari_signal_B']  = region_stats(raw_image, cfa_pattern, 'B', rect)
+            raw_pixels = hdu_list[0].data
+            row['aver_signal_R'] , row['vari_signal_R']  = region_stats(raw_pixels, bayer_pattern, 'R', rect)
+            row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(raw_pixels, bayer_pattern, 'G1', rect)
+            row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(raw_pixels, bayer_pattern, 'G2', rect)
+            row['aver_signal_B'] , row['vari_signal_B']  = region_stats(raw_pixels, bayer_pattern, 'B', rect)
     else:
          with rawpy.imread(filepath) as img:
             # Debayerize process and calculate stats
-            raw_image = img.raw_image
-            row['aver_signal_R'] , row['vari_signal_R']  = region_stats(raw_image, cfa_pattern, 'R', rect)
-            row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(raw_image, cfa_pattern, 'G1', rect)
-            row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(raw_image, cfa_pattern, 'G2', rect)
-            row['aver_signal_B'] , row['vari_signal_B']  = region_stats(raw_image, cfa_pattern, 'B', rect)
+            raw_pixels = img.raw_pixels
+            row['aver_signal_R'] , row['vari_signal_R']  = region_stats(raw_pixels, bayer_pattern, 'R', rect)
+            row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(raw_pixels, bayer_pattern, 'G1', rect)
+            row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(raw_pixels, bayer_pattern, 'G2', rect)
+            row['aver_signal_B'] , row['vari_signal_B']  = region_stats(raw_pixels, bayer_pattern, 'B', rect)

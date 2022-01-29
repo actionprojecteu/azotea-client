@@ -34,7 +34,7 @@ log = logging.getLogger("azofits")
 
 # Ex ception
 
-class MissinGainError(Exception):
+class MissingGainError(Exception):
     '''SharpCap din not provide any gain value in metadata'''
     def __str__(self):
         s = self.__doc__
@@ -59,7 +59,7 @@ def _fits_read_gain(filepath):
             if matchobj:
                 gain = int(matchobj.group(1))
                 return gain
-    raise MissinGainError(basename)
+    raise MissingGainError(basename)
 
 # --------------------
 # Module main function

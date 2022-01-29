@@ -25,7 +25,7 @@ from astropy.io import fits
 # local imports
 # -------------
 
-from azotea.utils.fits import check_fits_writter, check_fits_file
+from azotea.utils.fits import fits_assert_valid, fits_check_valid_extension
 
 
 # Support for internationalization
@@ -112,13 +112,12 @@ class Rect:
 
 
 
-def reshape_rect(filename, rect):
-    extension = os.path.splitext(filename)[1]
-    if check_fits_file(extension):
-        imageHeight, imageWidth, model = raw_dimensions_fits(filename, rect)
+def reshape_rect(filepath, rect):
+    extension = os.path.splitext(filepath)[1]
+    if fits_check_valid_extension(extension):
+        imageHeight, imageWidth, model = raw_dimensions_fits(filepath, rect)
     else:
-        imageHeight, imageWidth, model = raw_dimensions_exif(filename, rect)
-
+        imageHeight, imageWidth, model = raw_dimensions_exif(filepath, rect)
     imageHeight = imageHeight //2 # From raw dimensions without debayering
     imageWidth =  imageWidth  //2  # to dimensions we actually handle
     width, height = rect.dimensions()
@@ -132,19 +131,20 @@ def reshape_rect(filename, rect):
     return result
 
 
-def raw_dimensions_fits(filename, rect):
-    with fits.open(filename, memmap=False) as hdu_list:
+def raw_dimensions_fits(filepath, rect):
+    with fits.open(filepath, memmap=False) as hdu_list:
         header = hdu_list[0].header
-        check_fits_writter(header)
+        fits_assert_valid(filepath, header)
     return header['NAXIS2'], header['NAXIS1'], header['INSTRUME']
-       
-def raw_dimensions_exif(filename, rect):
+  
+     
+def raw_dimensions_exif(filepath, rect):
     # This is to properly detect and EXIF image
-    with open(filename, 'rb') as f:
+    with open(filepath, 'rb') as f:
         exif = exifread.process_file(f, details=False)
         if not exif:
             raise ValueError("Could not open EXIF metadata")
     # Get the real RAW dimensions instead
-    with rawpy.imread(filename) as img:
+    with rawpy.imread(filepath) as img:
         imageHeight, imageWidth = img.raw_image.shape
     return  imageHeight, imageWidth, str(exif.get('Image Model'))

@@ -46,10 +46,34 @@ the custom from the 80s was to use a bottom-left origin.
 
 The following CFA layout:
 
-RGRGRG...RG
-GBGBGB...BG
+```
+     +---+---+
+     | R | G |
+     +---+---+
+     | G | B |
+     +---+---+
+```
+can be read as RGGB Bayer pattern, if using the top-left origin convention, as shown below:
 
-can be read as RGGB Bayer pattern, if using the top-left origin convention, or GBRG if using the bottom-up origin convention.
+```
+(0,0)
+     +---+---+
+     | R | G |
+     +---+---+
+     | G | B |
+     +---+---+
+```
+
+or GBRG if using the bottom-up origin convention, as shown below:
+
+```
+     +---+---+
+     | R | G |
+     +---+---+
+     | G | B |
+     +---+---+
+(0,0)
+```
 
 Azotea uses internally a top-left convention but SharpCap uses a bottom-left convention. 
 So, the Bayer pattern 4 code letter in BAYERPAT keyword must be internally flipped to apply a correct debayering.

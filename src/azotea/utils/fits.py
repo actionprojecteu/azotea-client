@@ -20,25 +20,18 @@ import re
 # Module constants
 # ----------------
 
-GAIN_REGEXP = re.compile(r'Gain=(\d+)')
+FITS_EXTENSIONS = ('.fit', '.fits', '.fts')
 
 # -----------------------
 # Module global variables
 # -----------------------
 
-# Allowed FITS writters by azotea-client
-
-FITS_WRITTERS = ('SharpCap',)
-
-FITS_EXTENSIONS = ('.fit', '.fits', '.fts')
-
-
 # ----------
 # Exceptions
 # ----------
 
-class UnsupportedFITSFormat(ValueError):
-    '''Unsupported FITS Format'''
+class InvalidFITSError(Exception):
+    '''FITS Image was not preprocessed by "azofits"'''
     def __str__(self):
         s = self.__doc__
         if self.args:
@@ -46,32 +39,16 @@ class UnsupportedFITSFormat(ValueError):
         s = '{0}.'.format(s)
         return s
 
-
 # ------------------------
 # Module Utility Functions
 # ------------------------
 
-def check_fits_file(extension):
+def fits_check_valid_extension(extension):
     return extension.lower() in FITS_EXTENSIONS
 
-def check_fits_writter(header):
+def fits_assert_valid(filepath, header):
     # This is heuristic
-    software = header.get('SWCREATE', None)
-    if software not in FITS_WRITTERS:
-        raise UnsupportedFITSFormat(f"FITS Image was not taken by one of these programs: {ALLOWED_FITS_WRITTERS}")
+    software = header.get('SWMODIFY', None)
+    if software != 'azofits':
+        raise InvalidFITSError(os.path.basename(filepath))
     return software
-
-def check_fits_gain(filepath):
-    '''Heuristic search for additional parameyter not in FITS header, written by SharpCap'''
-    basename = os.path.basename(filepath)
-    basename = os.path.splitext(basename)[0] # Strips the extension off
-    dirname = os.path.dirname(filepath)
-    metadata_file = os.path.join(dirname, basename + '.CameraSettings.txt')
-    with open(metadata_file,'r') as fd:
-        for line in fd.readlines():
-            matchobj = GAIN_REGEXP.search(line)
-            if matchobj:
-                gain = int(matchobj.group(1))
-                return gain
-    return None
-

@@ -24,7 +24,7 @@ from astropy.io import fits
 # local imports
 # -------------
 
-from azotea.utils.fits import check_fits_writter, check_fits_file
+from azotea.utils.fits import fits_assert_valid, fits_check_valid_extension
 
 # ----------------
 # Module constants
@@ -84,32 +84,28 @@ class TooDifferentValuesBiasError(BiasError):
 # Module Utility Functions
 # ------------------------
 
-def image_analyze(filename):
-    extension = os.path.splitext(filename)[1]
-    if check_fits_file(extension):
-        return image_analyze_fits(filename)
+def image_analyze(filepath):
+    extension = os.path.splitext(filepath)[1]
+    if fits_check_valid_extension(extension):
+        return image_analyze_fits(filepath)
     else:
-        return image_analyze_exif(filename)
+        return image_analyze_exif(filepath)
 
 # -------------
 # FITS analysis
 # -------------
 
-def image_analyze_fits(filename):
-    extension = os.path.splitext(filename)[1]
+def image_analyze_fits(filepath):
+    extension = os.path.splitext(filepath)[1]
     warning = False
-    with fits.open(filename, memmap=False) as hdu_list:
+    with fits.open(filepath, memmap=False) as hdu_list:
         header        = hdu_list[0].header
-        check_fits_writter(header)
+        fits_assert_valid(filepath, header)
         width         = header['NAXIS1']
         length        = header['NAXIS2']
         # This assumes SharpCap software for the time being
         model         = header['INSTRUME']
         bayer_pattern = header['BAYERPAT']
-        # Bayer pattern in FITS files seems to be bottom up
-        # but we use top-bottom, so we need two swap both halves
-        bayer_pattern = bayer_pattern[2:4] + bayer_pattern[0:2]
-
     info = {
         'model'         : model,
         'extension'     : extension,
@@ -155,16 +151,16 @@ def analyze_bias(levels):
     return global_bias
       
 
-def image_analyze_exif(filename):
-    extension = os.path.splitext(filename)[1]
-    with open(filename, 'rb') as f:
+def image_analyze_exif(filepath):
+    extension = os.path.splitext(filepath)[1]
+    with open(filepath, 'rb') as f:
         exif = exifread.process_file(f, details=False)
     # This ensures that non EXIF images are detected and an exeption is raised
     if not exif:
         message = 'Could not open EXIF metadata'
         raise ValueError(message)
     model = str(exif.get('Image Model', None)).strip()
-    with rawpy.imread(filename) as img:
+    with rawpy.imread(filepath) as img:
         color_desc = img.color_desc.decode('utf-8')
         if color_desc != 'RGBG':
             raise UnsupporteCFAError(color_desc)

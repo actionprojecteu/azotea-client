@@ -26,7 +26,7 @@ from astropy.io import fits
 # local imports
 # -------------
 
-from azotea.utils.fits import check_fits_writter, check_fits_file, check_fits_gain
+from azotea.utils.fits import fits_assert_valid
 
 # ----------------
 # Module constants
@@ -63,9 +63,9 @@ def mk_test_img_type(regexp):
         def test(name):
             matchobj = regexp.search(name.upper())
             return True if matchobj else False
-        filename = os.path.basename(path)
+        filepath = os.path.basename(path)
         dirname  = os.path.basename(os.path.dirname(path))
-        return test(dirname) or test(filename)
+        return test(dirname) or test(filepath)
     return wrapper
 
 is_flat = mk_test_img_type(re.compile(r'FLAT'))
@@ -114,8 +114,8 @@ def hash_func(filepath):
     return file_hash.digest()
 
 
-def exif_metadata(filename, row):
-    with open(filename, 'rb') as f:
+def exif_metadata(filepath, row):
+    with open(filepath, 'rb') as f:
         exif = exifread.process_file(f, details=False)
     if not exif:
         message = 'Could not open EXIF metadata'
@@ -135,31 +135,24 @@ def exif_metadata(filename, row):
     row['gain'] = None
     return row
 
-def fits_metadata(filename, row):
-    with fits.open(filename, memmap=False) as hdu_list:
+def fits_metadata(filepath, row):
+    with fits.open(filepath, memmap=False) as hdu_list:
         header        = hdu_list[0].header
-        check_fits_writter(header)
+        fits_assert_valid(filepath, header)
         # This assumes SharpCap software for the time being
         row['model']   = header['INSTRUME']
         row['iso']     = None  # Fixed value for AstroCameras (they do not define the ISO concept)
+        row['gain']    = header['LOG-GAIN']
         row['exptime'] = header['EXPTIME']
         date_obs       = header['DATE-OBS']
         row['date_id'], row['time_id'], row['widget_date'], row['widget_time'] = toDateTime(date_obs)
         # For astro cameras this probably is not in the FITS header so we use the default values
         row['f_number']     = row['def_fn']
         row['focal_length'] = row['def_fl']
-        row['gain']  = check_fits_gain(filename)
     return row
         
 
 def toDateTime(tstamp):
-    tstamp_obj = None
-
-    # This hack is for SharpCap FITS capture software, which includes
-    # seven decimals in factions of seconds, which is not supported in
-    # Python strptime %f format, reading up to 6 decimals
-    if len(tstamp) == 27:
-        tstamp = tstamp[:-1]
 
     for fmt in ('%Y:%m:%d %H:%M:%S','%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S'):
         try:
