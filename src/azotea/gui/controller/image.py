@@ -252,7 +252,7 @@ class ImageController:
             row = {
                 'name'        : os.path.basename(filepath), 
                 'directory'   : directory,
-                'imagetype'   : classify_image_type(filepath),
+                'imagetype'   : classify_image_type(self.header_type, filepath),
                 'flagged'     : 0, # Assume a good image for the time being
                 'header_type' : self.header_type,
                 'observer_id' : self.observer_id,

@@ -191,8 +191,12 @@ class ImageController:
     @inlineCallbacks
     def newImages(self, directory, file_list):
         input_set = set(os.path.basename(f) for f in file_list)
-        db_set = yield self.image.imagesInDirectory({'directory': directory})
-        db_set = set(img[0] for img in db_set)
+        db_set = set()
+        # We cannot afford this trick with FITS images
+        # because can be edited afterwards with missing metadata
+        if self.header_type != FITS_HEADER_TYPE:
+            db_set = yield self.image.imagesInDirectory({'directory': directory})
+            db_set = set(img[0] for img in db_set)
         result = sorted(list(input_set - db_set))
         return list(os.path.join(directory, f) for f in (input_set - db_set))
 
@@ -216,7 +220,7 @@ class ImageController:
             row = {
                 'name'        : os.path.basename(filepath), 
                 'directory'   : directory,
-                'imagetype'   : classify_image_type(filepath),
+                'imagetype'   : classify_image_type(self.header_type, filepath),
                 'flagged'     : 0, # Assume a good image for the time being
                 'header_type' : self.header_type,
                 'observer_id' : self.observer_id,

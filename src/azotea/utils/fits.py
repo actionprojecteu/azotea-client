@@ -48,7 +48,7 @@ def fits_check_valid_extension(extension):
 
 def fits_assert_valid(filepath, header):
     # This is heuristic
-    software = header.get('SWMODIFY', None)
+    software = header.get('SWMODIFY')
     if software != 'azofits':
         raise InvalidFITSError(os.path.basename(filepath))
     return software

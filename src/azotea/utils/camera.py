@@ -84,36 +84,27 @@ class TooDifferentValuesBiasError(BiasError):
 # Module Utility Functions
 # ------------------------
 
-def image_analyze(filepath):
-    extension = os.path.splitext(filepath)[1]
-    if fits_check_valid_extension(extension):
-        return image_analyze_fits(filepath)
-    else:
-        return image_analyze_exif(filepath)
 
 # -------------
 # FITS analysis
 # -------------
 
-def image_analyze_fits(filepath):
+def camera_from_image_fits(filepath):
     extension = os.path.splitext(filepath)[1]
     warning = False
     with fits.open(filepath, memmap=False) as hdu_list:
         header        = hdu_list[0].header
         fits_assert_valid(filepath, header)
-        width         = header['NAXIS1']
-        length        = header['NAXIS2']
-        # This assumes SharpCap software for the time being
-        model         = header['INSTRUME']
-        bayer_pattern = header['BAYERPAT']
     info = {
-        'model'         : model,
+        'model'         : header['INSTRUME'],
         'extension'     : extension,
-        'bias'          : 0,
-        'width'         : width,
-        'length'        : length,
+        'bias'          : header.get('PEDESTAL'),
+        'width'         : header['NAXIS1'],
+        'length'        : header['NAXIS2'],
         'header_type'   : 'FITS',
-        'bayer_pattern' : bayer_pattern,
+        'bayer_pattern' : header['BAYERPAT'],
+        'x_pixsize'     : header.get('XPIXSZ'),
+        'y_pixsize'     : header.get('YPIXSZ'),
     }
     return info, warning
 
@@ -151,7 +142,7 @@ def analyze_bias(levels):
     return global_bias
       
 
-def image_analyze_exif(filepath):
+def camera_from_image_exif(filepath):
     extension = os.path.splitext(filepath)[1]
     with open(filepath, 'rb') as f:
         exif = exifread.process_file(f, details=False)
@@ -185,6 +176,19 @@ def image_analyze_exif(filepath):
         'length'        : length,
         'header_type'   : 'EXIF',
         'bayer_pattern' : bayer_pattern,
+        'x_pixsize'     : None,
+        'y_pixsize'     : None,
     }
     #log.debug("CAMERA SUMMARY INFO = {i}",i=info)
     return info, warning
+
+# -------------------------------------------
+# Main function to be exported by this module
+# -------------------------------------------
+
+def camera_from_image(filepath):
+    extension = os.path.splitext(filepath)[1]
+    if fits_check_valid_extension(extension):
+        return camera_from_image_fits(filepath)
+    else:
+        return camera_from_image_exif(filepath)

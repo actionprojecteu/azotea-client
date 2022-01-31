@@ -111,6 +111,27 @@ class Rect:
         return f"[{self.y1}:{self.y2},{self.x1}:{self.x2}]"
 
 
+def raw_dimensions_fits(filepath, rect):
+    with fits.open(filepath, memmap=False) as hdu_list:
+        header = hdu_list[0].header
+        fits_assert_valid(filepath, header)
+    return header['NAXIS2'], header['NAXIS1'], header['INSTRUME']
+  
+     
+def raw_dimensions_exif(filepath, rect):
+    # This is to properly detect and EXIF image
+    with open(filepath, 'rb') as f:
+        exif = exifread.process_file(f, details=False)
+        if not exif:
+            raise ValueError("Could not open EXIF metadata")
+    # Get the real RAW dimensions instead
+    with rawpy.imread(filepath) as img:
+        imageHeight, imageWidth = img.raw_image.shape
+    return  imageHeight, imageWidth, str(exif.get('Image Model'))
+
+# -------------------------------------------
+# Main function to be exported by this module
+# -------------------------------------------
 
 def reshape_rect(filepath, rect):
     extension = os.path.splitext(filepath)[1]
@@ -129,22 +150,3 @@ def reshape_rect(filepath, rect):
     result['display_name'] = str(rect)
     result['comment'] = _("ROI for {0}, centered at P={1}, width={2}, height={3}").format(model,center,width,height)
     return result
-
-
-def raw_dimensions_fits(filepath, rect):
-    with fits.open(filepath, memmap=False) as hdu_list:
-        header = hdu_list[0].header
-        fits_assert_valid(filepath, header)
-    return header['NAXIS2'], header['NAXIS1'], header['INSTRUME']
-  
-     
-def raw_dimensions_exif(filepath, rect):
-    # This is to properly detect and EXIF image
-    with open(filepath, 'rb') as f:
-        exif = exifread.process_file(f, details=False)
-        if not exif:
-            raise ValueError("Could not open EXIF metadata")
-    # Get the real RAW dimensions instead
-    with rawpy.imread(filepath) as img:
-        imageHeight, imageWidth = img.raw_image.shape
-    return  imageHeight, imageWidth, str(exif.get('Image Model'))

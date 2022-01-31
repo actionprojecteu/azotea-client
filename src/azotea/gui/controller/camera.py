@@ -36,7 +36,7 @@ from pubsub import pub
 from azotea import __version__
 from azotea.utils.roi import Point, Rect
 from azotea.logger  import setLogLevel
-from azotea.utils.camera import image_analyze
+from azotea.utils.camera import camera_from_image
 
 # ----------------
 # Module constants
@@ -85,7 +85,7 @@ class CameraController:
     @inlineCallbacks
     def onChooseImageReq(self, path):
         try:
-            info, warning = yield deferToThread(image_analyze, path)
+            info, warning = yield deferToThread(camera_from_image, path)
             if not info:
                 self.view.messageBoxError(who='Preferences', message=warning)
                 return

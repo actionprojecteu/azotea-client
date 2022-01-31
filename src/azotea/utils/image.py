@@ -26,11 +26,29 @@ from astropy.io import fits
 # local imports
 # -------------
 
+from azotea import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
+
 from azotea.utils.fits import fits_assert_valid
 
 # ----------------
 # Module constants
 # ----------------
+
+# Mapping from MaximDL FITS values in IMAGETYP keyword
+# to AZOTEA image types.
+# Note that in FITS imaging, color cameras were
+# an exception when the FIST conevtion were established, 
+# thus 'Light frames' were black & white images (monocromatic).
+# In AZOTEA all images are RGB color by default
+# hence the change of names
+
+FITS_IMAGE_TYPE_MAPPING = {
+    'Light Frame'    : 'MONO', 
+    'Bias Frame'     : 'BIAS', 
+    'Dark Frame'     : 'DARK', 
+    'Flat Frame'     : 'FLAT',
+    'Tricolor Image' : 'LIGHT'
+}
 
 # -----------------------
 # Module global variables
@@ -71,20 +89,28 @@ def mk_test_img_type(regexp):
 is_flat = mk_test_img_type(re.compile(r'FLAT'))
 is_dark = mk_test_img_type(re.compile(r'(DARK|OSCURO)'))
 is_bias = mk_test_img_type(re.compile(r'BIAS'))
-is_test = mk_test_img_type(re.compile(r'(TEST|PRUEBA)'))
 
-def classify_image_type(path):
-    if is_flat(path):
+def default_classify_image_type(filepath):
+    if is_flat(filepath):
         result = 'FLAT'
-    elif is_dark(path):
+    elif is_dark(filepath):
         result = 'DARK'
-    elif is_bias(path):
+    elif is_bias(filepath):
         result = 'BIAS'
-    elif is_test(path):
-        result = 'TEST'
     else:
         result = 'LIGHT';
     return result
+
+
+def fits_classify_image_type(filepath):
+    with fits.open(filepath, mode='update') as hdul:
+        header = hdul[0].header
+        imagetyp = header.get('IMAGETYP')
+        if imagetyp is None:
+            hdul.close()
+            return default_classify_image_type(filepath)
+        result = FITS_IMAGE_TYPE_MAPPING.get(imagetyp,'LIGHT')
+        return result
 
 
 def scan_non_empty_dirs(root, depth=None):
@@ -139,7 +165,6 @@ def fits_metadata(filepath, row):
     with fits.open(filepath, memmap=False) as hdu_list:
         header        = hdu_list[0].header
         fits_assert_valid(filepath, header)
-        # This assumes SharpCap software for the time being
         row['model']   = header['INSTRUME']
         row['iso']     = None  # Fixed value for AstroCameras (they do not define the ISO concept)
         row['gain']    = header['LOG-GAIN']
@@ -156,7 +181,6 @@ def fits_metadata(filepath, row):
         
 
 def toDateTime(tstamp):
-
     for fmt in ('%Y:%m:%d %H:%M:%S','%Y-%m-%dT%H:%M:%S.%f', '%Y-%m-%dT%H:%M:%S'):
         try:
             tstamp_obj = datetime.datetime.strptime(tstamp, fmt)
@@ -174,6 +198,10 @@ def toDateTime(tstamp):
         return date_id, time_id, widged_date, widget_time
 
 
+# --------------------------------------------
+# Main functions to be exported by this module
+# --------------------------------------------
+
 def hash_and_metadata_fits(filepath, row):
     row['hash'] = hash_func(filepath)
     row = fits_metadata(filepath, row)
@@ -185,3 +213,8 @@ def hash_and_metadata_exif(filepath, row):
     row = exif_metadata(filepath, row)
     return row
 
+def classify_image_type(header_type, filepath):
+    if header_type == FITS_HEADER_TYPE:
+        return fits_classify_image_type(filepath)
+    else:
+        return default_classify_image_type(filepath)
