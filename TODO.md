@@ -1,60 +1,23 @@
 INMEDIATO
 =========
 
-El ananlisis de la camara a partir de ina imagen debe dar esto:
+Añadir el escaneado FITS a gui/controller/image.py (ya esta en batch/controller/image.py)
+Depurar el proceso:
+1) FITS pristine
+2) AZOFITS de los FITS pristine
+3) reset de azotea.db y resgitro de datos iniciales
+4) batch processing
+5) re-editar los FITS
+6) batch processing otra vez
 
-```python
-{
-        'model'         : model,
-        'extension'     : extension,
-        'bias'          : bias,
-        'width'         : width,
-        'length'        : length,
-        'header_type'   : 'EXIF',
-        'bayer_pattern' : bayer_pattern,
-}
-```
-
-Para las astrocamaras ZWO
-```python
-{
-        'model'         : header['INSTRUME'],
-        'extension'     : extension,
-        'bias'          : 0,
-        'width'         : header['NAXIS1'],
-        'length'        : header['NAXIS2'],
-        'header_type'   : 'FITS',
-        'bayer_pattern' : header['BAYERPAT'],
-}
-```
-
-
-Para la ROI, la funcion reshape_rect(filename, rect) usa rawpy para pillar las dimensiones crudas sin debayerizar
-y crear un rect, y pasarlo a diccionario
-
-* processImage es el driver para calcular las estadisticas EXIF/FITS
-
-Metadatos EXIF
-```python
-row['model']        = str(exif.get('Image Model', None)).strip()
-row['iso']          = str(exif.get('EXIF ISOSpeedRatings', None))
-row['focal_length'] = float(Fraction(str(exif.get('EXIF FocalLength', 0))))
-row['f_number']     = float(Fraction(str(exif.get('EXIF FNumber', 0))))
-row['exptime']      = float(Fraction(str(exif.get('EXIF ExposureTime', 0))))
-row['date_id'], row['time_id'], row['widget_date'], row['widget_time'] = toDateTime(str(exif.get('Image DateTime', None)), desperate_tstamp)
-   
-# Fixes missing Focal Length and F/ ratio
-row['focal_length'] = row['def_fl'] if row['focal_length'] == 0 else row['focal_length']
-row['f_number']     = row['def_fn'] if row['f_number']     == 0 else row['f_number']
-
-# Fixed GAIN for EXIF DSLRs that provide ISO sensivity
-row['gain'] = None
 ```
 
 MEDIO PLAZO
 ===========
 
-* azotuool image delete y azotool sky
+* azofits --console [--verbose|--quiet] --logfile edit -swcreator --images-dir , etc
+  azofits --console [--verbose|--quiet] --logfile stats [--images-dir | --image] --gui (para sacar el amtplotlib) , etc
+* azotool image purge (para las FITS solo) y azotool sky
 - options [--all|--unpublished|--range|--latest-night|--latest-month] y --commit para borrar de verdad
 
 * enviar agreement al server:
