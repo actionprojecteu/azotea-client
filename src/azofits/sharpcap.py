@@ -14,11 +14,17 @@ import re
 import datetime
 import logging
 
+# ---------------------
+# Third party libraries
+# ---------------------
+
+from astropy.io import fits
+
 #--------------
 # local imports
 # -------------
 
-from astropy.io import fits
+from azofits.utils import SW_MODIFIER, SW_MODIFIER_COMMENT, fits_edit_keyword
 
 # ----------------
 # Module constants
@@ -30,7 +36,7 @@ GAIN_REGEXP = re.compile(r'Gain=(\d+)')
 # Module global variables
 # -----------------------
 
-log = logging.getLogger("azofits")
+log = logging.getLogger(SW_MODIFIER)
 
 # ----------
 # Exceptions
@@ -69,7 +75,7 @@ def _fits_read_gain(filepath):
 # Module main function
 # --------------------
 
-def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize):
+def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize, image_type):
     basename = os.path.basename(filepath)
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     if gain is None:
@@ -77,6 +83,69 @@ def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain,
 
     with fits.open(filepath, mode='update') as hdul:
         header = hdul[0].header
+        header['HISTORY'] = f"Logging {SW_MODIFIER} changes on {now}"
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'SWMODIFY',
+            new_value = SW_MODIFIER,
+            comment   = SW_MODIFIER_COMMENT
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'IMAGETYP',
+            new_value = image_type,
+        )    
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'PEDESTAL',
+            new_value = bias,
+            comment   = 'Substract this value to get zero-based ADUs'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'LOG-GAIN',
+            new_value = gain,
+            comment   = 'Logarithmic gain in 0.1 dB units'
+        )    
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'APTDIA',
+            new_value = diameter,
+            comment   = '[mm]'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'FOCALLEN',
+            new_value = focal_length,
+            comment   = '[mm]'
+        )    
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'XPIXSZ',
+            new_value = x_pixsize,
+            comment   = '[um]'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'YPIXSZ',
+            new_value = x_pixsize,
+            comment   = '[um]'
+        )
+       
+        # Handling of excessive seconds decimals in DATE-OBS
+        tstamp = header['DATE-OBS']
+        if len(tstamp) > 26:
+            tstamp = tstamp[0:26]
+            header['DATE-OBS'] = tstamp
+            header['HISTORY']  = 'Fixed excessive decimals (>6) in DATE-OBS'
 
         # handling old Style BAYOFFX, BAYOFFY keywords
         bayoffx = header.get('BAYOFFX')
@@ -89,13 +158,6 @@ def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain,
             header['YBAYROFF'] = bayoffy
             del header['BAYOFFY']
             header['HISTORY'] = 'Substituted keyword BAYOFFY -> YBAYROFF'
-       
-        # Handling of excessive seconds decimals in DATE-OBS
-        tstamp = header['DATE-OBS']
-        if len(tstamp) > 26:
-            tstamp = tstamp[0:26]
-            header['DATE-OBS'] = tstamp
-            header['HISTORY'] = 'Fixed excessive decimals (>6) in DATE-OBS'
         
         # Bayer pattern in FITS files seems to be bottom up
         # but AZOTEA use top-bottom, so we need two swap both halves
@@ -118,51 +180,6 @@ def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain,
                 header.comments['COLORTYP'] = "Top down convention. (0,0) is upper left"
                 header['HISTORY'] = f'Forced BAYERPAT & COLORTYP from {old_bayer_pattern} to {bayer_pattern}'
         
-        # Handle PEDESTAL        
-        old_value = header.get('PEDESTAL')
-        if  bias is not None and old_value != bias:
-            header['PEDESTAL'] = bias
-            header.comments['PEDESTAL'] = "Substract this value to get zero-based ADUs"
-            header['HISTORY'] = f'Added/Changed PEDESTAL from {old_value} to {bias}'      
+        
 
-        # Handling of LOG-GAIN
-        old_value = header.get('LOG-GAIN')
-        if old_value is None: 
-            header['LOG-GAIN'] = gain
-            header.comments['LOG-GAIN'] = 'Logarithmic gain in 0.1 dB units'
-            header['HISTORY'] = f'Added/Changed FOCALLEN from {old_value} to {gain}'
 
-        # Handle APTDIA        
-        old_value = header.get('APTDIA')
-        if  diameter is not None and old_value != diameter:
-            header['APTDIA'] = diameter
-            header['HISTORY'] = f'Added/Changed APTDIA from {old_value} to {diameter}'
-            header.comments['APTDIA'] = "[mm]"
-
-        # Handle FOCALLEN        
-        old_value = header.get('FOCALLEN')
-        if  focal_length is not None and old_value != focal_length:
-            header['FOCALLEN'] = focal_length
-            header['HISTORY'] = f'Added/Changed FOCALLEN from {old_value} to {focal_length}'
-            header.comments['FOCALLEN'] = "[mm]"
-
-        # Handle XPIXSZ (value already in FITS header)     
-        old_value = header.get('XPIXSZ')
-        if x_pixsize is not None and old_value != x_pixsize:
-            header['XPIXSZ'] = x_pixsize
-            header['HISTORY'] = f'Added/Changed XPIXSZ from {old_value} to {focal_length}'
-            header.comments['XPIXSZ'] = "[um]"
-
-        # Handle YPIXSZ  (value already in FITS header)       
-        old_value = header.get('YPIXSZ')
-        if y_pixsize is not None and old_value != y_pixsize:
-            header['YPIXSZ'] = y_pixsize
-            header['HISTORY'] = f'Added/Changed YPIXSZ from {old_value} to {focal_length}'
-            header.comments['YPIXSZ'] = "[um]"
-
-        # Handling of SWMODIFY
-        swmodify = header.get('SWMODIFY')
-        if swmodify is None:
-            header['SWMODIFY'] = 'azofits'
-            header.comments['SWMODIFY'] = 'Updated on ' + now
-            header['HISTORY'] = 'Added SWMODIFY'

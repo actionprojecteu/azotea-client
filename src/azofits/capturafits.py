@@ -13,11 +13,17 @@ import os
 import datetime
 import logging
 
+# ---------------------
+# Third party libraries
+# ---------------------
+
+from astropy.io import fits
+
 #--------------
 # local imports
 # -------------
 
-from astropy.io import fits
+from azofits.utils import SW_MODIFIER, SW_MODIFIER_COMMENT, fits_edit_keyword
 
 # ----------------
 # Module constants
@@ -54,9 +60,9 @@ class MissingExptimeObsError(FITSBaseError):
 # Module global variables
 # -----------------------
 
-log = logging.getLogger("azofits")
+log = logging.getLogger(SW_MODIFIER)
 
-def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize):
+def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize, image_type):
     basename = os.path.basename(filepath)
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     # Find the observation date from the file name !
@@ -79,15 +85,86 @@ def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain,
     # Open FITS file and process headers
     with fits.open(filepath, mode='update') as hdul:
         header = hdul[0].header
-        
-        # Handle INSTRUME pattern        
-        old_value = header.get('INSTRUME')
-        if camera is not None and old_value != camera:
-            header['INSTRUME'] = camera
-            header.comments['INSTRUME'] = "Camera model"
-            header['HISTORY'] = f'Added/Changed INSTRUME from {old_value} to {camera}'
-       
+        header['HISTORY'] = f"Logging {SW_MODIFIER} changes on {now}"
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'SWCREATE',
+            new_value = swcreator,
+            comment   = swcomment
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'SWMODIFY',
+            new_value = SW_MODIFIER,
+            comment   = SW_MODIFIER_COMMENT
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'INSTRUME',
+            new_value = camera,
+            comment   = "Camera model"
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'IMAGETYP',
+            new_value = image_type,
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'PEDESTAL',
+            new_value = bias,
+            comment   = 'Substract this value to get zero-based ADUs'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'BAYERPAT',
+            new_value = bayer_pattern,
+            comment   = 'Top down convention. (0,0) is upper left'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'LOG-GAIN',
+            new_value = gain,
+            comment   = 'Logarithmic gain in 0.1 dB units'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'APTDIA',
+            new_value = diameter,
+            comment   = '[mm]'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'FOCALLEN',
+            new_value = focal_length,
+            comment   = '[mm]'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'XPIXSZ',
+            new_value = x_pixsize,
+            comment   = '[um]'
+        )
+
+        fits_edit_keyword(
+            header    = header,
+            keyword   = 'YPIXSZ',
+            new_value = x_pixsize,
+            comment   = '[um]'
+        )
+
         # Handling missing DATE-OBS
+        # new DATE-OBS value taken from file name
         old_value = header.get('DATE-OBS')
         if old_value is None and date_obs is None:
             raise MissingDateObsError(filepath)
@@ -95,7 +172,8 @@ def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain,
             header['DATE-OBS'] = date_obs.strftime("%Y-%m-%dT%H:%M:%S")
             header['HISTORY'] = f'Added/Changed DATE from {old_value} to {date_obs}'
            
-        # Handle EXPTIME pattern        
+        # Handle missing EXPTIME pattern  
+        # new EXPTIME value taken from file name      
         old_value = header.get('EXPTIME')
         if old_value is None and exptime is None:
             raise MissingExptimeError(filepath)
@@ -104,66 +182,3 @@ def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain,
             header.comments['EXPTIME'] = "[s]"
             header['HISTORY'] = f'Added/Changed EXPTIME from {old_value} to {exptime}'
             header['HISTORY'] = f"Guessed DATE-OBS/EXPTIME from file name '{iso_basename}'"
-
-        # Handle PEDESTAL        
-        old_value = header.get('PEDESTAL')
-        if  bias is not None and old_value != bias:
-            header['PEDESTAL'] = bias
-            header.comments['PEDESTAL'] = "Substract this value to get zero-based ADUs"
-            header['HISTORY']  = f'Added/Changed PEDESTAL from {old_value} to {bias}'
-           
-        # Handle BAYERPAT        
-        old_value = header.get('BAYERPAT')
-        if  gain is not None and  old_value != bayer_pattern:
-            header['BAYERPAT'] = bayer_pattern
-            header.comments['BAYERPAT'] = "Top down convention. (0,0) is upper left"
-            header['HISTORY'] = f'Added/Changed BAYERPAT from {old_value} to {bayer_pattern}'
-        
-        # Handling of LOG-GAIN
-        old_value = header.get('LOG-GAIN')
-        if gain is not None and  old_value != gain: 
-            header['LOG-GAIN'] = gain
-            header.comments['LOG-GAIN'] = 'Logarithmic gain in 0.1 dB units'
-            header['HISTORY'] = f'Added/Changed LOG-GAIN from {old_value} to {gain}'
-
-        # Handle APTDIA        
-        old_value = header.get('APTDIA')
-        if diameter is not None and old_value != diameter:
-            header['APTDIA'] = diameter
-            header['HISTORY'] = f'Added/Changed APTDIA from {old_value} to {diameter}'
-            header.comments['APTDIA'] = "[mm]"
-
-        # Handle FOCALLEN        
-        old_value = header.get('FOCALLEN')
-        if focal_length is not None and  old_value != focal_length:
-            header['FOCALLEN'] = focal_length
-            header['HISTORY'] = f'Added/Changed FOCALLEN from {old_value} to {focal_length}'
-            header.comments['FOCALLEN'] = "[mm]"
-
-        # Handle XPIXSZ        
-        old_value = header.get('XPIXSZ')
-        if x_pixsize is not None and old_value != x_pixsize:
-            header['XPIXSZ'] = x_pixsize
-            header['HISTORY'] = f'Added/Changed XPIXSZ from {old_value} to {x_pixsize}'
-            header.comments['XPIXSZ'] = "[um]"
-
-        # Handle YPIXSZ        
-        old_value = header.get('YPIXSZ')
-        if y_pixsize is not None and  old_value != y_pixsize:
-            header['YPIXSZ'] = y_pixsize
-            header['HISTORY'] = f'Added/Changed YPIXSZ from {old_value} to {y_pixsize}'
-            header.comments['YPIXSZ'] = "[um]"
-
-        # Handling of SWCREATE
-        old_value = header.get('SWCREATE')
-        if old_value != swcreator:
-            header['SWCREATE'] = swcreator
-            header.comments['SWCREATE'] = swcomment
-            header['HISTORY'] = f'Added/Changed SWCREATE from {old_value} to {swcreator}'
-
-        # Handling of SWMODIFY
-        old_value = header.get('SWMODIFY')
-        if old_value is None:
-            header['SWMODIFY'] = 'azofits'
-            header.comments['SWMODIFY'] = 'Updated on ' + now
-            header['HISTORY'] = 'Added SWMODIFY'

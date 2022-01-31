@@ -25,35 +25,30 @@ from astropy.io import fits
 # -------------
 
 from azotea import __version__
+from azofits.utils import IMAGE_TYPES, SW_CREATORS, SW_MODIFIER, fits_image_type, fits_swcreator, scan_non_empty_dirs
+
 from azotea.utils.camera import BAYER_PTN_LIST
+from azofits.sharpcap import MissingGainError
+
 
 # ----------------
 # Module constants
 # ----------------
 
 LOG_CHOICES = ('critical', 'error', 'warn', 'info', 'debug')
-IMAGE_TYPES = ('LIGHT', 'BIAS', 'DARK', 'FLAT')
 EXTENSIONS  = ('*.fit', '*.FIT', '*.fits', '*.FITS', '*.fts', '*.FTS')
 
-# Mapping between command line name and FITS header name in SWCREATE
-
-SW_CREATORS = {
-    'SharpCap'    : ('SharpCap', None),
-    'captura-fits': ('captura-fits', 'captura-fits (C) Alberto Castellon'),
-}
-
-SW_MODIFIER = 'azofits'
 
 # -----------------------
 # Module global variables
 # -----------------------
 
-log = logging.getLogger("azofits")
+log = logging.getLogger(SW_MODIFIER)
 
 # ----------
 # Exceptions
 # ----------
-from azofits.sharpcap import MissingGainError
+
 
 class UnknownSoftwareCreatorError(Exception):
     '''Unknown FITS software creator'''
@@ -95,19 +90,22 @@ def configureLogging(options):
         log.addHandler(fh)
 
 
-def scan_non_empty_dirs(root, depth=None):
-    '''Returns a list of non empty dirs under root dir'''
-    if os.path.basename(root) == '':
-        root = root[:-1]
-    dirs = [dirpath for dirpath, dirs, files in os.walk(root) if files]
-    dirs.append(root)   # Add it for images just under the root folder
-    if depth is None:
-        return dirs 
-    L = len(root.split(sep=os.sep))
-    return list(filter(lambda d: len(d.split(sep=os.sep)) - L <= depth, dirs))
+
+def log_skip(quiet, i, N,  basename, M=50):
+    if quiet and (i % M == 0):
+        log.warning(f"Skipping edited '{basename}' [{i}/{N}] ({100*i//N}%).")
+    else:
+        log.info(f"Skipping edited '{basename}' [{i}/{N}] ({100*i//N}%).")
 
 
-def fits_switcher(filepath, swcreator, swcomment, options):
+def log_edit(quiet, i, N,  basename, M=50):
+    if quiet and (i % M == 0):
+        log.warning(f"Editing '{basename}' [{i}/{N}] ({100*i//N}%).")
+    else:
+        log.info(f"Editing '{basename}' [{i}/{N}] ({100*i//N}%).")
+
+
+def fits_dispatcher(filepath, swcreator, swcomment, options):
     if swcreator == 'SharpCap':
         from azofits.sharpcap import fits_edit
     elif swcreator == 'captura-fits':
@@ -124,7 +122,9 @@ def fits_switcher(filepath, swcreator, swcomment, options):
         y_pixsize     = options.y_pixsize,
         diameter      = options.diameter,
         focal_length  = options.focal_length,
+        image_type    = fits_image_type(options.image_type)
     )
+
 
 def process_fits_files(directories, options):
     for directory in directories:
@@ -140,38 +140,36 @@ def process_fits_files(directories, options):
                 basename = os.path.basename(filepath)
                 with fits.open(filepath) as hdul:
                     header = hdul[0].header
-                    swmodify = header.get('SWMODIFY')
-                    if swmodify == 'azofits':
-                        if options.quiet:
-                            if (i % 50 == 0):
-                                log.warning(f"Skipping edited '{basename}' [{i}/{N}] ({100*i//N}%).")
-                        else:
-                            log.info(f"Skipping edited '{basename}' [{i}/{N}] ({100*i//N}%).")
-                        continue    # Already been processed
-                    if options.quiet:
-                        if (i % 50 == 0):
-                            log.warning(f"Editing '{basename}' [{i}/{N}] ({100*i//N}%).")
-                    else:
-                        log.info(f"Editing '{basename}' [{i}/{N}] ({100*i//N}%).")
                     swcreator = header.get('SWCREATE')
-                    if swcreator is None and options.swcreator is None:
-                        raise UnknownSoftwareCreatorError("Missing --swcreator option?")
-                    elif swcreator is None and options.swcreator is not None:
-                        swcreator, swcomment = SW_CREATORS[options.swcreator]
-                        hdul.close()
-                        fits_switcher(filepath, swcreator, swcomment, options)
-                    elif swcreator is not None and options.swcreator is None:
-                        swcomment = header.comments['SWCREATE']
-                        hdul.close()
-                        fits_switcher(filepath, swcreator, swcomment, options)
-                    else:
-                        if swcreator != options.swcreator:
+                    swmodify  = header.get('SWMODIFY')
+                    #log.info(f"Force = {options.force}, swcreator = {swcreator}, new_swcreator = {options.swcreator}, swmodify = {swmodify}")
+                    # new FITS edition or forcing an edition
+                    if swmodify is None or options.force:
+                        if swcreator is None and options.swcreator is None:
+                            raise UnknownSoftwareCreatorError("Missing --swcreator option?")
+                        elif swcreator is None and options.swcreator is not None:
+                            log_edit(options.quiet, i, N, basename)
+                            swcreator, swcomment = fits_swcreator(options.swcreator)
+                            hdul.close()
+                            fits_dispatcher(filepath, swcreator, swcomment, options)
+                        elif swcreator is not None and options.swcreator is None:
+                            log_edit(options.quiet, i, N, basename)
+                            swcomment = header.comments['SWCREATE']
+                            hdul.close()
+                            fits_dispatcher(filepath, swcreator, swcomment, options)
+                        elif swcreator is not None and swcreator != options.swcreator:
                             log.warning(f"Not editing '{basename}': Existing FITS SWCREATE value ({swcreator}) does not match --swcreate option ({options.swcreator})")
-                            continue
+                        else:
+                            log_edit(options.quiet, i, N, basename)
+                            swcomment = header.comments['SWCREATE']
+                            hdul.close()
+                            fits_dispatcher(filepath, swcreator, swcomment, options)
+                    else: # Skip already edited FITS file if we are not forcing edition
+                        log_skip(options.quiet, i, N, basename)
+
             except (FileNotFoundError, MissingGainError) as e:
                 log.critical("[%s] Fatal error => %s", __name__, str(e) )
                 continue
-
             except Exception as e:
                 raise e
 
@@ -197,18 +195,18 @@ def createParser():
     group1.add_argument('-q', '--quiet',   action='store_true', help='Quiet logging output.')
 
     # FITS specific editing info    
-    parser.add_argument('--swcreator', choices=SW_CREATORS.keys(), default=None, action='store', help='Name of software that created the FITS files')
+    parser.add_argument('--force',     action='store_true', help='Force editing.')
+    parser.add_argument('--swcreator', choices=SW_CREATORS, default=None, action='store', help='Name of software that created the FITS files')
     parser.add_argument('--camera',     type=str, nargs='+', default=None, help="Camera model")
     parser.add_argument('--bayer-pattern', choices=BAYER_PTN_LIST, default=None, help='Bayer pattern layout')
     parser.add_argument('--gain',      type=float, default=None, help="CMOS detector GAIN settings")
-    parser.add_argument('--bias',      type=int,   default=0,    help="Global Bias for every image")
+    parser.add_argument('--bias',      type=int,   default=None, help="Global Bias for every image")
     parser.add_argument('--x-pixsize', type=float, default=None, help="Pixel width in um.")
     parser.add_argument('--y-pixsize', type=float, default=None, help="Pixel height in um.")
-    #parser.add_argument('--image-type', choices=IMAGE_TYPES,  default=None, help='Image type')
+    parser.add_argument('--image-type', choices=IMAGE_TYPES,  default=None, help='Image type')
     parser.add_argument('--diameter', type=float,  default=None, help='Optics diameter in mm')
     parser.add_argument('--focal-length', type=float,  default=None, help='Focal length in mm')
 
-   
     return parser
 
 
