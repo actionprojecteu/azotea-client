@@ -168,7 +168,7 @@ def processImage(name, directory, rect, header_type, bayer_pattern, row):
     else:
          with rawpy.imread(filepath) as img:
             # Debayerize process and calculate stats
-            raw_pixels = img.raw_pixels
+            raw_pixels = img.raw_image
             row['aver_signal_R'] , row['vari_signal_R']  = region_stats(raw_pixels, bayer_pattern, 'R', rect)
             row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(raw_pixels, bayer_pattern, 'G1', rect)
             row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(raw_pixels, bayer_pattern, 'G2', rect)

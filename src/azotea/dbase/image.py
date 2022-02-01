@@ -77,6 +77,38 @@ class ImageTable(Table):
         return self._pool.runInteraction(_getByHash, filter_dict)
 
 
+    # This only happens when we edit *in-place* an image after being loaded by AZOTEA
+    # This is the case for FITS files being post-edited to add new keyword values
+    # we don't do this for EXIF files.
+    def purgeDuplicates(self):
+        '''Purge images with the same path and different hashes'''
+        def _purgeDuplicates(txn):
+            # We must delete foreign key referernces first
+            txn.execute(
+                '''
+                DELETE FROM sky_brightness_t
+                WHERE image_id IN (
+                    SELECT image_id 
+                    FROM image_t 
+                    GROUP BY directory, name 
+                    HAVING count(*) > 1 AND session = MIN(session)
+                    );
+                '''
+            )
+            txn.execute(
+                '''
+                DELETE FROM image_t
+                WHERE image_id IN (
+                    SELECT image_id 
+                    FROM image_t 
+                    GROUP BY directory, name 
+                    HAVING count(*) > 1 AND session = MIN(session)
+                );
+                '''
+            )
+        return self._pool.runInteraction(_purgeDuplicates)
+
+
     def imagesInDirectory(self, filter_dict):
         '''Gets all the metadata needed for sky brightness mmeasurements'''
         def _imagesInDirectory(txn, filter_dict):

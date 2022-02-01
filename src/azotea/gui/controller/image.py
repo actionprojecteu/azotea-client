@@ -126,10 +126,14 @@ class ImageController:
                         extension = '*' + self.extension
                         message = _("No images found with the filter {0}").format(extension)
                         self.view.messageBoxWarn(who=_("Register"),message=message)
+                    # Purge FITS duplicates after FITS re-editing if Any
+                    yield self.image.purgeDuplicates()
                     self.view.statusBar.clear()
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('quit', exit_code = 1)
+
+            
 
 
     @inlineCallbacks
@@ -214,8 +218,12 @@ class ImageController:
                     name, directory = yield self.image.getByHash(row)
                     log.warn("Possible duplicate image: '{name}' with existing '{prev}' in {dir}",name=row['name'], prev=name, dir=directory)
                     if row['name'] == name:
-                        yield self.image.fixDirectory(row)
-                        log.info('Fixed directory for {name} to {dir}', name=row['name'], dir=row['directory'])
+                        oldpath = os.path.join(directory, name)
+                        newpath = os.path.join(row['directory'], row['name'])
+                        # Avoid fixing path with itself. It happens in FITS handling, by design
+                        if oldpath != newpath:
+                            log.error("Fixing '{oldpath}' -> '{newpath}'", oldpath=oldpath, newpath=newpath)
+                            yield self.image.fixDirectory(row)
                     else:
                         message = _("image: '{0}' is completely discarded, using '{1}' instead").format(row['name'], name)
                         self.view.messageBoxWarn(who=_("Register"), message=message)
@@ -225,8 +233,12 @@ class ImageController:
     @inlineCallbacks
     def newImages(self, directory, file_list):
         input_set = set(os.path.basename(f) for f in file_list)
-        db_set = yield self.image.imagesInDirectory({'directory': directory})
-        db_set = set(img[0] for img in db_set)
+        db_set = set()
+        # We cannot afford this trick with FITS images
+        # because can be edited afterwards with missing metadata
+        if self.header_type != FITS_HEADER_TYPE:
+            db_set = yield self.image.imagesInDirectory({'directory': directory})
+            db_set = set(img[0] for img in db_set)
         result = sorted(list(input_set - db_set))
         return list(os.path.join(directory, f) for f in (input_set - db_set))
 

@@ -1,24 +1,41 @@
-# FITS HEADERS FOR AZOTEA
+# AZOFITS
 
-Based on the popular *SharpCap* image capture software for astrocameras,
-these are the additional FITS header keywords needed for AZOTEA:
+AZOFITS is a ***FITS HEADER batch editor for AZOTEA*** entirely written in Python.
+It is tuned to the FITS keywords that AZOTEA processing pipeline needs.
+
+FITS is a very flexible file frmat for astronomical images and very few keywords
+have been standarized. Amateur astroimaging, imaging software flourished in the 90s
+and some FITS keywords proposals were made for interoperatbility for ASCOM programs.
+
+Diffraction Limited's Maxim DL software [compiled a series of FITS keyword definitions](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm) for imaging and amateur observatoty neeeds. 
+We are using this proposal to select needed keywords for AZOTEA
+They are reproduced [below](https://github.com/actionprojecteu/azotea-client##FITS-File-Header-Definitions), 
+just in case the original page dissapears.
+
+CCD/CMOS image adquistion software already produces images in FITS format, either for B&W images or RAW color images.
+Each image adquistion software has its own convention and ideosincracies, so AZOFITS was written to cope this and supply
+trouble-free FITS images to AZOTEA.
+
+## AZOTEA FITS keywords
+
+These are the additional FITS header keywords needed for AZOTEA:
 
 * `SWCREATE`, Name of image capture software (i.e: SharpCap)
+* `SWMODIFT`, Name of image editing sofware (in our case, it will be always `azofits`)
 * `BAYERPAT`, Camera Bayer pattern (i.e. RGGB, GBRG, etc.)
 * `INSTRUME`, Camera model (i.e )
-* `DATE-OBS` Date time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)
+* `IMAGETYP`, Image type
+* `DATE-OBS` Date time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS or YYYY-MM-DDTHH:MM:SS.ffffff)
 * `ÈXPTIME`,  Exposure time *in seconds*
+* `PEDESTAL`, Global electronic bias in ADUs. This  offset is the same for all channels.
+* `FOCALLLEN`, Focal lenght in mm.
+* `APTDIA`,  Apertire diameter in mm.
 * `XPIXSZ`,  Pixel size in microns, width
 * `YPIXSZ`,  Pixel size in microns, height
 
-It would be also recommended to include:
-* `IMAGETYP`, Image type (LIGHT, DARK, BIAS, FLAT)
-* `LOG-GAIN` CMOS Camera Gain (i.e. 150)
+Additionally, we have added a new `LOG-GAIN` keyword to distinguish from the `EGAIN` keyword in MaximDL or a more generic `GAIN` keyword.
 
-Note that *SharpCap* do not include `IMAGETYP` and `LOG-GAIN` by default and
-AZOTEA client software have some ad-hoc methods to derive the CMOS gain and image type.
-
-## About the CMOS camera GAIN
+* `LOG-GAIN` CMOS Camera Gain (i.e. 150), in 0.1 dB units
 
 The gain in ZWO cameras is expressed in a logaritmic scale gain with 0.1 dB units, that is:
 
@@ -26,22 +43,12 @@ The gain in ZWO cameras is expressed in a logaritmic scale gain with 0.1 dB unit
 LOG-GAIN = 100 * log10(G)
 ```
 
-Where G is the internal amplifier gain of the analog circuitry.
-
-Do not confuse this LOG-GAIN with the usual EGAIN, which is expressed in electrons/ADU.
+Where `G` is the internal amplifier gain of the analog circuitry.
 
 
-## About BZERO & BSCALE
+### Bayer pattern issues
 
-ZWO cameras usually employ a 16 bit unsigned integers to represent pixel values. 
-However FITS do not support such data type, only 16 bit signed integers. 
-The customary trick to handle this with the FITS reading software is by setting 
-keywords BSCALE to 1 and BZERO to 32768.
-
-## Bayer pattern issues
-
-Depending on the application field (astronomy, general imaging), the images origin of coordinates (0,0) can either be top-left
-or bottom-left. DSLR and generic imaging appliactons genearlly use the top-left convention. For FITS images, 
+Depending on the application field (astronomy, general imaging), the images origin of coordinates (0,0) can either be top-left or bottom-left. DSLR and generic imaging appliactons genearlly use the top-left convention. For FITS images, 
 the custom from the 80s was to use a bottom-left origin.
 
 The following CFA layout:
@@ -53,7 +60,7 @@ The following CFA layout:
      | G | B |
      +---+---+
 ```
-can be read as RGGB Bayer pattern, if using the top-left origin convention, as shown below:
+can be read as `RGGB` Bayer pattern, if using the top-left origin convention, as shown below:
 
 ```
 (0,0)
@@ -64,7 +71,7 @@ can be read as RGGB Bayer pattern, if using the top-left origin convention, as s
      +---+---+
 ```
 
-or GBRG if using the bottom-up origin convention, as shown below:
+or `GBRG` if using the bottom-up origin convention, as shown below:
 
 ```
      +---+---+
@@ -75,8 +82,26 @@ or GBRG if using the bottom-up origin convention, as shown below:
 (0,0)
 ```
 
-Azotea uses internally a top-left convention but SharpCap uses a bottom-left convention. 
-So, the Bayer pattern 4 code letter in BAYERPAT keyword must be internally flipped to apply a correct debayering.
+AZOTEA uses internally a top-left convention but SharpCap uses a bottom-left convention. 
+So, for some FITS writers like *SharpCap*, the Bayer pattern 4 code letter in BAYERPAT keyword must be flipped to apply a correct debayering in AZOTEA.
+
+## AZOFITS operation
+
+The `azofits` executable has the same structure:
+
+```
+azofits  <global options> <command> <subcommand> <subcommand options>
+azotool  <global options> <command> <subcommand> <subcommand options>
+```
+
+where global options are:
+
+* `--version`     Print program version and exit.
+* `-h`  `--help`  Show program commands, subcommands and options.
+* `-c`, `--console` Optionally logs to console. Needed for interactive use.
+* `-l`, `--log file` Optional log file. Recommended for unattended use.
+* `-q`, `--quiet` Optional less verbose output.
+
 
 
 ## Interesting links

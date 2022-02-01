@@ -185,7 +185,6 @@ def createParser():
 
     # Global options
     parser.add_argument('--version', action='version', version='{0} {1}'.format(name, __version__))
-    parser.add_argument('-d', '--images-dir', type=str, required=True, action='store', metavar='<file path>', help='Base directory to edit FITS files')
     
     # Logging options
     parser.add_argument('-c', '--console', action='store_true',  help='log to console.')
@@ -194,7 +193,8 @@ def createParser():
     group1.add_argument('-v', '--verbose', action='store_true', help='Verbose logging output.')
     group1.add_argument('-q', '--quiet',   action='store_true', help='Quiet logging output.')
 
-    # FITS specific editing info    
+    # FITS specific editing info  
+    parser.add_argument('-d', '--images-dir', type=str, required=True, action='store', metavar='<file path>', help='Base directory to edit FITS files')  
     parser.add_argument('--force',     action='store_true', help='Force editing.')
     parser.add_argument('--swcreator', choices=SW_CREATORS, default=None, action='store', help='Name of software that created the FITS files')
     parser.add_argument('--camera',     type=str, nargs='+', default=None, help="Camera model")

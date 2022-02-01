@@ -102,6 +102,8 @@ class ImageController:
                 N_Files += M_Files
             if N_Files:
                 log.warn("{i}/{N} images loaded", i=i, N=N_Files)
+            # Purge FITS duplicates after FITS re-editing if any
+            yield self.image.purgeDuplicates()
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('quit', exit_code = 1)
@@ -110,6 +112,7 @@ class ImageController:
                 pub.sendMessage(self.next_event)
             else:
                 pub.sendMessage('quit')
+        
 
     # --------------
     # Helper methods
@@ -181,9 +184,14 @@ class ImageController:
                 except  sqlite3.IntegrityError as e:
                     name, directory = yield self.image.getByHash(row)
                     if row['name'] == name:
-                        log.error("Fixing new directory for image '{name}'", name=row['name'])
-                        log.error("Setting to new directory '{dir}'", dir=row['directory'])
-                        yield self.image.fixDirectory(row)
+                        oldpath = os.path.join(directory, name)
+                        newpath = os.path.join(row['directory'], row['name'])
+                        # Avoid fixing path with itself. It happens in FITS handling, by design
+                        if row['directory'] != directory:
+                            oldpath = os.path.join(directory, name)
+                            newpath = os.path.join(row['directory'], row['name'])
+                            log.error("Fixing '{oldpath}' -> '{newpath}'", oldpath=oldpath, newpath=newpath)
+                            yield self.image.fixDirectory(row)
                     else:
                         log.error("Discarding new image '{name}'", name=row['name'])
                         log.error("Keeping '{prev}' image instead",name=row['name'], prev=name) 
