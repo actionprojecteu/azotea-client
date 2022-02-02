@@ -435,4 +435,24 @@ AZOTEA now supports reading and computing statistics from RAW images taken from 
 write their output in FITS format. A previous FITS keywords pre-processing is needed, so that AZOTEA
 can smoothly read metadata without having to deal with FITS software idiosyncrasies.
 
-Detailed information can be found in the [AZOFITS documentation](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md).
+Detailed information on this pre-porcessing step can be found in the [AZOFITS documentation](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md).
+
+AZOTOOL software must *always* be used before issuing commands to AZOTEA.
+Once image are pre-procesed, camera and ROI creation can be even made from FITS images, 
+as shown in the example below.
+
+```bash
+# Edit FITS headers with AZOFITS
+azofits --console --images-dir ${IMAGES}/202201 --swcreator captura-fits --camera ZWO ASI178MC --bayer-pattern RGGB --gain 150 --bias 64 --diameter 10 --focal-length 35
+
+# Input metadata with AZOTOOL
+# Assume taht observer & location metadata has already been input
+azotool --console --dbase ${DBASE} camera create --default \
+        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
+
+azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
+        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
+
+# Load images in AZOTEA database and compute statistics
+azotea --console --dbase ${DBASE} --images-dir ${IMAGES}/202201
+```
