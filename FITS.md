@@ -11,8 +11,7 @@ Diffraction Limited's Maxim DL software [compiled a series of FITS keyword defin
 Whenever possible, AZOTEA reuses these keywords.
 
 CCD/CMOS image adquistion software already produces images in FITS format, either for B&W images or RAW color images.
-Each image adquistion software has its own convention and ideosincracies, so AZOFITS was written to cope this and supply
-trouble-free FITS images to AZOTEA.
+Each image adquistion software has its own convention and idiosyncrasies, so AZOFITS was written to cope with this and supply trouble-free FITS images to AZOTEA.
 
 # Table of Contents
 
@@ -41,45 +40,27 @@ trouble-free FITS images to AZOTEA.
 
 ## Note 1:
 
-Depending on the application field (astronomy, general imaging), the images origin of coordinates (0,0) can either be top-left or bottom-left. DSLR and generic imaging appliactons genearlly use the top-left convention. For FITS images, 
-the custom from the 80s was to use a bottom-left origin.
+Depending on the application field (astronomy, general imaging), the images origin of coordinates (0,0) can either be top-down or bottom-up. DSLR and generic imaging appliactons genearlly use the top-down convention. For FITS images, 
+the custom from the 80s was to read pixels use a bottom-up origin.
 
-The following CFA layout:
-
-```
-     +---+---+
-     | R | G |
-     +---+---+
-     | G | B |
-     +---+---+
-```
-can be read as `RGGB` Bayer pattern, if using the top-left origin convention, as shown below:
+The following CFA layout can be read as `RGGB` Bayer pattern if using the top-down origin convention or `GBRG` if using the bottom-up origin convention, as shown below:
 
 ```
-(0,0)
-     +---+---+
-     | R | G |
-     +---+---+
-     | G | B |
-     +---+---+
+                      (0,0)
+     +---+---+          +---+---+         +---+---+
+     | R | G |          | R | G |         | R | G |
+     +---+---+   =>     +---+---+    or   +---+---+
+     | G | B |          | G | B |         | G | B |
+     +---+---+          +---+---+         +---+---+
+                                        (0,0)   
 ```
 
-or `GBRG` if using the bottom-up origin convention, as shown below:
 
-```
-     +---+---+
-     | R | G |
-     +---+---+
-     | G | B |
-     +---+---+
-(0,0)
-```
-
-AZOTEA uses internally a top-left convention but SharpCap uses a bottom-left convention. 
+AZOTEA uses internally a top-down convention but SharpCap uses a bottom-up convention. 
 So, for some FITS writers like *SharpCap*, the Bayer pattern 4 code letter in BAYERPAT keyword must be flipped to apply a correct debayering in AZOTEA.
 
 ## Note 2:
-Admits both `YYYY-MM-DDTHH:MM:SS` or `YYYY-MM-DDTHH:MM:SS.fffff`  with up to 6 seconds decimals.
+AZOFITS allows both `YYYY-MM-DDTHH:MM:SS` or `YYYY-MM-DDTHH:MM:SS.fffff`  with up to 6 seconds decimals.
 
 ## Note 3:
 The gain in ZWO cameras is expressed in a logaritmic scale gain with 0.1 dB units, that is:
