@@ -7,16 +7,11 @@ INMEDIATO
 MEDIO PLAZO
 ===========
 
-* azofits --console [--verbose|--quiet] --logfile edit -swcreator --images-dir , etc
-  azofits --console [--verbose|--quiet] --logfile stats [--images-dir | --image] --gui (para sacar el amtplotlib) , etc
-* azotool image purge (para las FITS solo) y azotool sky
-- options [--all|--unpublished|--range|--latest-night|--latest-month] y --commit para borrar de verdad
+* azoplot --console [--verbose|--quiet] --logfile stats --width --height
 
-* enviar agreement al server:
+* misc
 - URL subpath para el agreement
 - URL subpath para las medidas
-
-
 
 * ¿Validacion? _tkinter.TclError: expected floating-point number but got "39,6928888889"
 * Probar la generacion del megaexport
