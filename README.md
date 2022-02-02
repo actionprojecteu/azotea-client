@@ -25,6 +25,8 @@ Development of this software has been possible through [ACTION - Participatory s
   - [Launch the program in GUI mode](https://github.com/actionprojecteu/azotea-client#launch-the-program-in-gui-mode)
   - [Image processing in GUI mode](https://github.com/actionprojecteu/azotea-client#image-processing-in-gui-mode)
   - [Screenshots](https://github.com/actionprojecteu/azotea-client#screenshots)
+* [FITS Support](https://github.com/actionprojecteu/azotea-client#fits-support)
+
 
 # Command line structure
 
@@ -426,3 +428,11 @@ Then we can either generate a CSV file with the results or publsih them:
 ![Edit > Preferences > Publishing](doc/image/publishing.png)
 
 ![Edit > Preferences > configure](doc/image/configure.png)
+
+# FITS Support
+
+AZOTEA now supports reading and computing statistics from RAW images taken from astrocameras which
+write their output in FITS format. A previous FITS keywords pre-processing is needed, so that AZOTEA
+can smoothly read metadata without having to deal with FITS software idiosyncrasies.
+
+Detailed information can be found in the [AZOFITS documentation](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md).
