@@ -4,49 +4,43 @@ AZOFITS is a ***FITS HEADER batch editor for AZOTEA*** entirely written in Pytho
 It is tuned to the FITS keywords that AZOTEA processing pipeline needs.
 
 FITS is a very flexible file frmat for astronomical images and very few keywords
-have been standarized. Amateur astroimaging, imaging software flourished in the 90s
+have been standarized. Amateur astroimaging software flourished in the 90s
 and some FITS keywords proposals were made for interoperatbility for ASCOM programs.
 
 Diffraction Limited's Maxim DL software [compiled a series of FITS keyword definitions](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm) for imaging and amateur observatoty neeeds. 
-We are using this proposal to select needed keywords for AZOTEA
-They are reproduced [below](https://github.com/actionprojecteu/azotea-client##FITS-File-Header-Definitions), 
-just in case the original page dissapears.
+Whenever possible, AZOTEA reuses these keywords.
 
 CCD/CMOS image adquistion software already produces images in FITS format, either for B&W images or RAW color images.
 Each image adquistion software has its own convention and ideosincracies, so AZOFITS was written to cope this and supply
 trouble-free FITS images to AZOTEA.
 
-## AZOTEA FITS keywords
+# Table of Contents
 
-These are the additional FITS header keywords needed for AZOTEA:
-
-* `SWCREATE`, Name of image capture software (i.e: SharpCap)
-* `SWMODIFT`, Name of image editing sofware (in our case, it will be always `azofits`)
-* `BAYERPAT`, Camera Bayer pattern (i.e. RGGB, GBRG, etc.)
-* `INSTRUME`, Camera model (i.e )
-* `IMAGETYP`, Image type
-* `DATE-OBS` Date time in ISO 8601 format (YYYY-MM-DDTHH:MM:SS or YYYY-MM-DDTHH:MM:SS.ffffff)
-* `ÈXPTIME`,  Exposure time *in seconds*
-* `PEDESTAL`, Global electronic bias in ADUs. This  offset is the same for all channels.
-* `FOCALLLEN`, Focal lenght in mm.
-* `APTDIA`,  Apertire diameter in mm.
-* `XPIXSZ`,  Pixel size in microns, width
-* `YPIXSZ`,  Pixel size in microns, height
-
-Additionally, we have added a new `LOG-GAIN` keyword to distinguish from the `EGAIN` keyword in MaximDL or a more generic `GAIN` keyword.
-
-* `LOG-GAIN` CMOS Camera Gain (i.e. 150), in 0.1 dB units
-
-The gain in ZWO cameras is expressed in a logaritmic scale gain with 0.1 dB units, that is:
-
-```
-LOG-GAIN = 100 * log10(G)
-```
-
-Where `G` is the internal amplifier gain of the analog circuitry.
+* [AZOTEA FITS keywords](https://github.com/actionprojecteu/azotea-client/FITS.md#table-of-contents)
+* [Installation](https://github.com/actionprojecteu/azotea-client/FITS.md#installation)
+* [Usage](https://github.com/actionprojecteu/azotea-client/FITS.md#configuration)
+* [Miscelanea](https://github.com/actionprojecteu/azotea-client/FITS.md#miscelanea)
 
 
-### Bayer pattern issues
+# AZOTEA FITS keywords
+
+| Header   | Units | Description | Notes
+|:--------:| :---: | ----------- | -------
+|`SWCREATE`|       | Image capture software (i.e: `SharpCap`).
+|`SWMODIFY`|       | Image editing sofware (always `azofits`).
+|`BAYERPAT`|       | Camera Bayer pattern (`RGGB`, `BGGR`, `GRBG`, `GBRG`). | See [Note 1](https://github.com/actionprojecteu/azotea-client#note-1)
+|`INSTRUME`|       | Camera model (i.e. `ZWO ASI178MC`).
+|`DATE-OBS`|       | Date time in ISO 8601 format | See [Note 2](https://github.com/actionprojecteu/azotea-client#note-2).
+|`ÈXPTIME` | sec.  | Exposure time.
+|`PEDESTAL`| ADUs  | Global electronic bias. Same for all channels.
+|`FOCALLEN`| mm.   | Focal length.
+|`APTDIA`  | mm.   | Aperture diameter.
+|`XPIXSZ`  | um.   | Horizontal pixel size.
+|`YPIXSZ`  | um.   | Vertical pixel size.
+|`LOG-GAIN`| dB    | Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client#note-3).
+|`IMAGETYP`|       | Image type | See Note 4](https://github.com/actionprojecteu/azotea-client#note-3).
+
+### Note 1:
 
 Depending on the application field (astronomy, general imaging), the images origin of coordinates (0,0) can either be top-left or bottom-left. DSLR and generic imaging appliactons genearlly use the top-left convention. For FITS images, 
 the custom from the 80s was to use a bottom-left origin.
@@ -85,16 +79,43 @@ or `GBRG` if using the bottom-up origin convention, as shown below:
 AZOTEA uses internally a top-left convention but SharpCap uses a bottom-left convention. 
 So, for some FITS writers like *SharpCap*, the Bayer pattern 4 code letter in BAYERPAT keyword must be flipped to apply a correct debayering in AZOTEA.
 
-## AZOFITS operation
+### Note 2:
+Admits both `YYYY-MM-DDTHH:MM:SS` or `YYYY-MM-DDTHH:MM:SS.fffff`  with up to 6 seconds decimals.
+
+### Note 3:
+The gain in ZWO cameras is expressed in a logaritmic scale gain with 0.1 dB units, that is:
+```
+LOG-GAIN = 100 * log10(G)
+```
+Where `G` is the internal amplifier gain of the analog circuitry.
+This is a new keyword, not present in the [Maxim DL FITS specification](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm), 
+not to be confused  with `EGAIN` which specifies a "gain" (conversion factor) in e-/ADU.
+
+### Note 4:
+[Maxim DL FITS specifications](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm) list as values for this keyword the following strings:
+* `Light Frame` for monocrome images
+* `Tricolor Image` for images taken by RGB color cameras
+* `Bias Frame`
+* `Dark Frame` 
+* `Flat Frame`
+
+# Usage
 
 The `azofits` executable has the same structure:
 
 ```
-azofits  <global options> <command> <subcommand> <subcommand options>
-azotool  <global options> <command> <subcommand> <subcommand options>
+azofits  <options>
 ```
+Type `azofits --help` to see the complete list of options.
 
-where global options are:
+## General behaviour
+
+* All FITS edition options are optional. However, if passed, they will take precedence over values already present in the appropiate FITS keyword and will be overwritten or created if they didn't exist.
+* A `HISTORY` keyword will be added describing each keyword change.
+* Once the FITS image is edited and `SWMODIFY` (=`azofits`) is added, no further edition is possible (*Exception: --force option*)
+
+
+## generic options
 
 * `--version`     Print program version and exit.
 * `-h`  `--help`  Show program commands, subcommands and options.
@@ -102,15 +123,69 @@ where global options are:
 * `-l`, `--log file` Optional log file. Recommended for unattended use.
 * `-q`, `--quiet` Optional less verbose output.
 
+## FITS editing options
 
+* `--images-dir`.   Base directory for multi-file edition. Mutually exclusive to `--image-file`
+* `--image-file`.   Single FITS file edition. Mutually exclusive to `--images-dir`
+* `--swcreator`.    Specifies a software creator if not present in the FITS image (`SWCREATE`)
+* `--camera`.       Sets the camera model (`INSTRUME`).
+* `--bayer-pattern` Sets the bayer pattern model (`BAYERPAT`).
+* `--gain`          CMOS detector GAIN settings (`LOG-GAIN`)
+* `--bias`          Global pedestal value for all channels [ADU]  (`PEDESTAL`)
+* `--x-pixsize`     Pixel size, width [um]   (`XPIXSZ`)
+* `--y-pixsize`     Pixel size, height [um]  (`YPIXSZ`)
+* `--exptime`       Image exposure time [s]  (`EXPTIME`)
+* `--focal-length`  Optics focal length [mm]  (`FOCALLEN`)
+* `--diameter`      Optics diameter [mm]  (`APTDIA`)
+* `--image-type`    Image type  (`IMAGETYP`)
+
+## Examples of usage
+
+### SharpCap FITS images
+
+SharpCap FITS images have a few issues that are edited/corrected by AZOFITS:
+* It uses the older `BAYEROFX`, `BAYOFFY` keywords, which are substituted by `XBAYROFF`, `YBAYROFF`
+* `DATE-OBS` timestamp have seconds with excess decimals, so the timestamp is fixed.
+* `BAYERPAT` uses a bottom-up pattern convention, so the 4-letter pattern code is flipped.
+* CMOS camera gain keyword is not included in the FITS file. However, it is included in a separate
+metadata XXXX_CameraSettings.txt file for each XXXX.fits image. To  properly include the CMOS GAIN, AZOFITS needs this additional metadata file alongside with the FITS file.
+
+Fortunately, SharpCap FITS images already include `SWCREATE` so they can be properly detected and there is no need
+to specify it in the command line.
+
+The command line is shown below:
+
+```bash
+azofits --console --images-dir ../images/Zamorano-Villaverde-del-Ducado/FITS --bias 64 --diameter 10 --focal-length 35 
+```
+
+*Note: values are just ficticuous examples*
+
+We specify a default optics configuration, as the FITS headers did not include this information
+
+### captura-fits FITS images
+
+This image adquistion software, developed by Alberto Castellon, is used in meteor & fireball detection. It includes a minimalistic FITS keyword set and encodes the observation date & exposure time in the file name as `yyyy-mm-dd.exptime.fits`
+where the exposure time is given in milliseconds. AZOFITS handle this case too
+
+The command line is shown below:
+
+```bash
+azofits --console --images-dir ../images/Zamorano-Villaverde-del-Ducado/FITS --swcreator captura-fits --camera ZWO ASI178MC --bayer-pattern RGGB --gain 150 --bias 64 --diameter 10 --focal-length 35
+```
+*Note: values are just ficticuous examples*
+
+Note that, except for the timestamp and exposition time, we have to specify almost everything, even the software creation tag, which also flags AZOFITS to forward thos edition to the appropiate internal "capturafits driver"
+
+
+# Miscelanea
 
 ## Interesting links
 [Interesting ClodyNights discussion](https://www.cloudynights.com/topic/692074-fits-keywords-bayerpat-bayoffx-bayoffy-etc/)
 
 ## FITS File Header Definitions
 
-Diffraction Limited's Maxim DL software [compiled a series of FITS keyword definitions](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm) for imaging and amateur observatoty neeeds. 
-They are reproduced here, just in case the original page dissapears.
+Copy of [Maxim DL FITS specifications](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm)
 
 Mandatory FITS keywords are as follows:
 
