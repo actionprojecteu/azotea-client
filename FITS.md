@@ -68,8 +68,8 @@ The gain in ZWO cameras is expressed in a logaritmic scale gain with 0.1 dB unit
 LOG-GAIN = 100 * log10(G)
 ```
 Where `G` is the internal amplifier gain of the analog circuitry.
-This is a new keyword, not present in the [Maxim DL FITS specification](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm), 
-not to be confused  with `EGAIN` which specifies a "gain" (conversion factor) in e-/ADU.
+This is a new keyword, not present in the [Maxim DL FITS specification](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm) and 
+not to be confused  with the `EGAIN` keyword which specifies a "gain" (conversion factor) in e-/ADU.
 
 ## Note 4:
 [Maxim DL FITS specifications](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm) list as values for this keyword the following strings:
