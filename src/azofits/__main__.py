@@ -89,7 +89,15 @@ def configureLogging(options):
         fh.setLevel(level)
         log.addHandler(fh)
 
+def validfile(path):
+    if not os.path.isfile(path):
+        raise IOError(f"Not valid or existing file: {path}")
+    return path
 
+def validdir(path):
+    if not os.path.isdir(path):
+        raise IOError(f"Not valid or existing directory: {path}")
+    return path
 
 def log_skip(quiet, i, N,  basename, M=50):
     if quiet and (i % M == 0):
@@ -126,57 +134,66 @@ def fits_dispatcher(filepath, swcreator, swcomment, options):
     )
 
 
-def process_fits_files(directories, options):
-    for directory in directories:
-        paths_set = set()
-        for extension in EXTENSIONS:
-            alist  = glob.glob(os.path.join(directory, extension))
-            paths_set  = paths_set.union(alist)
-        N = len(paths_set)
-        if N:
-            log.warning(f"Scanning directory '{directory}'. Found {N} FITS images matching '{EXTENSIONS}'")
-        for i, filepath in enumerate(sorted(paths_set), start=1):
-            try:
-                basename = os.path.basename(filepath)
-                with fits.open(filepath) as hdul:
-                    header = hdul[0].header
-                    swcreator = header.get('SWCREATE')
-                    swmodify  = header.get('SWMODIFY')
-                    #log.info(f"Force = {options.force}, swcreator = {swcreator}, new_swcreator = {options.swcreator}, swmodify = {swmodify}")
-                    # new FITS edition or forcing an edition
-                    if swmodify is None or options.force:
-                        if swcreator is None and options.swcreator is None:
-                            raise UnknownSoftwareCreatorError("Missing --swcreator option?")
-                        elif swcreator is None and options.swcreator is not None:
-                            log_edit(options.quiet, i, N, basename)
-                            swcreator, swcomment = fits_swcreator(options.swcreator)
-                            hdul.close()
-                            fits_dispatcher(filepath, swcreator, swcomment, options)
-                        elif swcreator is not None and options.swcreator is None:
-                            log_edit(options.quiet, i, N, basename)
-                            swcomment = header.comments['SWCREATE']
-                            hdul.close()
-                            fits_dispatcher(filepath, swcreator, swcomment, options)
-                        elif swcreator is not None and swcreator != options.swcreator:
-                            log.warning(f"Not editing '{basename}': Existing FITS SWCREATE value ({swcreator}) does not match --swcreate option ({options.swcreator})")
-                        else:
-                            log_edit(options.quiet, i, N, basename)
-                            swcomment = header.comments['SWCREATE']
-                            hdul.close()
-                            fits_dispatcher(filepath, swcreator, swcomment, options)
-                    else: # Skip already edited FITS file if we are not forcing edition
-                        log_skip(options.quiet, i, N, basename)
+def process_options(options):
+    if options.image_file:
+        process_fits_file(options.image_file, options)
+    else:
+        directories = scan_non_empty_dirs(options.images_dir)
+        for directory in directories:
+            paths_set = set()
+            for extension in EXTENSIONS:
+                alist  = glob.glob(os.path.join(directory, extension))
+                paths_set  = paths_set.union(alist)
+            N = len(paths_set)
+            if N:
+                log.warning(f"Scanning directory '{directory}'. Found {N} FITS images matching '{EXTENSIONS}'")
+            for i, filepath in enumerate(sorted(paths_set), start=1):
+                try:
+                    process_fits_file(filepath, options, i, N)
+                except (FileNotFoundError, MissingGainError) as e:
+                    log.critical("[%s] Fatal error => %s", __name__, str(e) )
+                    continue
+                except Exception as e:
+                    raise e
 
-            except (FileNotFoundError, MissingGainError) as e:
-                log.critical("[%s] Fatal error => %s", __name__, str(e) )
-                continue
-            except Exception as e:
-                raise e
 
+
+def process_fits_file(filepath, options, i=1, N=1):
+    with fits.open(filepath) as hdul:
+        header    = hdul[0].header
+        swcreator = header.get('SWCREATE')
+        swmodify  = header.get('SWMODIFY')
+        basename  = os.path.basename(filepath)
+        #log.info(f"Force = {options.force}, swcreator = {swcreator}, new_swcreator = {options.swcreator}, swmodify = {swmodify}")
+        # new FITS edition or forcing an edition
+        if swmodify is None or options.force:
+            if swcreator is None and options.swcreator is None:
+                raise UnknownSoftwareCreatorError("Missing --swcreator option?")
+            elif swcreator is None and options.swcreator is not None:
+                log_edit(options.quiet, i, N, basename)
+                swcreator, swcomment = fits_swcreator(options.swcreator)
+                hdul.close()
+                fits_dispatcher(filepath, swcreator, swcomment, options)
+            elif swcreator is not None and options.swcreator is None:
+                log_edit(options.quiet, i, N, basename)
+                swcomment = header.comments['SWCREATE']
+                hdul.close()
+                fits_dispatcher(filepath, swcreator, swcomment, options)
+            elif swcreator is not None and swcreator != options.swcreator:
+                log.warning(f"Not editing '{basename}': Existing FITS SWCREATE value ({swcreator}) does not match --swcreate option ({options.swcreator})")
+            else:
+                log_edit(options.quiet, i, N, basename)
+                swcomment = header.comments['SWCREATE']
+                hdul.close()
+                fits_dispatcher(filepath, swcreator, swcomment, options)
+        # Skip already edited FITS file if we are not forcing edition
+        else: 
+            log_skip(options.quiet, i, N, basename)
+
+           
 # -----------------------
 # Module global functions
 # -----------------------
-
 
 def createParser():
     # create the top-level parser
@@ -193,8 +210,11 @@ def createParser():
     group1.add_argument('-v', '--verbose', action='store_true', help='Verbose logging output.')
     group1.add_argument('-q', '--quiet',   action='store_true', help='Quiet logging output.')
 
+    group2 = parser.add_mutually_exclusive_group(required=True)
+    group2.add_argument('-d', '--images-dir', type=validdir, action='store', metavar='<path>', help='Base directory to edit FITS files')
+    group2.add_argument('-f', '--image-file', type=validfile, action='store', metavar='<path>', help='single FITS file path')  
+
     # FITS specific editing info  
-    parser.add_argument('-d', '--images-dir', type=str, required=True, action='store', metavar='<file path>', help='Base directory to edit FITS files')  
     parser.add_argument('--force',     action='store_true', help='Force editing.')
     parser.add_argument('--swcreator', choices=SW_CREATORS, default=None, action='store', help='Name of software that created the FITS files')
     parser.add_argument('--camera',     type=str, nargs='+', default=None, help="Camera model")
@@ -204,8 +224,9 @@ def createParser():
     parser.add_argument('--x-pixsize', type=float, default=None, help="Pixel width in um.")
     parser.add_argument('--y-pixsize', type=float, default=None, help="Pixel height in um.")
     parser.add_argument('--image-type', choices=IMAGE_TYPES,  default=None, help='Image type')
-    parser.add_argument('--diameter', type=float,  default=None, help='Optics diameter in mm')
-    parser.add_argument('--focal-length', type=float,  default=None, help='Focal length in mm')
+    parser.add_argument('--diameter', type=float,  default=None, help='Optics diameter in mm.')
+    parser.add_argument('--focal-length', type=float,  default=None, help='Focal length in mm.')
+    parser.add_argument('--exptime', type=float,  default=None, help='Exposure time in sec.')
 
     return parser
 
@@ -223,8 +244,7 @@ def main():
         options = createParser().parse_args(sys.argv[1:])
         configureLogging(options)
         log.info("=============== AZOTEA FITS EDITOR {0} ===============".format(__version__))
-        directories = scan_non_empty_dirs(options.images_dir)
-        process_fits_files(directories, options)
+        process_options(options)
     except KeyboardInterrupt as e:
         log.critical("[%s] Interrupted by user ", __name__)
     except Exception as e:
