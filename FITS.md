@@ -39,7 +39,7 @@ trouble-free FITS images to AZOTEA.
 |`LOG-GAIN`| dB    | Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client/main/FITS.md#note-3).
 |`IMAGETYP`|       | Image type | See [Note 4](https://github.com/actionprojecteu/azotea-client/main/FITS.md#note-3).
 
-### Note 1:
+## Note 1:
 
 Depending on the application field (astronomy, general imaging), the images origin of coordinates (0,0) can either be top-left or bottom-left. DSLR and generic imaging appliactons genearlly use the top-left convention. For FITS images, 
 the custom from the 80s was to use a bottom-left origin.
