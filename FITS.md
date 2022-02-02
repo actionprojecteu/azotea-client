@@ -38,7 +38,7 @@ trouble-free FITS images to AZOTEA.
 |`XPIXSZ`  | um.   | Horizontal pixel size.
 |`YPIXSZ`  | um.   | Vertical pixel size.
 |`LOG-GAIN`| dB    | Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client#note-3).
-|`IMAGETYP`|       | Image type | See Note 4](https://github.com/actionprojecteu/azotea-client#note-3).
+|`IMAGETYP`|       | Image type | See [Note 4](https://github.com/actionprojecteu/azotea-client#note-3).
 
 ### Note 1:
 
