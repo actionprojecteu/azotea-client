@@ -7,6 +7,7 @@ Development of this software has been possible through [ACTION - Participatory s
 
 * Rich client GUI interactive mode.
 * Non interactive command line mode for automated data adquisition, processing and publishing.
+* EXIF and FITS color raw images processing.
 
 # Table of Contents
 
