@@ -78,10 +78,10 @@ or `GBRG` if using the bottom-up origin convention, as shown below:
 AZOTEA uses internally a top-left convention but SharpCap uses a bottom-left convention. 
 So, for some FITS writers like *SharpCap*, the Bayer pattern 4 code letter in BAYERPAT keyword must be flipped to apply a correct debayering in AZOTEA.
 
-### Note 2:
+## Note 2:
 Admits both `YYYY-MM-DDTHH:MM:SS` or `YYYY-MM-DDTHH:MM:SS.fffff`  with up to 6 seconds decimals.
 
-### Note 3:
+## Note 3:
 The gain in ZWO cameras is expressed in a logaritmic scale gain with 0.1 dB units, that is:
 ```
 LOG-GAIN = 100 * log10(G)
@@ -90,7 +90,7 @@ Where `G` is the internal amplifier gain of the analog circuitry.
 This is a new keyword, not present in the [Maxim DL FITS specification](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm), 
 not to be confused  with `EGAIN` which specifies a "gain" (conversion factor) in e-/ADU.
 
-### Note 4:
+## Note 4:
 [Maxim DL FITS specifications](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm) list as values for this keyword the following strings:
 * `Light Frame` for monocrome images
 * `Tricolor Image` for images taken by RGB color cameras
