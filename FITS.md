@@ -29,15 +29,15 @@ trouble-free FITS images to AZOTEA.
 |`SWMODIFY`|       | Image editing sofware (always `azofits`).
 |`BAYERPAT`|       | Camera Bayer pattern (`RGGB`, `BGGR`, `GRBG`, `GBRG`). | See [Note 1](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#note-1)
 |`INSTRUME`|       | Camera model (i.e. `ZWO ASI178MC`).
-|`DATE-OBS`|       | Date time in ISO 8601 format | See [Note 2](https://github.com/actionprojecteu/azotea-client/main/FITS.md#note-2).
+|`DATE-OBS`|       | Date time in ISO 8601 format | See [Note 2](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#note-2).
 |`ÈXPTIME` | sec.  | Exposure time.
 |`PEDESTAL`| ADUs  | Global electronic bias. Same for all channels.
 |`FOCALLEN`| mm.   | Focal length.
 |`APTDIA`  | mm.   | Aperture diameter.
 |`XPIXSZ`  | um.   | Horizontal pixel size.
 |`YPIXSZ`  | um.   | Vertical pixel size.
-|`LOG-GAIN`| dB    | Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client/main/FITS.md#note-3).
-|`IMAGETYP`|       | Image type | See [Note 4](https://github.com/actionprojecteu/azotea-client/main/FITS.md#note-3).
+|`LOG-GAIN`| dB    | Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#note-3).
+|`IMAGETYP`|       | Image type | See [Note 4](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#note-3).
 
 ## Note 1:
 
