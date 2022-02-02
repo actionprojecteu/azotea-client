@@ -16,9 +16,8 @@ trouble-free FITS images to AZOTEA.
 
 # Table of Contents
 
-* [AZOTEA FITS keywords](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#table-of-contents)
-* [Installation](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#installation)
-* [Usage](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#configuration)
+* [AZOTEA FITS keywords](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#azoteaa-fits-keywords)
+* [Usage](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#usage)
 * [Miscelanea](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#miscelanea)
 
 
