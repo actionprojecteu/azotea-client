@@ -111,5 +111,7 @@ class CameraController:
             'bayer_pattern': options.bayer_pattern,
             'width'        : options.width,
             'length'       : options.length,
+            'x_pixsize'    : options.x_pixsize,
+            'y_pixsize'    : options.y_pixsize,
         }
         

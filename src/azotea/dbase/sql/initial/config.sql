@@ -8,7 +8,7 @@ INSERT INTO config_t(section, property, value)
 VALUES ( 'global', 'language', 'en');
 
 INSERT INTO config_t(section, property, value) 
-VALUES ('database', 'version', '01');
+VALUES ('database', 'version', '02');
 
 -- Default, persistent  settings
 

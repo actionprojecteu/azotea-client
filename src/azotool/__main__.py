@@ -135,6 +135,8 @@ def createParser():
     camcre.add_argument('--bayer-pattern', choices=BAYER_PTN_LIST, default=None, help='Bayer pattern grid')
     camcre.add_argument('--width',        type=int, default=0, help="Number of raw columns, with no debayering")
     camcre.add_argument('--length',       type=int, default=0, help="Number of raw rows, with no debayering")
+    camcre.add_argument('--x-pixsize',    type=float, default=None, help="Pixel width in um.")
+    camcre.add_argument('--y-pixsize',    type=float, default=None, help="Pixel height in um.")
 
     # -------------------------------------
     # Create second level parsers for 'roi'

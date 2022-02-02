@@ -81,6 +81,8 @@ CREATE TABLE IF NOT EXISTS camera_t
     bayer_pattern       TEXT,         -- Either "RGGB", "BGGR", "GRBG" , "GBGR"
     width               INTEGER DEFAULT 0, -- Number of raw columns, without debayering
     length              INTEGER DEFAULT 0, -- Number of raw rows, without debayering
+    x_pixsize           REAL,         -- pixel size in microns (width)
+    y_pixsize           REAL,         -- pixel size in microns (height)
     UNIQUE(model),
     PRIMARY KEY(camera_id)
 );

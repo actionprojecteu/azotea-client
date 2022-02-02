@@ -35,10 +35,10 @@ PUB_COLUMN_NAMES = (
     'time_id', # time [1:2]
     'surname','family_name','acronym','affiliation','valid_since','valid_until','valid_state', # observer [3:10]
     'site_name','location','longitude','latitude', 'randomized', 'utc_offset',                 # location [10:16]
-    'model','bias','extension','header_type','bayer_pattern','width','length',                 # camera [16:23]
-    'x1','y1','x2','y2','display_name','comment',                                              # roi [23:29]
-    'name','directory','hash','iso','gain','exptime','focal_length','f_number', 'imagetype', 'flagged', 'session', # image [29:40]
-    'aver_signal_R','vari_signal_R','aver_signal_G1','vari_signal_G1',                         # sky_brightness [40:48]
+    'model','bias','extension','header_type','bayer_pattern','width','length', 'x_pixsize', 'y_pixsize', # camera [16:25]
+    'x1','y1','x2','y2','display_name','comment',                                              # roi [25:31]
+    'name','directory','hash','iso','gain','exptime','focal_length','f_number', 'imagetype', 'flagged', 'session', # image [31:42]
+    'aver_signal_R','vari_signal_R','aver_signal_G1','vari_signal_G1',                         # sky_brightness [42:50]
     'aver_signal_G2','vari_signal_G2','aver_signal_B','vari_signal_B'
 )
 
@@ -54,10 +54,10 @@ def slice_func(row):
         'time'           : dict(zip(PUB_COLUMN_NAMES[1:2],   row[1:2])),
         'observer'       : dict(zip(PUB_COLUMN_NAMES[3:10],  row[3:10])),
         'location'       : dict(zip(PUB_COLUMN_NAMES[10:16], row[10:16])),
-        'camera'         : dict(zip(PUB_COLUMN_NAMES[16:23], row[16:23])),
-        'roi'            : dict(zip(PUB_COLUMN_NAMES[23:29], row[23:29])),
-        'image'          : dict(zip(PUB_COLUMN_NAMES[29:40], row[29:40])),
-        'sky_brightness' : dict(zip(PUB_COLUMN_NAMES[40:48], row[40:48])),
+        'camera'         : dict(zip(PUB_COLUMN_NAMES[16:25], row[16:25])),
+        'roi'            : dict(zip(PUB_COLUMN_NAMES[25:31], row[25:31])),
+        'image'          : dict(zip(PUB_COLUMN_NAMES[31:42], row[31:42])),
+        'sky_brightness' : dict(zip(PUB_COLUMN_NAMES[42:50], row[42:50])),
     }
     result['image']['hash'] = result['image']['hash'].hex()
     return result   
@@ -633,7 +633,7 @@ class SkyBrightness:
             i.date_id, i.time_id,
             o.surname, o.family_name, o.acronym, o.affiliation, o.valid_since, o.valid_until, o.valid_state,
             l.site_name, l.location, l.longitude, l.latitude, l.randomized, l.utc_offset,
-            c.model, c.bias, c.extension, c.header_type, c.bayer_pattern, c.width, c.length,
+            c.model, c.bias, c.extension, c.header_type, c.bayer_pattern, c.width, c.length, c.x_pixsize, c.y_pixsize,
             s.x1, s.y1, s.x2, s.y2, s.display_name, s.comment,
             i.name, i.directory, i.hash, i.iso, i.gain, i.exptime, i.focal_length, i.f_number, i.imagetype, i.flagged, i.session,  
             s.aver_signal_R,  s.vari_signal_R,  s.aver_signal_G1, s.vari_signal_G1, 

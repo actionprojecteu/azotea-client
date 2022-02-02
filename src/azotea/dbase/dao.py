@@ -88,7 +88,7 @@ class DataAccesObject():
             table               = 'camera_t',
             id_column           = 'camera_id',
             natural_key_columns = ('model',), 
-            other_columns       = ('bias','extension','header_type','bayer_pattern','width','length'),
+            other_columns       = ('bias','extension','header_type','bayer_pattern','width','length','x_pixsize','y_pixsize'),
             insert_mode         = tables.QUERY_INSERT_OR_REPLACE,
             log_level           = cam_dbg,
         )
