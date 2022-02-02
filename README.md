@@ -21,11 +21,11 @@ Development of this software has been possible through [ACTION - Participatory s
   - [Automation issues](https://github.com/actionprojecteu/azotea-client#automation-issues)
     - [Log file & console output](https://github.com/actionprojecteu/azotea-client#log-file--console-output)
     - [Exit codes](https://github.com/actionprojecteu/azotea-client#exit-codes)
+* [FITS Support](https://github.com/actionprojecteu/azotea-client#fits-support)
 * [GUI mode](https://github.com/actionprojecteu/azotea-client#configuration)
   - [Launch the program in GUI mode](https://github.com/actionprojecteu/azotea-client#launch-the-program-in-gui-mode)
   - [Image processing in GUI mode](https://github.com/actionprojecteu/azotea-client#image-processing-in-gui-mode)
   - [Screenshots](https://github.com/actionprojecteu/azotea-client#screenshots)
-* [FITS Support](https://github.com/actionprojecteu/azotea-client#fits-support)
 
 
 # Command line structure
@@ -383,6 +383,35 @@ Both `azotool` and `azotea` commands return the following exit codes are:
 * 1 => Command finished with errors. See the console (if set) or the log file.
 * 126 => User did not agree the usage conditions.
 
+# FITS Support
+
+AZOTEA now supports reading and computing statistics from RAW images taken from astrocameras which
+write their output in FITS format. A previous FITS keywords pre-processing is needed, so that AZOTEA
+can smoothly read metadata without having to deal with FITS software idiosyncrasies.
+
+Detailed information on this pre-porcessing step can be found in the [AZOFITS documentation](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md).
+
+AZOTOOL software must *always* be used before issuing commands to AZOTEA.
+Once image are pre-procesed, camera and ROI creation can be even made from FITS images, 
+as shown in the example below.
+
+```bash
+# Edit FITS headers with AZOFITS
+azofits --console --images-dir ${IMAGES}/202201 --swcreator captura-fits --camera ZWO ASI178MC --bayer-pattern RGGB --gain 150 --bias 64 --diameter 10 --focal-length 35
+
+# Input metadata with AZOTOOL
+# Assume taht observer & location metadata has already been input
+azotool --console --dbase ${DBASE} camera create --default \
+        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
+
+azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
+        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
+
+# Load images in AZOTEA database and compute statistics
+azotea --console --dbase ${DBASE} --images-dir ${IMAGES}/202201
+```
+
+
 # GUI Mode
 
 Azotea in GUI mode offers the same functions as the command line version. 
@@ -429,30 +458,3 @@ Then we can either generate a CSV file with the results or publsih them:
 
 ![Edit > Preferences > configure](doc/image/configure.png)
 
-# FITS Support
-
-AZOTEA now supports reading and computing statistics from RAW images taken from astrocameras which
-write their output in FITS format. A previous FITS keywords pre-processing is needed, so that AZOTEA
-can smoothly read metadata without having to deal with FITS software idiosyncrasies.
-
-Detailed information on this pre-porcessing step can be found in the [AZOFITS documentation](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md).
-
-AZOTOOL software must *always* be used before issuing commands to AZOTEA.
-Once image are pre-procesed, camera and ROI creation can be even made from FITS images, 
-as shown in the example below.
-
-```bash
-# Edit FITS headers with AZOFITS
-azofits --console --images-dir ${IMAGES}/202201 --swcreator captura-fits --camera ZWO ASI178MC --bayer-pattern RGGB --gain 150 --bias 64 --diameter 10 --focal-length 35
-
-# Input metadata with AZOTOOL
-# Assume taht observer & location metadata has already been input
-azotool --console --dbase ${DBASE} camera create --default \
-        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
-
-azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
-        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
-
-# Load images in AZOTEA database and compute statistics
-azotea --console --dbase ${DBASE} --images-dir ${IMAGES}/202201
-```
