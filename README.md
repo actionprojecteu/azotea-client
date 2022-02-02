@@ -386,7 +386,7 @@ Both `azotool` and `azotea` commands return the following exit codes are:
 # FITS Support
 
 AZOTEA now supports reading and computing statistics from RAW images taken from astrocameras which
-write their output in FITS format. A previous FITS keywords pre-processing is needed, so that AZOTEA
+write their output in FITS format. A previous FITS keywords pre-processing step is needed, so that AZOTEA
 can smoothly read metadata without having to deal with FITS software idiosyncrasies.
 
 Detailed information on this pre-porcessing step can be found in the [AZOFITS documentation](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md).
