@@ -153,8 +153,8 @@ def main():
     except KeyboardInterrupt as e:
         log.critical("[%s] Interrupted by user ", __name__)
     except Exception as e:
-        log.critical("[%s] Fatal error => %s", __name__, str(e) )
         traceback.print_exc()
+        log.critical("[%s] Fatal error => %s", __name__, str(e) )
     finally:
         pass
 
