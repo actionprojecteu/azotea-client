@@ -147,29 +147,49 @@ def widget_datetime(date_id, time_id):
     return dt.strftime("%Y-%m-%d"), dt.strftime("%H:%M:%S")
 
 
-def region_stats(raw_pixels, bayer, color, rect):
-     x, y = CFA_OFFSETS[bayer][color]['x'], CFA_OFFSETS[bayer][color]['y']
-     debayered_plane = raw_pixels[y::2, x::2]
-     section = debayered_plane[rect.y1:rect.y2, rect.x1:rect.x2]
+def get_bayer_offsets(bayer_pattern, channel):
+     return CFA_OFFSETS[bayer_pattern][channel]['x'], CFA_OFFSETS[bayer_pattern][channel]['y']
+
+def get_debayered_for_channel(raw_pixels, bayer_pattern, channel):
+    x, y = get_bayer_offsets(bayer_pattern, channel)
+    return raw_pixels[y::2, x::2]
+
+def get_image_roi(debayered_channel, roi):
+     y1 = roi['y1'] ; y2 = roi['y2']
+     x1 = roi['x1'] ; x2 = roi['x2']
+     return debayered_channel[y1:y2, x1:x2]
+
+def region_stats(raw_pixels, bayer_pattern, channel, roi):
+     debayered_channel = get_debayered_for_channel(raw_pixels, bayer_pattern, channel)
+     section           = get_image_roi(debayered_channel, roi)
      average, variance = round(section.mean(),1), round(section.var(),3)
      return average, variance
 
+def all_channels_stats(raw_pixels, bayer_pattern, roi, row):
+    row['aver_signal_R'] , row['vari_signal_R']  = region_stats(raw_pixels, bayer_pattern, 'R', roi)
+    row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(raw_pixels, bayer_pattern, 'G1', roi)
+    row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(raw_pixels, bayer_pattern, 'G2', roi)
+    row['aver_signal_B'] , row['vari_signal_B']  = region_stats(raw_pixels, bayer_pattern, 'B', roi)
+    return row
 
-def processImage(name, directory, rect, header_type, bayer_pattern, row):
+# --------------------
+# MAIN DRIVER FUNCTION
+# --------------------
+
+def processImage(name, directory, roi, header_type, bayer_pattern, row):
     # THIS IS HEAVY STUFF TO BE IMPLEMENTED IN A THREAD
     filepath = os.path.join(directory, name)
     if header_type == FITS_HEADER_TYPE:
         with fits.open(filepath, memmap=False) as hdu_list:
             raw_pixels = hdu_list[0].data
-            row['aver_signal_R'] , row['vari_signal_R']  = region_stats(raw_pixels, bayer_pattern, 'R', rect)
-            row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(raw_pixels, bayer_pattern, 'G1', rect)
-            row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(raw_pixels, bayer_pattern, 'G2', rect)
-            row['aver_signal_B'] , row['vari_signal_B']  = region_stats(raw_pixels, bayer_pattern, 'B', rect)
+            # This must be executed unther the context manager
+            # for raw_pixels to become valid
+            row = all_channels_stats(raw_pixels, bayer_pattern, roi, row)
     else:
          with rawpy.imread(filepath) as img:
-            # Debayerize process and calculate stats
             raw_pixels = img.raw_image
-            row['aver_signal_R'] , row['vari_signal_R']  = region_stats(raw_pixels, bayer_pattern, 'R', rect)
-            row['aver_signal_G1'], row['vari_signal_G1'] = region_stats(raw_pixels, bayer_pattern, 'G1', rect)
-            row['aver_signal_G2'], row['vari_signal_G2'] = region_stats(raw_pixels, bayer_pattern, 'G2', rect)
-            row['aver_signal_B'] , row['vari_signal_B']  = region_stats(raw_pixels, bayer_pattern, 'B', rect)
+            # This must be executed unther the context manager
+            # for raw_pixels to become valid
+            row = all_channels_stats(raw_pixels, bayer_pattern, roi, row)
+    return row
+

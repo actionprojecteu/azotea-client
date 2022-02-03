@@ -148,7 +148,7 @@ class SkyBackgroundController:
             else:
                 log.info("Sky bg in {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
             try:
-                yield deferToThread(processImage, name, directory, rect, header_type, cfa_pattern, row)
+                row = yield deferToThread(processImage, name, directory, roi_dict, header_type, cfa_pattern, row)
             except RAWPY_EXCEPTIONS as e:
                 log.error("Corrupt  {name} ({i}/{N}) [{p}%]", i=i, N=N_stats, name=name, p=(100*i//N_stats))
                 yield self.image.flagAsBad(row)

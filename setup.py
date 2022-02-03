@@ -64,6 +64,7 @@ SCRIPTS = [
     "scripts/azotea", 
     "scripts/azotool",
     "scripts/azofits",
+    "scripts/azoplot",
 ]
 
 DATA_FILES  = []

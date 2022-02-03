@@ -111,14 +111,14 @@ class Rect:
         return f"[{self.y1}:{self.y2},{self.x1}:{self.x2}]"
 
 
-def raw_dimensions_fits(filepath, rect):
+def raw_dimensions_fits(filepath):
     with fits.open(filepath, memmap=False) as hdu_list:
         header = hdu_list[0].header
         fits_assert_valid(filepath, header)
     return header['NAXIS2'], header['NAXIS1'], header['INSTRUME']
   
      
-def raw_dimensions_exif(filepath, rect):
+def raw_dimensions_exif(filepath):
     # This is to properly detect and EXIF image
     with open(filepath, 'rb') as f:
         exif = exifread.process_file(f, details=False)
@@ -136,9 +136,9 @@ def raw_dimensions_exif(filepath, rect):
 def reshape_rect(filepath, rect):
     extension = os.path.splitext(filepath)[1]
     if fits_check_valid_extension(extension):
-        imageHeight, imageWidth, model = raw_dimensions_fits(filepath, rect)
+        imageHeight, imageWidth, model = raw_dimensions_fits(filepath)
     else:
-        imageHeight, imageWidth, model = raw_dimensions_exif(filepath, rect)
+        imageHeight, imageWidth, model = raw_dimensions_exif(filepath)
     imageHeight = imageHeight //2 # From raw dimensions without debayering
     imageWidth =  imageWidth  //2  # to dimensions we actually handle
     width, height = rect.dimensions()
