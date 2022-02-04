@@ -322,7 +322,7 @@ def do_single(filepath, options, i=1, N=1):
     header_type = find_header_type(filepath)
     metadata = get_metadata(filepath, header_type)
     roi = centered_roi(metadata, options.width, options.height)
-    bayer_pattern = metadata['bayer'] if metadata['bayer'] else options.bayer_pattern
+    bayer_pattern = options.bayer if options.bayer else metadata['bayer']
     if not bayer_pattern:
         raise UnknownBayerPatternError(f"Choose among {BAYER_PTN_LIST}")
     get_pixels_and_plot(filepath, metadata, roi, bayer_pattern)

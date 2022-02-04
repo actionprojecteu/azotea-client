@@ -120,9 +120,9 @@ def createParser():
     group = iplot.add_mutually_exclusive_group(required=True)
     group.add_argument('-d', '--images-dir', type=validdir, action='store', metavar='<path>', help='Images directory')
     group.add_argument('-f', '--image-file', type=validfile, action='store', metavar='<path>', help='single FITS file path')  
-    iplot.add_argument('--width',  type=int, default=500, help="Region of interest width [pixels].")
-    iplot.add_argument('--height', type=int, default=400, help="Region of interest height [pixels].")
-    iplot.add_argument('--bayer-pattern', choices=BAYER_PTN_LIST, default=None, help='Bayer pattern layout')
+    iplot.add_argument('-x','--width',  type=int, default=500, help="Region of interest width [pixels].")
+    iplot.add_argument('-y','--height', type=int, default=400, help="Region of interest height [pixels].")
+    iplot.add_argument('-b','--bayer', choices=BAYER_PTN_LIST, default=None, help='Bayer pattern layout')
 
     return parser
 
