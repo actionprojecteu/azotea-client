@@ -210,19 +210,19 @@ def centered_roi(metadata, width, height):
     return result
 
 
-def get_pixels_and_plot(filepath, metadata, roi, bayer_pattern):
+def get_pixels_and_plot(filepath, metadata, roi):
     if metadata['header_type'] == FITS_HEADER_TYPE:
         with fits.open(filepath, memmap=False) as hdu_list:
             raw_pixels = hdu_list[0].data
             # This must be executed unther the context manager
             # for raw_pixels to become valid
-            plot_4_channels(raw_pixels, bayer_pattern, roi, metadata)
+            plot_4_channels(raw_pixels, roi, metadata)
     else:
          with rawpy.imread(filepath) as img:
             raw_pixels = img.raw_image
             # This must be executed unther the context manager
             # for raw_pixels to become valid
-            plot_4_channels(raw_pixels, bayer_pattern, roi, metadata)
+            plot_4_channels(raw_pixels, roi, metadata)
            
     
 
@@ -242,7 +242,8 @@ def stat_display(channel, roi):
 
 
 
-def plot_4_channels(raw_pixels, bayer_pattern, roi, metadata, vmin=0, vmax=30000):
+def plot_4_channels(raw_pixels, roi, metadata, vmin=0, vmax=30000):
+    bayer_pattern = metadata['bayer']
     image_R1 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'R')
     image_G2 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G1')
     image_G3 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G2')
@@ -322,10 +323,10 @@ def do_single(filepath, options, i=1, N=1):
     header_type = find_header_type(filepath)
     metadata = get_metadata(filepath, header_type)
     roi = centered_roi(metadata, options.width, options.height)
-    bayer_pattern = options.bayer if options.bayer else metadata['bayer']
-    if not bayer_pattern:
+    metadata['bayer'] = options.bayer if options.bayer else metadata['bayer']
+    if not metadata['bayer']:
         raise UnknownBayerPatternError(f"Choose among {BAYER_PTN_LIST}")
-    get_pixels_and_plot(filepath, metadata, roi, bayer_pattern)
+    get_pixels_and_plot(filepath, metadata, roi)
 
 
 def stats(options):
