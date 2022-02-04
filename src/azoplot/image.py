@@ -40,6 +40,7 @@ from matplotlib.colors import LogNorm
 
 from azotea              import FITS_HEADER_TYPE, EXIF_HEADER_TYPE
 from azotea.utils.image  import scan_non_empty_dirs
+from azotea.utils.camera import bayer_from_exif, BAYER_PTN_LIST
 from azotea.utils.roi    import Rect, Point
 from azotea.utils.sky    import get_debayered_for_channel
 
@@ -82,6 +83,19 @@ plt.rcParams['ytick.labelsize'] = 10
 plt.rcParams['xtick.labelsize'] = 10
 mpl.rcParams['xtick.direction'] = 'out'
 
+# ----------
+# Exceptions
+# ----------
+
+class UnknownBayerPatternError(Exception):
+    '''Unknown Bayer Pattern'''
+    def __str__(self):
+        s = self.__doc__
+        if self.args:
+            s = ' {0}: {1}'.format(s, str(self.args[0]))
+        s = '{0}.'.format(s)
+        return s
+
 # ------------------------
 # Module utility functions
 # ------------------------
@@ -111,6 +125,18 @@ def toDateTime(tstamp):
     else:
         return tstamp_obj.strftime('%Y-%m-%dT%H:%M:%S')
 
+def bayer_fits(header):
+    bayer     = header.get('BAYERPAT')
+    if bayer is None:
+        return None
+    swmodify  = header.get('SWMODIFY')
+    if swmodify == 'azofits':
+        return bayer
+    swcreator = header.get('SWCREATE')
+    if swcreator == 'SharpCap':
+        # Swap halves
+        bayer = bayer[2:4] + bayer[0:2]
+        return bayer
 
 def metadata_fits(filepath):
     metadata = dict()
@@ -118,17 +144,17 @@ def metadata_fits(filepath):
         header = hdu_list[0].header
         metadata['header_type']  = FITS_HEADER_TYPE
         metadata['filepath'] = filepath
+        metadata['bayer']    = bayer_fits(header)
         metadata['height']   = header['NAXIS2']
         metadata['width']    = header['NAXIS1']
-        metadata['model']    = header.get('INSTRUNE', 'Unknown')
-        metadata['exptime']  = header.get('EXPTIME',  'Unknown')
-        metadata['date_obs'] = header.get('DATE_OBS', 'Unknown')
-        metadata['gain']     = header.get('LOG-GAIN', 'Unknown')
+        metadata['model']    = header.get('INSTRUNE')
+        metadata['exptime']  = header.get('EXPTIME')
+        metadata['date_obs'] = header.get('DATE_OBS')
+        metadata['gain']     = header.get('LOG-GAIN')
         metadata['iso']      = None
         focal_length = header.get('FOCALLEN')
         diameter     = header.get('APTDIA')
-        metadata['focal_length'] = 'Unknown' if focal_length is None else focal_length
-        metadata['f_number']     ='Unknown'  if focal_length is None and diameter is None else round(focal_length/diameter,1)
+        metadata['f_number']  = None  if focal_length is None and diameter is None else round(focal_length/diameter,1)
     return metadata
 
 
@@ -155,8 +181,10 @@ def metadata_exif(filepath):
     # Get the real RAW dimensions instead
     with rawpy.imread(filepath) as img:
         imageHeight, imageWidth = img.raw_image.shape
+        bayer_pattern = bayer_from_exif(img)
     metadata['height']   = imageHeight
     metadata['width']    = imageWidth
+    metadata['bayer']    = bayer_pattern
     return metadata
 
 
@@ -294,7 +322,10 @@ def do_single(filepath, options, i=1, N=1):
     header_type = find_header_type(filepath)
     metadata = get_metadata(filepath, header_type)
     roi = centered_roi(metadata, options.width, options.height)
-    get_pixels_and_plot(filepath, metadata, roi, options.bayer_pattern)
+    bayer_pattern = metadata['bayer'] if metadata['bayer'] else options.bayer_pattern
+    if not bayer_pattern:
+        raise UnknownBayerPatternError(f"Choose among {BAYER_PTN_LIST}")
+    get_pixels_and_plot(filepath, metadata, roi, bayer_pattern)
 
 
 def stats(options):
