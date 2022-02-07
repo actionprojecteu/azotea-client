@@ -26,6 +26,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+import matplotlib.patches as patches
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
@@ -196,94 +197,164 @@ def get_pixels_and_plot(filepath, metadata, roi, bayer_pattern):
             # for raw_pixels to become valid
             plot_4_channels(raw_pixels, bayer_pattern, roi, metadata)
            
-    
 
-def stat_display(channel, roi):
+
+def stat_display(axe, channel, roi):
     x1, x2, y1, y2 = roi['x1'], roi['x2'], roi['y1'], roi['y2']
-    plt.plot((x1,x1),(y1,y2),'k-',lw=1)
-    plt.plot((x2,x2),(y1,y2),'k-',lw=1)
-    plt.plot((x1,x2),(y1,y1),'k-',lw=1)
-    plt.plot((x1,x2),(y2,y2),'k-',lw=1)
     aver = channel[y1:y2,x1:x2].mean()
     std  = channel[y1:y2,x1:x2].std()
     aver_str = '\u03BC = ' + str(round(aver, 1))
     std_str  = '\u03C3 = ' + str(round(std,1))
+    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='k', facecolor='none')
     plt.text(x1+(x2-x1)/20, (y1+y2)/2-(y2-y1)/5, aver_str, ha='left', va='center')
     plt.text(x1+(x2-x1)/20, (y1+y2)/2+(y2-y1)/5, std_str, ha='left', va='center')
+    axe.add_patch(rect)
     return aver, std
 
 
 
-def plot_4_channels(raw_pixels, bayer_pattern, roi, metadata, vmin=0, vmax=30000):
-    image_R1 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'R')
-    image_G2 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G1')
-    image_G3 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G2')
-    image_B4 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'B')
-
-    figura = plt.figure(figsize=(10,6))
-
-    ax1    = figura.add_subplot(221)
-    img    = ax1.imshow(image_R1,cmap='Reds',vmin=vmin,vmax=vmax)
-    plt.text(0.05, 0.90,'R1', ha='left', va='center', transform=ax1.transAxes, fontsize=10)
-    r1_mean_center, r1_std_center = stat_display(image_R1, roi)
-    divider = make_axes_locatable(ax1)
-    cax1 = divider.append_axes("right", size="5%", pad=0.05)
-    figura.colorbar(img, cax=cax1)
-    ax1.axes.get_yaxis().set_ticks([])
-    ax1.axes.get_xaxis().set_ticks([])
-
-    ax3 = figura.add_subplot(222)
-    img = ax3.imshow(image_G2,cmap='Greens',vmin=vmin,vmax=vmax)
-    plt.text(0.05, 0.90,'G2', ha='left', va='center', transform=ax3.transAxes, fontsize=10)
-    g2_mean_center, g2_std_center = stat_display(image_G2, roi)
-    divider = make_axes_locatable(ax3)
-    cax3 = divider.append_axes("right", size="5%", pad=0.05)
-    figura.colorbar(img, cax=cax3)
-    ax3.axes.get_yaxis().set_ticks([])
-    ax3.axes.get_xaxis().set_ticks([])
-
-    ax5=figura.add_subplot(223)
-    img = ax5.imshow(image_G3,cmap='Greens',vmin=vmin,vmax=vmax)
-    plt.text(0.05, 0.90,'G3', ha='left', va='center', transform=ax5.transAxes, fontsize=10)
-    g3_mean_center, g3_std_center = stat_display(image_G3, roi)
-    divider = make_axes_locatable(ax5)
-    cax5 = divider.append_axes("right", size="5%", pad=0.05)
-    figura.colorbar(img, cax=cax5)
-    ax5.axes.get_yaxis().set_ticks([])
-    ax5.axes.get_xaxis().set_ticks([])
-
-    ax7=figura.add_subplot(224)
-    img = ax7.imshow(image_B4,cmap='Blues',vmin=vmin,vmax=vmax)
-    plt.text(0.05, 0.90,'B4', ha='left', va='center', transform=ax7.transAxes, fontsize=10)
-    b4_mean_center, b4_std_center = stat_display(image_B4, roi)
-    divider = make_axes_locatable(ax7)
-    cax7 = divider.append_axes("right", size="5%", pad=0.05)
-    figura.colorbar(img, cax=cax7)
-    ax7.axes.get_yaxis().set_ticks([])
-    ax7.axes.get_xaxis().set_ticks([])
-
- 
+def set_title(figure, metadata):
     basename    = os.path.basename(metadata.get('filepath'))
     header_type = metadata.get('header_type')
-    gain        = metadata.get('gain')
-    iso         = metadata.get('iso')
-    model       = metadata.get('model')
-    exptime     = metadata.get('exptime')
-    date_obs    = metadata.get('date_obs')
-
-    if header_type == 'FITS_HEADER_TYPE':
-        label =f"{model}   gain = {gain}  exposure = {exptime} s."
+    gain        = 'Unknown' if metadata.get('gain') is None else metadata.get('gain')
+    iso         = 'Unknown' if metadata.get('iso') is None else metadata.get('iso')
+    model       = 'Unknown' if metadata.get('model') is None else metadata.get('model') 
+    exptime     = 'Unknown' if metadata.get('exptime') is None else metadata.get('exptime')
+    date_obs    = 'Unknown' if metadata.get('date_obs') is None else metadata.get('date_obs')
+    if header_type == FITS_HEADER_TYPE:
+        label =f"{basename}\ncamera: {model}   gain = {gain}  exposure = {exptime} s."
     else:
-        label =f"{model}   iso = {iso}  exposure = {exptime} s."
+        label =f"{basename}\ncamera: {model}   iso = {iso}  exposure = {exptime} s."
+    figure.suptitle(label)
 
-    plt.text(-0.0, 1.05, basename, ha='left', va='center', transform=ax7.transAxes, fontsize=10)
-    plt.text(0.4, 1.12,  date_obs, ha='left', va='center', transform=ax7.transAxes, fontsize=10)    
-    plt.text(0.4, 1.05,  label,    ha='left', va='center', transform=ax7.transAxes, fontsize=10)
-   
+
+def add_subplot(figure, i, pixels, pixels_tag, roi, cmap, vmin, vmax):
+    axe    = figure.add_subplot(220 + i)
+    img    = axe.imshow(pixels,cmap=cmap,vmin=vmin,vmax=vmax)
+    plt.text(0.05, 0.90,pixels_tag, ha='left', va='center', transform=axe.transAxes, fontsize=10)
+    mean_center, std_center = stat_display(axe, pixels, roi)
+    divider = make_axes_locatable(axe)
+    caxe = divider.append_axes("right", size="5%", pad=0.05)
+    figure.colorbar(img, cax=caxe)
+    axe.axes.get_yaxis().set_ticks([])
+    axe.axes.get_xaxis().set_ticks([])
+
+
+
+def plot_4_channels(raw_pixels, bayer_pattern, roi, metadata, vmin=0, vmax=30000):
+    figure = plt.figure(figsize=(10,6))
+    set_title(figure, metadata)
+    image_R1 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'R')
+    add_subplot(figure, 1, image_R1, 'R1', roi, 'Reds', vmin, vmax)
+    image_G2 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G1')
+    add_subplot(figure, 2, image_G2, 'G2', roi, 'Greens', vmin, vmax)
+    image_G3 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G2')
+    add_subplot(figure, 3, image_G3, 'G3', roi, 'Greens', vmin, vmax)
+    image_B4 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'B')
+    add_subplot(figure, 4, image_B4, 'B4', roi, 'Blues', vmin, vmax)
     plt.tight_layout()
     plt.show()
 
 
+# -----------------
+# Auxiliary classes
+# -----------------
+
+class Cycler:
+    def __init__(self, connection, filepath_list, **kwargs):
+        self.filepath = filepath_list
+        self.i = 0
+        self.N = len(self.subject)
+        self.reset()
+        self.one_step(0)
+
+    def next(self, event):
+        self.i = (self.i +1) % self.N
+        self.update(self.i)
+
+
+    def prev(self, event):
+        self.i = (self.i -1 + self.N) % self.N
+        self.update(self.i)
+
+        
+    def reset(self):
+        self.fig, self.axe = plt.subplots()
+        # The dimensions are [left, bottom, width, height]
+        # All quantities are in fractions of figure width and height.
+        axnext = self.fig.add_axes([0.90, 0.01, 0.095, 0.050])
+        self.bnext = Button(axnext, 'Next')
+        self.bnext.on_clicked(self.next)
+        axprev = self.fig.add_axes([0.79, 0.01, 0.095, 0.050])
+        self.bprev = Button(axprev, 'Previous')
+        self.bprev.on_clicked(self.prev)
+        self.axe.set_xlabel("X, pixels")
+        self.axe.set_ylabel("Y, pixels")
+        self.axim = None
+        self.sca = list()
+        self.txt = list()
+        self.prev_extent = dict()
+
+    def update(self, i):
+        # remove whats drawn in the scatter plots
+        for sca in self.sca:
+            sca.remove()
+        self.sca = list()
+        for txt in self.txt:
+            txt.remove()
+        self.txt = list()
+        self.one_step(i)
+        self.fig.canvas.draw_idle()
+        self.fig.canvas.flush_events()
+
+    def one_compute_step(self, i):
+        fix = self.fix
+        epsilon = self.epsilon
+        subject_id = self.load(i)
+        self.axe.set_title(f'Subject {subject_id}\nDetected light sources by DBSCAN (\u03B5 = {epsilon} px)')
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT source_x, source_y 
+            FROM spectra_classification_v 
+            WHERE subject_id = :subject_id
+            ''',
+            {'subject_id': subject_id}
+        )
+        coordinates = cursor.fetchall()
+        N_Classifications = len(coordinates)
+        coordinates = np.array(coordinates)
+        model = cluster.DBSCAN(eps=epsilon, min_samples=2)
+        # Fit the model and predict clusters
+        yhat = model.fit_predict(coordinates)
+        # retrieve unique clusters
+        clusters = np.unique(yhat)
+        log.info(f"Subject {subject_id}: {len(clusters)} clusters from {N_Classifications} classifications, ids: {clusters}")
+        for cl in clusters:
+            # get row indexes for samples with this cluster
+            row_ix = np.where(yhat == cl)
+            X = coordinates[row_ix, 0][0]; Y = coordinates[row_ix, 1][0]
+            if(cl != -1):
+                Xc = np.average(X); Yc = np.average(Y)
+                sca = self.axe.scatter(X, Y,  marker='o', zorder=1)
+                self.sca.append(sca)
+                txt = self.axe.text(Xc+epsilon, Yc+epsilon, cl+1, fontsize=9, zorder=2)
+                self.txt.append(txt)
+            elif fix:
+                start = max(clusters)+2 # we will shift also the normal ones ...
+                for i in range(len(X)) :
+                    cluster_id = start + i
+                    sca = self.axe.scatter(X[i], Y[i],  marker='o', zorder=1)
+                    self.sca.append(sca)
+                    txt = self.axe.text(X[i]+epsilon, Y[i]+epsilon, cluster_id, fontsize=9, zorder=2)
+                    self.txt.append(txt)
+            else:
+                sca = self.axe.scatter(X, Y,  marker='o', zorder=1)
+                self.sca.append(sca)
+                start = max(clusters)+2 # we will shift also the normal ones ...
+                for i in range(len(X)) :
+                    txt = self.axe.text(X[i]+epsilon, Y[i]+epsilon, cl, fontsize=9, zorder=2)
+                    self.txt.append(txt)
+      
 
 # ===================
 # Module entry points
