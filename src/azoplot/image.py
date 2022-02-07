@@ -30,6 +30,8 @@ import matplotlib.patches as patches
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
+from matplotlib.widgets import Button
+
 
 #--------------
 # local imports
@@ -210,93 +212,27 @@ def centered_roi(metadata, width, height):
     result = rect.to_dict()
     return result
 
-
-def get_pixels_and_plot(filepath, metadata, roi):
-    if metadata['header_type'] == FITS_HEADER_TYPE:
-        with fits.open(filepath, memmap=False) as hdu_list:
-            raw_pixels = hdu_list[0].data
-            # This must be executed unther the context manager
-            # for raw_pixels to become valid
-            plot_4_channels(raw_pixels, roi, metadata)
-    else:
-         with rawpy.imread(filepath) as img:
-            raw_pixels = img.raw_image
-            # This must be executed unther the context manager
-            # for raw_pixels to become valid
-            plot_4_channels(raw_pixels, roi, metadata)
-           
-
-
-def stat_display(axe, channel, roi):
-    x1, x2, y1, y2 = roi['x1'], roi['x2'], roi['y1'], roi['y2']
-    aver = channel[y1:y2,x1:x2].mean()
-    std  = channel[y1:y2,x1:x2].std()
-    aver_str = '\u03BC = ' + str(round(aver, 1))
-    std_str  = '\u03C3 = ' + str(round(std,1))
-    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='k', facecolor='none')
-    plt.text(x1+(x2-x1)/20, (y1+y2)/2-(y2-y1)/5, aver_str, ha='left', va='center')
-    plt.text(x1+(x2-x1)/20, (y1+y2)/2+(y2-y1)/5, std_str, ha='left', va='center')
-    axe.add_patch(rect)
-    return aver, std
-
-
-def set_title(figure, metadata):
-    basename    = os.path.basename(metadata.get('filepath'))
-    header_type = metadata.get('header_type')
-    gain        = 'Unknown' if metadata.get('gain') is None else metadata.get('gain')
-    iso         = 'Unknown' if metadata.get('iso') is None else metadata.get('iso')
-    model       = 'Unknown' if metadata.get('model') is None else metadata.get('model') 
-    exptime     = 'Unknown' if metadata.get('exptime') is None else metadata.get('exptime')
-    date_obs    = 'Unknown' if metadata.get('date_obs') is None else metadata.get('date_obs')
-    bayer       = metadata['bayer']
-    if header_type == FITS_HEADER_TYPE:
-        label =f"{basename}\nCamera: {model}, Bayer: {bayer}, Gain: {gain}, Exposure: {exptime}s."
-    else:
-        label =f"{basename}\nCamera: {model}, Bayer: {bayer}, ISO: {iso}, Exposure: {exptime}s."
-    figure.suptitle(label)
-
-
-def add_subplot(figure, i, pixels, pixels_tag, roi, cmap, vmin, vmax):
-    axe    = figure.add_subplot(220 + i)
-    img    = axe.imshow(pixels,cmap=cmap,vmin=vmin,vmax=vmax)
-    plt.text(0.05, 0.90,pixels_tag, ha='left', va='center', transform=axe.transAxes, fontsize=10)
-    mean_center, std_center = stat_display(axe, pixels, roi)
-    divider = make_axes_locatable(axe)
-    caxe = divider.append_axes("right", size="5%", pad=0.05)
-    figure.colorbar(img, cax=caxe)
-    axe.axes.get_yaxis().set_ticks([])
-    axe.axes.get_xaxis().set_ticks([])
-
-
-
-
-def plot_4_channels(raw_pixels, roi, metadata, vmin=0, vmax=30000):
-    figure = plt.figure(figsize=(10,6))
-    set_title(figure, metadata)
-    bayer_pattern = metadata['bayer']
-    image_R1 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'R')
-    add_subplot(figure, 1, image_R1, 'R1', roi, 'Reds', vmin, vmax)
-    image_G2 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G1')
-    add_subplot(figure, 2, image_G2, 'G2', roi, 'Greens', vmin, vmax)
-    image_G3 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G2')
-    add_subplot(figure, 3, image_G3, 'G3', roi, 'Greens', vmin, vmax)
-    image_B4 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'B')
-    add_subplot(figure, 4, image_B4, 'B4', roi, 'Blues', vmin, vmax)
-    plt.tight_layout()
-    plt.show()
-
-
 # -----------------
 # Auxiliary classes
 # -----------------
 
 class Cycler:
-    def __init__(self, connection, filepath_list, **kwargs):
+    def __init__(self, filepath_list, options, **kwargs):
         self.filepath = filepath_list
         self.i = 0
-        self.N = len(self.subject)
-        self.reset()
-        self.one_step(0)
+        self.N = len(filepath_list)
+        self.options = options
+        self.figure = plt.figure(figsize=(10,6))
+        # The dimensions are [left, bottom, width, height]
+        # All quantities are in fractions of figure width and height.
+        axnext = self.figure.add_axes([0.90, 0.01, 0.095, 0.050])
+        self.bnext = Button(axnext, 'Next')
+        self.bnext.on_clicked(self.next)
+        axprev = self.figure.add_axes([0.79, 0.01, 0.095, 0.050])
+        self.bprev = Button(axprev, 'Previous')
+        self.bprev.on_clicked(self.prev)
+        self.one_step(0) # Proceed with first image
+
 
     def next(self, event):
         self.i = (self.i +1) % self.N
@@ -307,120 +243,135 @@ class Cycler:
         self.i = (self.i -1 + self.N) % self.N
         self.update(self.i)
 
-        
-    def reset(self):
-        self.fig, self.axe = plt.subplots()
-        # The dimensions are [left, bottom, width, height]
-        # All quantities are in fractions of figure width and height.
-        axnext = self.fig.add_axes([0.90, 0.01, 0.095, 0.050])
-        self.bnext = Button(axnext, 'Next')
-        self.bnext.on_clicked(self.next)
-        axprev = self.fig.add_axes([0.79, 0.01, 0.095, 0.050])
-        self.bprev = Button(axprev, 'Previous')
-        self.bprev.on_clicked(self.prev)
-        self.axe.set_xlabel("X, pixels")
-        self.axe.set_ylabel("Y, pixels")
-        self.axim = None
-        self.sca = list()
-        self.txt = list()
-        self.prev_extent = dict()
 
     def update(self, i):
-        # remove whats drawn in the scatter plots
-        for sca in self.sca:
-            sca.remove()
-        self.sca = list()
-        for txt in self.txt:
-            txt.remove()
-        self.txt = list()
         self.one_step(i)
-        self.fig.canvas.draw_idle()
-        self.fig.canvas.flush_events()
+        self.figure.canvas.draw_idle()
+        self.figure.canvas.flush_events()
 
-    def one_compute_step(self, i):
-        fix = self.fix
-        epsilon = self.epsilon
-        subject_id = self.load(i)
-        self.axe.set_title(f'Subject {subject_id}\nDetected light sources by DBSCAN (\u03B5 = {epsilon} px)')
-        cursor = self.conn.cursor()
-        cursor.execute('''
-            SELECT source_x, source_y 
-            FROM spectra_classification_v 
-            WHERE subject_id = :subject_id
-            ''',
-            {'subject_id': subject_id}
-        )
-        coordinates = cursor.fetchall()
-        N_Classifications = len(coordinates)
-        coordinates = np.array(coordinates)
-        model = cluster.DBSCAN(eps=epsilon, min_samples=2)
-        # Fit the model and predict clusters
-        yhat = model.fit_predict(coordinates)
-        # retrieve unique clusters
-        clusters = np.unique(yhat)
-        log.info(f"Subject {subject_id}: {len(clusters)} clusters from {N_Classifications} classifications, ids: {clusters}")
-        for cl in clusters:
-            # get row indexes for samples with this cluster
-            row_ix = np.where(yhat == cl)
-            X = coordinates[row_ix, 0][0]; Y = coordinates[row_ix, 1][0]
-            if(cl != -1):
-                Xc = np.average(X); Yc = np.average(Y)
-                sca = self.axe.scatter(X, Y,  marker='o', zorder=1)
-                self.sca.append(sca)
-                txt = self.axe.text(Xc+epsilon, Yc+epsilon, cl+1, fontsize=9, zorder=2)
-                self.txt.append(txt)
-            elif fix:
-                start = max(clusters)+2 # we will shift also the normal ones ...
-                for i in range(len(X)) :
-                    cluster_id = start + i
-                    sca = self.axe.scatter(X[i], Y[i],  marker='o', zorder=1)
-                    self.sca.append(sca)
-                    txt = self.axe.text(X[i]+epsilon, Y[i]+epsilon, cluster_id, fontsize=9, zorder=2)
-                    self.txt.append(txt)
-            else:
-                sca = self.axe.scatter(X, Y,  marker='o', zorder=1)
-                self.sca.append(sca)
-                start = max(clusters)+2 # we will shift also the normal ones ...
-                for i in range(len(X)) :
-                    txt = self.axe.text(X[i]+epsilon, Y[i]+epsilon, cl, fontsize=9, zorder=2)
-                    self.txt.append(txt)
-      
+
+    def load(self, i):
+        filepath = self.filepath[i]
+        log.info(f"Loading metadata for image {filepath}")
+        header_type = find_header_type(filepath)
+        metadata = get_metadata(filepath, header_type)
+        roi = centered_roi(metadata, self.options.width, self.options.height)
+        metadata['bayer'] = self.options.bayer if self.options.bayer else metadata['bayer']
+        if not metadata['bayer']:
+            raise UnknownBayerPatternError(f"Choose among {BAYER_PTN_LIST}")
+        return metadata, roi
+
+    def one_step(self, i):
+        metadata, roi = self.load(i)
+        if metadata['header_type'] == FITS_HEADER_TYPE:
+            with fits.open(self.filepath[i], memmap=False) as hdu_list:
+                raw_pixels = hdu_list[0].data
+                # This must be executed unther the context manager
+                # for raw_pixels to become valid
+                self.plot_4_channels(raw_pixels, roi, metadata)
+        else:
+            with rawpy.imread(self.filepath[i]) as img:
+                raw_pixels = img.raw_image
+                # This must be executed unther the context manager
+                # for raw_pixels to become valid
+                self.plot_4_channels(raw_pixels, roi, metadata)
+
+    def stat_display(self, axe, channel, roi, pixels_tag):
+        x1, x2, y1, y2 = roi['x1'], roi['x2'], roi['y1'], roi['y2']
+        basename = os.path.basename(self.filepath[self.i])
+        aver = channel[y1:y2,x1:x2].mean()
+        std  = channel[y1:y2,x1:x2].std()
+        aver_str = '\u03BC = ' + str(round(aver,1))
+        std_str  = '\u03C3 = ' + str(round(std,1))
+        rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='k', facecolor='none')
+        plt.text(x1+(x2-x1)/20, (y1+y2)/2-(y2-y1)/5, aver_str, ha='left', va='center')
+        plt.text(x1+(x2-x1)/20, (y1+y2)/2+(y2-y1)/5, std_str, ha='left', va='center')
+        axe.add_patch(rect)
+        log.info(f"Computed {pixels_tag} stats for '{basename}' [{y1}:{y2},{x1}:{x2}] => {aver_str}, {std_str}")
+        return aver_str, std_str
+       
+
+    def set_title(self, metadata):
+        basename = os.path.basename(self.filepath[self.i])
+        header_type = metadata.get('header_type')
+        gain        = 'Unknown' if metadata.get('gain') is None else metadata.get('gain')
+        iso         = 'Unknown' if metadata.get('iso') is None else metadata.get('iso')
+        model       = 'Unknown' if metadata.get('model') is None else metadata.get('model') 
+        exptime     = 'Unknown' if metadata.get('exptime') is None else metadata.get('exptime')
+        date_obs    = 'Unknown' if metadata.get('date_obs') is None else metadata.get('date_obs')
+        bayer       = metadata['bayer']
+        if header_type == FITS_HEADER_TYPE:
+            label =f"{basename}\nCamera: {model}, Bayer: {bayer}, Gain: {gain}, Exposure: {exptime}s."
+        else:
+            label =f"{basename}\nCamera: {model}, Bayer: {bayer}, ISO: {iso}, Exposure: {exptime}s."
+        self.figure.suptitle(label)
+
+
+    def add_subplot(self, n, pixels, pixels_tag, roi, cmap, vmin, vmax):
+        axe    = self.figure.add_subplot(220 + n)
+        img    = axe.imshow(pixels,cmap=cmap,vmin=vmin,vmax=vmax)
+        plt.text(0.05, 0.90,pixels_tag, ha='left', va='center', transform=axe.transAxes, fontsize=10)
+        aver_str, std_str = self.stat_display(axe, pixels,roi, pixels_tag)
+        divider = make_axes_locatable(axe)
+        caxe = divider.append_axes("right", size="5%", pad=0.05)
+        self.figure.colorbar(img, cax=caxe)
+        axe.axes.get_yaxis().set_ticks([])
+        axe.axes.get_xaxis().set_ticks([])
+
+
+    
+
+        
+    def plot_4_channels(self, raw_pixels, roi, metadata, vmin=0, vmax=30000):
+        self.set_title(metadata)
+        bayer_pattern = metadata['bayer']
+        image_R1 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'R')
+        self.add_subplot(1, image_R1, 'R1', roi, 'Reds', vmin, vmax)
+        image_G2 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G1')
+        self.add_subplot(2, image_G2, 'G2', roi, 'Greens', vmin, vmax)
+        image_G3 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G2')
+        self.add_subplot(3, image_G3, 'G3', roi, 'Greens', vmin, vmax)
+        image_B4 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'B')
+        self.add_subplot(4, image_B4, 'B4', roi, 'Blues', vmin, vmax)
+       
 
 # ===================
 # Module entry points
 # ===================
 
-def do_single(filepath, options, i=1, N=1):
-    log.info(f"prcessing {filepath}")
-    header_type = find_header_type(filepath)
-    metadata = get_metadata(filepath, header_type)
-    roi = centered_roi(metadata, options.width, options.height)
-    metadata['bayer'] = options.bayer if options.bayer else metadata['bayer']
-    if not metadata['bayer']:
-        raise UnknownBayerPatternError(f"Choose among {BAYER_PTN_LIST}")
-    get_pixels_and_plot(filepath, metadata, roi)
 
 
 def stats(options):
     if options.image_file:
-        do_single(options.image_file, options)
+        Cycler( 
+            filepath_list = (options.image_file,), 
+            options = options
+        )
+        #plt.tight_layout()
+        plt.show()
     else:
-        directories = scan_non_empty_dirs(options.images_dir, depth=0)
-        directories = set(directories) # get reid of duplicates (a bug in scan_non_empty dir?)
+        directories = scan_non_empty_dirs(options.images_dir, depth=None)
+        directories = set(directories) # get rid of duplicates (a bug in scan_non_empty dir?)
+        paths_set = set()
         for directory in directories:
-            paths_set = set()
             for extension in EXTENSIONS:
                 alist  = glob.glob(os.path.join(directory, extension))
                 paths_set  = paths_set.union(alist)
-            N = len(paths_set)
-            if N:
-                log.warning(f"Scanning directory '{directory}'. Found {N} images matching '{EXTENSIONS}'")
-            for i, filepath in enumerate(sorted(paths_set), start=1):
-                try:
-                    do_single(filepath, options, i, N)
-                except (FileNotFoundError,) as e:
-                    log.critical("[%s] Fatal error => %s", __name__, str(e) )
-                    traceback.print_exc()
-                    #continue
-                except Exception as e:
-                    raise e
+        N = len(paths_set)
+        filepath_list = tuple(sorted(paths_set))
+        if N:
+            log.warning(f"Scanning directory '{directory}'. Found {N} images matching '{EXTENSIONS}'")
+        try:
+            Cycler(
+                filepath_list = filepath_list, 
+                options = options
+            )
+        except (FileNotFoundError,) as e:
+            log.critical("[%s] Fatal error => %s", __name__, str(e) )
+            traceback.print_exc()
+            #continue
+        except Exception as e:
+            raise e
+        else:
+            #plt.tight_layout()
+            plt.show()
