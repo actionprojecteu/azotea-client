@@ -141,6 +141,12 @@ def analyze_bias(levels):
     #log.info("global bias set to = {global_bias}",global_bias=global_bias)
     return global_bias
       
+def bayer_from_exif(img):
+    color_desc = img.color_desc.decode('utf-8')
+    if color_desc != 'RGBG':
+        raise UnsupporteCFAError(color_desc)
+    bayer_pattern = ''.join([ BAYER_LETTER[img.raw_pattern[row,column]] for row in (1,0) for column in (1,0)])
+    return bayer_pattern
 
 def camera_from_image_exif(filepath):
     extension = os.path.splitext(filepath)[1]
@@ -152,10 +158,7 @@ def camera_from_image_exif(filepath):
         raise ValueError(message)
     model = str(exif.get('Image Model', None)).strip()
     with rawpy.imread(filepath) as img:
-        color_desc = img.color_desc.decode('utf-8')
-        if color_desc != 'RGBG':
-            raise UnsupporteCFAError(color_desc)
-        bayer_pattern = ''.join([ BAYER_LETTER[img.raw_pattern[row,column]] for row in (1,0) for column in (1,0)])
+        bayer_pattern = bayer_from_exif(img)
         length, width = img.raw_image.shape    # Raw numbers, not divide by 2
         levels = img.black_level_per_channel
     try:

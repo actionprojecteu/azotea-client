@@ -1,6 +1,8 @@
 INMEDIATO
 =========
 
+* sacar el bayer pattern de la imagen FITS|EXIF si hay y si no lo hay tomarlo de la command line
+* display bayer pattern y todo el titulo mejor
 
 ```
 
