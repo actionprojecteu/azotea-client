@@ -268,13 +268,13 @@ class Cycler:
                 raw_pixels = hdu_list[0].data
                 # This must be executed unther the context manager
                 # for raw_pixels to become valid
-                self.plot_4_channels(raw_pixels, roi, metadata)
+                self.plot(raw_pixels, roi, metadata)
         else:
             with rawpy.imread(self.filepath[i]) as img:
                 raw_pixels = img.raw_image
                 # This must be executed unther the context manager
                 # for raw_pixels to become valid
-                self.plot_4_channels(raw_pixels, roi, metadata)
+                self.plot(raw_pixels, roi, metadata)
 
     def stat_display(self, axe, channel, roi, pixels_tag):
         x1, x2, y1, y2 = roi['x1'], roi['x2'], roi['y1'], roi['y2']
@@ -288,7 +288,6 @@ class Cycler:
         plt.text(x1+(x2-x1)/20, (y1+y2)/2+(y2-y1)/5, std_str, ha='left', va='center')
         axe.add_patch(rect)
         log.info(f"Computed {pixels_tag} stats for '{basename}' [{y1}:{y2},{x1}:{x2}] => {aver_str}, {std_str}")
-        return aver_str, std_str
        
 
     def set_title(self, metadata):
@@ -309,20 +308,17 @@ class Cycler:
 
     def add_subplot(self, n, pixels, pixels_tag, roi, cmap, vmin, vmax):
         axe    = self.figure.add_subplot(220 + n)
-        img    = axe.imshow(pixels,cmap=cmap,vmin=vmin,vmax=vmax)
-        plt.text(0.05, 0.90,pixels_tag, ha='left', va='center', transform=axe.transAxes, fontsize=10)
-        aver_str, std_str = self.stat_display(axe, pixels,roi, pixels_tag)
+        img    = axe.imshow(pixels, cmap=cmap, vmin=vmin, vmax=vmax)
+        plt.text(0.05, 0.90, pixels_tag, ha='left', va='center', transform=axe.transAxes, fontsize=10)
+        self.stat_display(axe, pixels,roi, pixels_tag)
         divider = make_axes_locatable(axe)
         caxe = divider.append_axes("right", size="5%", pad=0.05)
         self.figure.colorbar(img, cax=caxe)
         axe.axes.get_yaxis().set_ticks([])
         axe.axes.get_xaxis().set_ticks([])
 
-
-    
-
         
-    def plot_4_channels(self, raw_pixels, roi, metadata, vmin=0, vmax=30000):
+    def plot(self, raw_pixels, roi, metadata, vmin=0, vmax=30000):
         self.set_title(metadata)
         bayer_pattern = metadata['bayer']
         image_R1 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'R')
