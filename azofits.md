@@ -17,6 +17,7 @@ Each image adquistion software has its own convention and idiosyncrasies, so `az
 
 * [AZOTEA FITS keywords](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#azoteaa-fits-keywords)
 * [Usage](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#usage)
+    - [Examples](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#examples)
 * [Miscelanea](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#miscelanea)
 
 
@@ -118,7 +119,7 @@ Type `azofits --help` to see the complete list of options.
 * `--diameter`      Optics diameter [mm]  (`APTDIA`)
 * `--image-type`    Image type  (`IMAGETYP`)
 
-## Examples of usage
+## Examples
 
 ### SharpCap FITS images
 
