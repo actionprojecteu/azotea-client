@@ -60,19 +60,6 @@ def fits_image_type(image_tyoe):
 def fits_swcreator(swcreator):
     return SW_CREATORS_MAPPTING.get(swcreator)
 
-def scan_non_empty_dirs(root_dir, depth=None):
-    '''Returns a list of non empty dirs under root_dir dir'''
-    if os.path.basename(root_dir) == '':
-        root_dir = root_dir[:-1]
-    dirs = [dirpath for dirpath, dirs, files in os.walk(root_dir) if files]
-    dirs.append(root_dir)   # Add it for images just under the root_dir folder
-    if depth is None:
-        return dirs 
-    L = len(root_dir.split(sep=os.sep))
-    return list(filter(lambda d: len(d.split(sep=os.sep)) - L <= depth, dirs))
-
-
-
 def fits_edit_keyword(header, keyword, new_value, comment=None):
     old_value = header.get(keyword)
     change = new_value is not None and old_value != new_value

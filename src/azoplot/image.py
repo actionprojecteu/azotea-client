@@ -350,8 +350,7 @@ def stats(options):
         #plt.tight_layout()
         plt.show()
     else:
-        directories = scan_non_empty_dirs(options.images_dir, depth=None)
-        directories = set(directories) # get rid of duplicates (a bug in scan_non_empty dir?)
+        directories = scan_non_empty_dirs(options.images_dir, depth=1)
         paths_set = set()
         for directory in directories:
             for extension in EXTENSIONS:

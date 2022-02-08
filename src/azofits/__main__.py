@@ -17,17 +17,21 @@ import argparse
 import logging
 import traceback
 
-from astropy.io import fits
+# ---------------------
+# Third party libraries
+# ---------------------
 
+from astropy.io import fits
 
 #--------------
 # local imports
 # -------------
 
 from azotea import __version__
-from azofits.utils import IMAGE_TYPES, SW_CREATORS, SW_MODIFIER, fits_image_type, fits_swcreator, scan_non_empty_dirs
-
+from azotea.utils.image import scan_non_empty_dirs
 from azotea.utils.camera import BAYER_PTN_LIST
+
+from azofits.utils import IMAGE_TYPES, SW_CREATORS, SW_MODIFIER, fits_image_type, fits_swcreator
 from azofits.sharpcap import MissingGainError
 
 
