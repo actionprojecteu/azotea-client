@@ -1,23 +1,23 @@
 # AZOFITS
 
-AZOFITS is a ***FITS HEADER batch editor for AZOTEA*** entirely written in Python.
-It is tuned to the FITS keywords that AZOTEA processing pipeline needs.
+`azofits` is a ***FITS HEADER batch editor for AZOTEA*** entirely written in Python.
+It is tuned to the FITS keywords that `azotea` processing pipeline needs.
 
 FITS is a very flexible file frmat for astronomical images and very few keywords
 have been standarized. Amateur astroimaging software flourished in the 90s
 and some FITS keywords proposals were made for interoperatbility for ASCOM programs.
 
 Diffraction Limited's Maxim DL software [compiled a series of FITS keyword definitions](https://cdn.diffractionlimited.com/help/maximdl/FITS_File_Header_Definitions.htm) for imaging and amateur observatoty neeeds. 
-Whenever possible, AZOTEA reuses these keywords.
+Whenever possible, `azotea` reuses these keywords.
 
 CCD/CMOS image adquistion software already produces images in FITS format, either for B&W images or RAW color images.
-Each image adquistion software has its own convention and idiosyncrasies, so AZOFITS was written to cope with this and supply trouble-free FITS images to AZOTEA.
+Each image adquistion software has its own convention and idiosyncrasies, so `azofits` was written to cope with this and supply trouble-free FITS images to `azotea`.
 
 # Table of Contents
 
-* [AZOTEA FITS keywords](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#azoteaa-fits-keywords)
-* [Usage](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#usage)
-* [Miscelanea](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#miscelanea)
+* [AZOTEA FITS keywords](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#azoteaa-fits-keywords)
+* [Usage](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#usage)
+* [Miscelanea](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#miscelanea)
 
 
 # AZOTEA FITS keywords
@@ -26,22 +26,21 @@ Each image adquistion software has its own convention and idiosyncrasies, so AZO
 |:--------:| :---: | ----------- | -------
 |`SWCREATE`|       | Image capture software (i.e: `SharpCap`).
 |`SWMODIFY`|       | Image editing sofware (always `azofits`).
-|`BAYERPAT`|       | Camera Bayer pattern (`RGGB`, `BGGR`, `GRBG`, `GBRG`). | See [Note 1](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#note-1)
+|`BAYERPAT`|       | Camera Bayer pattern (`RGGB`, `BGGR`, `GRBG`, `GBRG`). | See [Note 1](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#note-1)
 |`INSTRUME`|       | Camera model (i.e. `ZWO ASI178MC`).
-|`DATE-OBS`|       | Date time in ISO 8601 format | See [Note 2](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#note-2).
+|`DATE-OBS`|       | Date time in ISO 8601 format | See [Note 2](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#note-2).
 |`ÈXPTIME` | sec.  | Exposure time.
 |`PEDESTAL`| ADUs  | Global electronic bias. Same for all channels.
 |`FOCALLEN`| mm.   | Focal length.
 |`APTDIA`  | mm.   | Aperture diameter.
 |`XPIXSZ`  | um.   | Horizontal pixel size.
 |`YPIXSZ`  | um.   | Vertical pixel size.
-|`LOG-GAIN`| dB    | Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#note-3).
-|`IMAGETYP`|       | Image type | See [Note 4](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md#note-3).
+|`LOG-GAIN`| dB    | Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#note-3).
+|`IMAGETYP`|       | Image type | See [Note 4](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#note-3).
 
 ## Note 1:
 
-Depending on the application field (astronomy, general imaging), the images origin of coordinates (0,0) can either be top-down or bottom-up. DSLR and generic imaging appliactons genearlly use the top-down convention. For FITS images, 
-the custom from the 80s was to read pixels use a bottom-up origin.
+Depending on the application field (astronomy, general imaging), the images origin of coordinates (0,0) can either be top-down or bottom-up.For FITS images, the custom from the 80s was to read pixels use a bottom-up origin. `azotea` uses the top-down origin convention.
 
 The following CFA layout can be read as `RGGB` Bayer pattern if using the top-down origin convention or `GBRG` if using the bottom-up origin convention, as shown below:
 
@@ -56,11 +55,11 @@ The following CFA layout can be read as `RGGB` Bayer pattern if using the top-do
 ```
 
 
-AZOTEA uses internally a top-down convention but SharpCap uses a bottom-up convention. 
-So, for some FITS writers like *SharpCap*, the Bayer pattern 4 code letter in BAYERPAT keyword must be flipped to apply a correct debayering in AZOTEA.
+`azotea` uses internally a top-down convention but SharpCap uses a bottom-up convention. 
+So, for some FITS writers like *SharpCap*, the Bayer pattern 4 code letter in BAYERPAT keyword must be flipped to apply a correct debayering in `azotea`.
 
 ## Note 2:
-AZOFITS allows both `YYYY-MM-DDTHH:MM:SS` or `YYYY-MM-DDTHH:MM:SS.fffff`  with up to 6 seconds decimals.
+`azofits` allows both `YYYY-MM-DDTHH:MM:SS` or `YYYY-MM-DDTHH:MM:SS.fffff`  with up to 6 seconds decimals.
 
 ## Note 3:
 The gain in ZWO cameras is expressed in a logaritmic scale gain with 0.1 dB units, that is:
@@ -123,12 +122,12 @@ Type `azofits --help` to see the complete list of options.
 
 ### SharpCap FITS images
 
-SharpCap FITS images have a few issues that are edited/corrected by AZOFITS:
+SharpCap FITS images have a few issues that are edited/corrected by `azofits`:
 * It uses the older `BAYEROFX`, `BAYOFFY` keywords, which are substituted by `XBAYROFF`, `YBAYROFF`
 * `DATE-OBS` timestamp have seconds with excess decimals, so the timestamp is fixed.
 * `BAYERPAT` uses a bottom-up pattern convention, so the 4-letter pattern code is flipped.
 * CMOS camera gain keyword is not included in the FITS file. However, it is included in a separate
-metadata XXXX_CameraSettings.txt file for each XXXX.fits image. To  properly include the CMOS GAIN, AZOFITS needs this additional metadata file alongside with the FITS file.
+metadata XXXX_CameraSettings.txt file for each XXXX.fits image. To  properly include the CMOS GAIN, `azofits` needs this additional metadata file alongside with the FITS file.
 
 Fortunately, SharpCap FITS images already include `SWCREATE` so they can be properly detected and there is no need
 to specify it in the command line.
@@ -146,7 +145,7 @@ We specify a default optics configuration, as the FITS headers did not include t
 ### captura-fits FITS images
 
 This image adquistion software, developed by Alberto Castellon, is used in meteor & fireball detection. It includes a minimalistic FITS keyword set and encodes the observation date & exposure time in the file name as `yyyy-mm-dd.exptime.fits`
-where the exposure time is given in milliseconds. AZOFITS handle this case too
+where the exposure time is given in milliseconds. `azofits` handle this case too
 
 The command line is shown below:
 
@@ -155,8 +154,29 @@ azofits --console --images-dir ../images/Zamorano-Villaverde-del-Ducado/FITS --s
 ```
 *Note: values are just ficticuous examples*
 
-Note that, except for the timestamp and exposition time, we have to specify almost everything, even the software creation tag, which also flags AZOFITS to forward thos edition to the appropiate internal "capturafits driver"
+Note that, except for the timestamp and exposition time, we have to specify almost everything, even the software creation tag, which also flags `azofits` to forward thos edition to the appropiate internal "capturafits driver"
 
+## Using `azofits` ,with `azotool` & `azotea`
+
+Note that `azofits` must *always* be used before invoking `azotea`.
+Once FITS images are pre-procesed by `azofits`, camera and ROI metadata creation in the AZOTEA database creation can be 
+made from FITS images, as shown in the example below.
+
+```bash
+# Edit FITS headers with AZOFITS
+azofits --console --images-dir ${IMAGES}/202201 --swcreator captura-fits --camera ZWO ASI178MC --bayer-pattern RGGB --gain 150 --bias 64 --diameter 10 --focal-length 35
+
+# Input metadata with AZOTOOL
+# Assume taht observer & location metadata has already been input
+azotool --console --dbase ${DBASE} camera create --default \
+        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
+
+azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
+        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
+
+# Load images in AZOTEA database and compute statistics
+azotea --console --dbase ${DBASE} --images-dir ${IMAGES}/202201
+```
 
 # Miscelanea
 

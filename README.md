@@ -1,13 +1,14 @@
 # AZOTEA Client
 
-Sky background image reduction tool for the [AZOTEA project](https://guaix.ucm.es/azoteaproject).
+Set of tools for the [Citizen Science AZOTEA project](https://guaix.ucm.es/azoteaproject).
 Development of this software has been possible through [ACTION - Participatory science toolkit against pollution](https://actionproject.eu/), Grant 824603.
 
-**Highlights**
-
-* Rich client GUI interactive mode.
-* Non interactive command line mode for automated data adquisition, processing and publishing.
-* EXIF and FITS color raw images processing.
+The AZOTEA toolset comprises:
+* `azotea`. RGB images sky background reduction tool. Can be used in GUI interactive mode and also in automated batch
+reduction pipelines. Accepts both FITS and DSLR EXIF raw images.
+* `azotool`. Command line utility to configure `azotea` for batch processing.
+* [`azofits`](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md). FITS files keyword preprocessing for `azotea`
+* [`azoplot`](https://github.com/actionprojecteu/azotea-client/blob/main/azoplot.md). Graphics tool to preview RAW images decomposed in R, G1, G2, B channels.
 
 # Table of Contents
 
@@ -383,34 +384,6 @@ Both `azotool` and `azotea` commands return the following exit codes are:
 * 0 => Command finished without errors.
 * 1 => Command finished with errors. See the console (if set) or the log file.
 * 126 => User did not agree the usage conditions.
-
-# FITS Support
-
-AZOTEA now supports reading and computing statistics from RAW images taken from astrocameras which
-write their output in FITS format. A previous FITS keywords pre-processing step is needed, so that AZOTEA
-can smoothly read metadata without having to deal with FITS software idiosyncrasies.
-
-Detailed information on this pre-porcessing step can be found in the [AZOFITS documentation](https://github.com/actionprojecteu/azotea-client/blob/main/FITS.md).
-
-AZOTOOL software must *always* be used before issuing commands to AZOTEA.
-Once image are pre-procesed, camera and ROI creation can be even made from FITS images, 
-as shown in the example below.
-
-```bash
-# Edit FITS headers with AZOFITS
-azofits --console --images-dir ${IMAGES}/202201 --swcreator captura-fits --camera ZWO ASI178MC --bayer-pattern RGGB --gain 150 --bias 64 --diameter 10 --focal-length 35
-
-# Input metadata with AZOTOOL
-# Assume taht observer & location metadata has already been input
-azotool --console --dbase ${DBASE} camera create --default \
-        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
-
-azotool --console --dbase ${DBASE} roi create --default --width 500 --height 400 \
-        --from-image ${IMAGES}/202201/20220101-183017.10000.fits
-
-# Load images in AZOTEA database and compute statistics
-azotea --console --dbase ${DBASE} --images-dir ${IMAGES}/202201
-```
 
 
 # GUI Mode
