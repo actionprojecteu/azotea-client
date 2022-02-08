@@ -165,10 +165,11 @@ made from FITS images, as shown in the example below.
 
 ```bash
 # Edit FITS headers with AZOFITS
+# Assume that IMAGES & DBASE variables have been set at the beginning of the script
 azofits --console --images-dir ${IMAGES}/202201 --swcreator captura-fits --camera ZWO ASI178MC --bayer-pattern RGGB --gain 150 --bias 64 --diameter 10 --focal-length 35
 
 # Input metadata with AZOTOOL
-# Assume taht observer & location metadata has already been input
+# Assume that observer & location metadata has already been input
 azotool --console --dbase ${DBASE} camera create --default \
         --from-image ${IMAGES}/202201/20220101-183017.10000.fits
 
