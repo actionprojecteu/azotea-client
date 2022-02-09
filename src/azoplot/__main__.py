@@ -123,6 +123,8 @@ def createParser():
     iplot.add_argument('-x','--width',  type=int, default=500, help="Region of interest width [pixels].")
     iplot.add_argument('-y','--height', type=int, default=400, help="Region of interest height [pixels].")
     iplot.add_argument('-b','--bayer', choices=BAYER_PTN_LIST, default=None, help='Bayer pattern layout')
+    iplot.add_argument('--vmin', type=int, default=None, help='minumim pixel value to display')
+    iplot.add_argument('--vmax', type=int, default=None, help='maximum pixel value to display')
 
     return parser
 

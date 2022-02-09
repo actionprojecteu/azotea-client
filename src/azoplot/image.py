@@ -276,11 +276,16 @@ class Cycler:
                 # for raw_pixels to become valid
                 self.plot(raw_pixels, roi, metadata)
 
-    def stat_display(self, axe, channel, roi, pixels_tag):
+    def stats(self, channel, roi):
         x1, x2, y1, y2 = roi['x1'], roi['x2'], roi['y1'], roi['y2']
-        basename = os.path.basename(self.filepath[self.i])
         aver = channel[y1:y2,x1:x2].mean()
         std  = channel[y1:y2,x1:x2].std()
+        return aver, std
+
+
+    def stat_display(self, axe, aver, std, roi, pixels_tag):
+        x1, x2, y1, y2 = roi['x1'], roi['x2'], roi['y1'], roi['y2']
+        basename = os.path.basename(self.filepath[self.i])
         aver_str = '\u03BC = ' + str(round(aver,1))
         std_str  = '\u03C3 = ' + str(round(std,1))
         rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='k', facecolor='none')
@@ -288,7 +293,18 @@ class Cycler:
         plt.text(x1+(x2-x1)/20, (y1+y2)/2+(y2-y1)/5, std_str, ha='left', va='center')
         axe.add_patch(rect)
         log.info(f"Computed {pixels_tag} stats for '{basename}' [{y1}:{y2},{x1}:{x2}] => {aver_str}, {std_str}")
+
        
+    def plot_range(self, aver, std, n=4):
+        vmin = self.options.vmin
+        vmax = self.options.vmin
+        if vmin is None or vmax is None:
+            vmin = int(round(max(aver - 4*std,0),0))
+            vmax = int(round(min(aver + 4*std,30000),0))
+        else:
+            vmin = vmin if vmin is not None else 0
+            vmax = vmax if vmax is not None else 30000
+        return vmin, vmax
 
     def set_title(self, metadata):
         basename = os.path.basename(self.filepath[self.i])
@@ -306,11 +322,13 @@ class Cycler:
         self.figure.suptitle(label)
 
 
-    def add_subplot(self, n, pixels, pixels_tag, roi, cmap, vmin, vmax):
+    def add_subplot(self, n, pixels, pixels_tag, roi, cmap):
         axe    = self.figure.add_subplot(220 + n)
+        aver, std = self.stats(pixels, roi)
+        vmin, vmax = self.plot_range(aver, std)
         img    = axe.imshow(pixels, cmap=cmap, vmin=vmin, vmax=vmax)
         plt.text(0.05, 0.90, pixels_tag, ha='left', va='center', transform=axe.transAxes, fontsize=10)
-        self.stat_display(axe, pixels,roi, pixels_tag)
+        self.stat_display(axe, aver, std ,roi, pixels_tag)
         divider = make_axes_locatable(axe)
         caxe = divider.append_axes("right", size="5%", pad=0.05)
         self.figure.colorbar(img, cax=caxe)
@@ -318,17 +336,17 @@ class Cycler:
         axe.axes.get_xaxis().set_ticks([])
 
         
-    def plot(self, raw_pixels, roi, metadata, vmin=0, vmax=30000):
+    def plot(self, raw_pixels, roi, metadata):
         self.set_title(metadata)
         bayer_pattern = metadata['bayer']
         image_R1 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'R')
-        self.add_subplot(1, image_R1, 'R1', roi, 'Reds', vmin, vmax)
+        self.add_subplot(1, image_R1, 'R1', roi, 'Reds')
         image_G2 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G1')
-        self.add_subplot(2, image_G2, 'G2', roi, 'Greens', vmin, vmax)
+        self.add_subplot(2, image_G2, 'G2', roi, 'Greens')
         image_G3 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G2')
-        self.add_subplot(3, image_G3, 'G3', roi, 'Greens', vmin, vmax)
+        self.add_subplot(3, image_G3, 'G3', roi, 'Greens')
         image_B4 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'B')
-        self.add_subplot(4, image_B4, 'B4', roi, 'Blues', vmin, vmax)
+        self.add_subplot(4, image_B4, 'B4', roi, 'Blues')
        
 
 # ===================
@@ -346,7 +364,7 @@ def stats(options):
         #plt.tight_layout()
         plt.show()
     else:
-        directories = scan_non_empty_dirs(options.images_dir, depth=1)
+        directories = scan_non_empty_dirs(options.images_dir, depth=0)
         paths_set = set()
         for directory in directories:
             for extension in EXTENSIONS:
