@@ -222,6 +222,11 @@ class Cycler:
         self.i = 0
         self.N = len(filepath_list)
         self.options = options
+        self.reset()
+        self.one_step(0) # Proceed with first image
+
+
+    def reset(self):
         self.figure = plt.figure(figsize=(10,6))
         # The dimensions are [left, bottom, width, height]
         # All quantities are in fractions of figure width and height.
@@ -231,9 +236,7 @@ class Cycler:
         axprev = self.figure.add_axes([0.79, 0.01, 0.095, 0.050])
         self.bprev = Button(axprev, 'Previous')
         self.bprev.on_clicked(self.prev)
-        self.one_step(0) # Proceed with first image
-
-
+        
     def next(self, event):
         self.i = (self.i +1) % self.N
         self.update(self.i)
@@ -245,6 +248,19 @@ class Cycler:
 
 
     def update(self, i):
+        if self.r1_axe:
+            self.r1_axe.remove()
+            self.cr1_axe.remove()
+        if self.g2_axe:
+            self.g2_axe.remove()
+            self.cg2_axe.remove()
+        if self.g3_axe:
+            self.g3_axe.remove()
+            self.cg3_axe.remove()
+        if self.b4_axe:
+            self.b4_axe.remove()
+            self.cb4_axe.remove()
+
         self.one_step(i)
         self.figure.canvas.draw_idle()
         self.figure.canvas.flush_events()
@@ -329,24 +345,30 @@ class Cycler:
         img    = axe.imshow(pixels, cmap=cmap, vmin=vmin, vmax=vmax)
         plt.text(0.05, 0.90, pixels_tag, ha='left', va='center', transform=axe.transAxes, fontsize=10)
         self.stat_display(axe, aver, std ,roi, pixels_tag)
+        caxe = self.color_bar(axe, img)
+        return axe, caxe
+
+
+    def color_bar(self, axe, img):
         divider = make_axes_locatable(axe)
         caxe = divider.append_axes("right", size="5%", pad=0.05)
         self.figure.colorbar(img, cax=caxe)
         axe.axes.get_yaxis().set_ticks([])
         axe.axes.get_xaxis().set_ticks([])
+        return caxe
 
         
     def plot(self, raw_pixels, roi, metadata):
         self.set_title(metadata)
         bayer_pattern = metadata['bayer']
         image_R1 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'R')
-        self.add_subplot(1, image_R1, 'R1', roi, 'Reds')
+        self.r1_axe, self.cr1_axe = self.add_subplot(1, image_R1, 'R1', roi, 'Reds')
         image_G2 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G1')
-        self.add_subplot(2, image_G2, 'G2', roi, 'Greens')
+        self.g2_axe, self.cg2_axe = self.add_subplot(2, image_G2, 'G2', roi, 'Greens')
         image_G3 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'G2')
-        self.add_subplot(3, image_G3, 'G3', roi, 'Greens')
+        self.g3_axe, self.cg3_axe = self.add_subplot(3, image_G3, 'G3', roi, 'Greens')
         image_B4 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'B')
-        self.add_subplot(4, image_B4, 'B4', roi, 'Blues')
+        self.b4_axe, self.cb4_axe = self.add_subplot(4, image_B4, 'B4', roi, 'Blues')
        
 
 # ===================
