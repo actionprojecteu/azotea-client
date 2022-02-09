@@ -125,6 +125,7 @@ def createParser():
     iplot.add_argument('-b','--bayer', choices=BAYER_PTN_LIST, default=None, help='Bayer pattern layout')
     iplot.add_argument('--vmin', type=int, default=None, help='minumim pixel value to display')
     iplot.add_argument('--vmax', type=int, default=None, help='maximum pixel value to display')
+    iplot.add_argument('--plot-sigma', type=int, choices=range(1,6), default=4, help='# of sigmas when autoscaling')
 
     return parser
 

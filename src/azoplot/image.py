@@ -217,6 +217,9 @@ def centered_roi(metadata, width, height):
 # -----------------
 
 class Cycler:
+
+    PLOT_CODES = (('R', 'R1', 'Reds'), ('G1', 'G2', 'Greens'), ('G2','G3','Greens'), ('B','B4','Blues'))
+
     def __init__(self, filepath_list, options, **kwargs):
         self.filepath = filepath_list
         self.i = 0
@@ -236,6 +239,7 @@ class Cycler:
         axprev = self.figure.add_axes([0.79, 0.01, 0.095, 0.050])
         self.bprev = Button(axprev, 'Previous')
         self.bprev.on_clicked(self.prev)
+        self.all_axes = list()
         
     def next(self, event):
         self.i = (self.i +1) % self.N
@@ -248,19 +252,9 @@ class Cycler:
 
 
     def update(self, i):
-        if self.r1_axe:
-            self.r1_axe.remove()
-            self.cr1_axe.remove()
-        if self.g2_axe:
-            self.g2_axe.remove()
-            self.cg2_axe.remove()
-        if self.g3_axe:
-            self.g3_axe.remove()
-            self.cg3_axe.remove()
-        if self.b4_axe:
-            self.b4_axe.remove()
-            self.cb4_axe.remove()
-
+        for axe in self.all_axes:
+            axe.remove()
+        self.all_axes = list()
         self.one_step(i)
         self.figure.canvas.draw_idle()
         self.figure.canvas.flush_events()
@@ -305,22 +299,24 @@ class Cycler:
         aver_str = '\u03BC = ' + str(round(aver,1))
         std_str  = '\u03C3 = ' + str(round(std,1))
         rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='k', facecolor='none')
-        plt.text(x1+(x2-x1)/20, (y1+y2)/2-(y2-y1)/5, aver_str, ha='left', va='center')
-        plt.text(x1+(x2-x1)/20, (y1+y2)/2+(y2-y1)/5, std_str, ha='left', va='center')
+        axe.text(x1+(x2-x1)/20, (y1+y2)/2-(y2-y1)/5, aver_str, ha='left', va='center')
+        axe.text(x1+(x2-x1)/20, (y1+y2)/2+(y2-y1)/5, std_str, ha='left', va='center')
         axe.add_patch(rect)
         log.info(f"Computed {pixels_tag} stats for '{basename}' [{y1}:{y2},{x1}:{x2}] => {aver_str}, {std_str}")
 
-       
-    def plot_range(self, aver, std, n=4):
+
+    def plot_range(self, aver, std):
+        n = self.options.plot_sigma
         vmin = self.options.vmin
         vmax = self.options.vmin
         if vmin is None or vmax is None:
-            vmin = int(round(max(aver - 4*std,0),0))
-            vmax = int(round(min(aver + 4*std,30000),0))
+            vmin = int(round(max(aver - n*std,0),0))
+            vmax = int(round(min(aver + n*std,30000),0))
         else:
             vmin = vmin if vmin is not None else 0
             vmax = vmax if vmax is not None else 30000
         return vmin, vmax
+
 
     def set_title(self, metadata):
         basename = os.path.basename(self.filepath[self.i])
@@ -369,7 +365,16 @@ class Cycler:
         self.g3_axe, self.cg3_axe = self.add_subplot(3, image_G3, 'G3', roi, 'Greens')
         image_B4 = get_debayered_for_channel(raw_pixels, bayer_pattern, 'B')
         self.b4_axe, self.cb4_axe = self.add_subplot(4, image_B4, 'B4', roi, 'Blues')
-       
+
+
+    def plot(self, raw_pixels, roi, metadata):
+        self.set_title(metadata)
+        bayer_pattern = metadata['bayer']
+        for i, t in enumerate(self.PLOT_CODES,start=1):
+            image = get_debayered_for_channel(raw_pixels, bayer_pattern, t[0])
+            axe, caxe = self.add_subplot(i, image, t[1], roi, t[2])
+            self.all_axes.append(axe)
+            self.all_axes.append(caxe)
 
 # ===================
 # Module entry points
