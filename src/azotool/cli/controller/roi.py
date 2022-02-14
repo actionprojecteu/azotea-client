@@ -58,6 +58,30 @@ class ROIController:
         self.default_details = None
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.createReq,  'roi_create_req')
+        pub.subscribe(self.switchReq,  'roi_switch_req')
+
+
+    @inlineCallbacks
+    def switchReq(self, options):
+        try:
+            if not options.model:
+                raise ValueError("Camera --model option missing")
+            data = {
+                'model': ' '.join(options.model), 
+                'width': options.width, 
+                'height': options.height,
+            }
+            info_id = yield self.model.lookupByComment(data)
+            log.info('info_id is = {id}',id=info_id)
+            if not info_id:
+                raise ValueError("No ROI was found based on comments. Check input parameters")
+            log.info('Setting default ROI configuration as = {id}',id=info_id)
+            yield self.config.saveSection('ROI',info_id)
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('quit', exit_code = 1)
+        else:
+            pub.sendMessage('quit')
 
 
     @inlineCallbacks

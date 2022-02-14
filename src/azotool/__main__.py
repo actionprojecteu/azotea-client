@@ -142,7 +142,7 @@ def createParser():
 
 
     camswi.add_argument('--model',       type=str, nargs='+', default=None, help="Camera Model (taken from EXIF data)")
-    
+
 
     # -------------------------------------
     # Create second level parsers for 'roi'
@@ -151,6 +151,8 @@ def createParser():
     subparser = parser_roi.add_subparsers(dest='subcommand')
 
     roicre = subparser.add_parser('create',  help="Create a new region of interest in the database")
+    roiswi = subparser.add_parser('switch',  help="Switch default ROI to the auto centered ROI for the given camera and width and height")
+
     group = roicre.add_mutually_exclusive_group(required=True)
     roicre.add_argument('--default',     action='store_true', help='Set this ROI as the default ROI')
     group.add_argument('--from-image',  type=str, default=None, action='store', metavar='<image file path>', help='create camera by inspecting an image')
@@ -164,6 +166,10 @@ def createParser():
     roicre.add_argument('--x2',      type=int, default=None, help='Ending pixel column')
     roicre.add_argument('--y2',      type=int, default=None, help="Ending pixel row")
     roicre.add_argument('--comment', type=str, nargs='+', default=None, help="Additional region comment")
+
+    roiswi.add_argument('--model',   type=str, nargs='+', default=None, help="Camera Model (taken from EXIF data)")
+    roiswi.add_argument('--width',   type=int, default=500, help="Width of central rectangle")
+    roiswi.add_argument('--height',  type=int, default=400, help="height of central rectangle")
 
     # ------------------------------------------
     # Create second level parsers for 'sky'

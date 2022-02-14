@@ -29,7 +29,7 @@ from twisted.internet.threads import deferToThread
 from azotea import SQL_SCHEMA, SQL_INITIAL_DATA_DIR, SQL_UPDATES_DATA_DIR
 
 from azotea.logger import setLogLevel
-from azotea.dbase import log, NAMESPACE, tables, image, sky
+from azotea.dbase import log, NAMESPACE, tables, image, sky, roi
 
 # ----------------
 # Module constants
@@ -92,7 +92,7 @@ class DataAccesObject():
             insert_mode         = tables.QUERY_INSERT_OR_REPLACE,
             log_level           = cam_dbg,
         )
-        self.roi = tables.Table(
+        self.roi = roi.ROITable(
             pool                = self.pool, 
             table               = 'roi_t',
             id_column           = 'roi_id',
