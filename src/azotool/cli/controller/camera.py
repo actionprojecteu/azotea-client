@@ -58,6 +58,7 @@ class CameraController:
         self.config = config
         setLogLevel(namespace=NAMESPACE, levelStr='info')
         pub.subscribe(self.createReq,  'camera_create_req')
+        pub.subscribe(self.switchReq,  'camera_switch_req')
 
     @inlineCallbacks
     def createReq(self, options):
@@ -114,4 +115,30 @@ class CameraController:
             'x_pixsize'    : options.x_pixsize,
             'y_pixsize'    : options.y_pixsize,
         }
+
+
+    def switchAsGiven(self, options):
+        if not options.model:
+            raise ValueError("--model is missing")
+        else:
+            return {'model': ' '.join(options.model),}
+    
         
+    @inlineCallbacks
+    def switchReq(self, options):
+        try:
+            data = self.switchAsGiven(options)
+            log.info('Switch to default camera: {data}', data=data)
+            log.debug('Getting id from camera_t')
+            info_id = yield self.model.lookup(data)
+            if info_id: 
+                log.info('Setting default camera configuration as = {id}',id=info_id)
+                yield self.config.saveSection('camera', info_id)
+            else:
+                log.error('No camera model found given by {data}', data=data)
+        except Exception as e:
+            log.failure('{e}',e=e)
+            pub.sendMessage('quit', exit_code = 1)
+        else:
+            pub.sendMessage('quit')
+

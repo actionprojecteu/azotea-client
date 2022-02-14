@@ -123,6 +123,8 @@ def createParser():
     subparser = parser_camera.add_subparsers(dest='subcommand')
 
     camcre = subparser.add_parser('create',  help="Create a new camera in the database")
+    camswi = subparser.add_parser('switch',  help="Switch default camera to an existing model in the database")
+
     camcre.add_argument('--default',     action='store_true', help='Set this camera as the default camera')
     group = camcre.add_mutually_exclusive_group(required=True)
     group.add_argument('--from-image',  type=str, default=None, action='store', metavar='<image file path>', help='create camera by inspecting an image')
@@ -137,6 +139,10 @@ def createParser():
     camcre.add_argument('--length',       type=int, default=0, help="Number of raw rows, with no debayering")
     camcre.add_argument('--x-pixsize',    type=float, default=None, help="Pixel width in um.")
     camcre.add_argument('--y-pixsize',    type=float, default=None, help="Pixel height in um.")
+
+
+    camswi.add_argument('--model',       type=str, nargs='+', default=None, help="Camera Model (taken from EXIF data)")
+    
 
     # -------------------------------------
     # Create second level parsers for 'roi'
