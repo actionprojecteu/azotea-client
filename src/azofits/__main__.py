@@ -134,7 +134,8 @@ def fits_dispatcher(filepath, swcreator, swcomment, options):
         y_pixsize     = options.y_pixsize,
         diameter      = options.diameter,
         focal_length  = options.focal_length,
-        image_type    = fits_image_type(options.image_type)
+        image_type    = fits_image_type(options.image_type),
+        comment       = ' '.join (options.comment) if options.comment else None,
     )
 
 
@@ -142,7 +143,7 @@ def process_options(options):
     if options.image_file:
         process_fits_file(options.image_file, options)
     else:
-        directories = scan_non_empty_dirs(options.images_dir)
+        directories = scan_non_empty_dirs(options.images_dir, depth=options.dir_depth)
         for directory in directories:
             paths_set = set()
             for extension in EXTENSIONS:
@@ -218,10 +219,12 @@ def createParser():
     group2.add_argument('-d', '--images-dir', type=validdir, action='store', metavar='<path>', help='Base directory to edit FITS files')
     group2.add_argument('-f', '--image-file', type=validfile, action='store', metavar='<path>', help='single FITS file path')  
 
+    parser.add_argument('--dir-depth', type=int,  default=None, help='Images directory depth, unlimited by default, 0=scan only base directory')
     # FITS specific editing info  
     parser.add_argument('--force',     action='store_true', help='Force editing.')
     parser.add_argument('--swcreator', choices=SW_CREATORS, default=None, action='store', help='Name of software that created the FITS files')
     parser.add_argument('--camera',     type=str, nargs='+', default=None, help="Camera model")
+    parser.add_argument('--comment',    type=str, nargs='+', default=None, help="Optional comment keyword to add")
     parser.add_argument('--bayer-pattern', choices=BAYER_PTN_LIST, default=None, help='Bayer pattern layout')
     parser.add_argument('--gain',      type=float, default=None, help="CMOS detector GAIN settings")
     parser.add_argument('--bias',      type=int,   default=None, help="Global Bias for every image")
