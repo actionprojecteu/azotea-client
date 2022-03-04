@@ -62,7 +62,8 @@ class MissingExptimeObsError(FITSBaseError):
 
 log = logging.getLogger(SW_MODIFIER)
 
-def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize, image_type):
+def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, 
+    diameter, focal_length, x_pixsize, y_pixsize, image_type, comment):
     basename = os.path.basename(filepath)
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     # Find the observation date from the file name !
@@ -182,3 +183,7 @@ def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain,
             header.comments['EXPTIME'] = "[s]"
             header['HISTORY'] = f'Added/Changed EXPTIME from {old_value} to {exptime}'
             header['HISTORY'] = f"Guessed DATE-OBS/EXPTIME from file name '{iso_basename}'"
+
+        if comment is not None:
+            header['COMMENT'] = comment
+

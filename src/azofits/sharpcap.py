@@ -75,7 +75,8 @@ def _fits_read_gain(filepath):
 # Module main function
 # --------------------
 
-def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, diameter, focal_length, x_pixsize, y_pixsize, image_type):
+def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain, 
+    diameter, focal_length, x_pixsize, y_pixsize, image_type, comment):
     basename = os.path.basename(filepath)
     now = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
     if gain is None:
@@ -180,6 +181,6 @@ def fits_edit(filepath, swcreator, swcomment, camera, bias, bayer_pattern, gain,
                 header.comments['COLORTYP'] = "Top down convention. (0,0) is upper left"
                 header['HISTORY'] = f'Forced BAYERPAT & COLORTYP from {old_bayer_pattern} to {bayer_pattern}'
         
-        
-
+        if comment is not None:
+            header['COMMENT'] = comment
 
