@@ -133,20 +133,27 @@ def raw_dimensions_exif(filepath):
 # Main function to be exported by this module
 # -------------------------------------------
 
-def reshape_rect(filepath, rect):
-    extension = os.path.splitext(filepath)[1]
-    if fits_check_valid_extension(extension):
-        imageHeight, imageWidth, model = raw_dimensions_fits(filepath)
+def reshape_rect(filepath, rect, x0=None, y0=None):
+    if x0 is None and y0 is None:
+        extension = os.path.splitext(filepath)[1]
+        if fits_check_valid_extension(extension):
+            imageHeight, imageWidth, model = raw_dimensions_fits(filepath)
+        else:
+            imageHeight, imageWidth, model = raw_dimensions_exif(filepath)
+        imageHeight = imageHeight //2 # From raw dimensions without debayering
+        imageWidth =  imageWidth  //2  # to dimensions we actually handle
+        width, height = rect.dimensions()
+        center=Point(imageWidth//2,imageHeight//2)
+        x0 = (imageWidth  -  width)//2
+        y0 = (imageHeight - height)//2
+        rect += Point(x0,y0)  # Shift ROI using this (x0,y0) point
+        result = rect.to_dict()
+        result['display_name'] = str(rect)
+        result['comment'] = _("ROI for {0}, centered at P={1}, width={2}, height={3}").format(model, center, width, height)
     else:
-        imageHeight, imageWidth, model = raw_dimensions_exif(filepath)
-    imageHeight = imageHeight //2 # From raw dimensions without debayering
-    imageWidth =  imageWidth  //2  # to dimensions we actually handle
-    width, height = rect.dimensions()
-    center=Point(imageWidth//2,imageHeight//2)
-    x1 = (imageWidth  -  width)//2
-    y1 = (imageHeight - height)//2
-    rect += Point(x1,y1)  # Shift ROI using this (x1,y1) point
-    result = rect.to_dict()
-    result['display_name'] = str(rect)
-    result['comment'] = _("ROI for {0}, centered at P={1}, width={2}, height={3}").format(model,center,width,height)
+        p0 = Point(x0,y0)
+        rect += p0  # Shift ROI using this P0 (x0,y0) point
+        result = rect.to_dict()
+        result['display_name'] = str(rect)
+        result['comment'] = _("ROI for {0}, with corner at P={1}, width={2}, height={3}").format(model, p0, width, height)
     return result
