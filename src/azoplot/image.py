@@ -130,6 +130,7 @@ def toDateTime(tstamp):
 
 def bayer_fits(header):
     bayer     = header.get('BAYERPAT')
+    log.info(f"BAYER PATTERN is {bayer}")
     if bayer is None:
         return None
     swmodify  = header.get('SWMODIFY')
@@ -139,7 +140,7 @@ def bayer_fits(header):
     if swcreator == 'SharpCap':
         # Swap halves
         bayer = bayer[2:4] + bayer[0:2]
-        return bayer
+    return bayer
 
 def metadata_fits(filepath):
     metadata = dict()
@@ -199,16 +200,17 @@ def get_metadata(filepath, header_type):
     return metadata
 
 
-def centered_roi(metadata, width, height):
+def centered_roi(metadata, width, height, x0=None, y0=None):
     rect = Rect(x1=0, y1=0, x2=width, y2=height)
-    imageHeight, imageWidth = metadata['height'], metadata['width']
-    imageHeight = imageHeight //2 # From raw dimensions without debayering
-    imageWidth =  imageWidth  //2  # to dimensions we actually handle
-    width, height = rect.dimensions()
-    center=Point(imageWidth//2,imageHeight//2)
-    x1 = (imageWidth  -  width)//2
-    y1 = (imageHeight - height)//2
-    rect += Point(x1,y1)  # Shift ROI using this (x1,y1) point
+    if x0 is None and y0 is None:
+        imageHeight, imageWidth = metadata['height'], metadata['width']
+        imageHeight = imageHeight//2  # From raw dimensions without debayering
+        imageWidth  = imageWidth //2  # to dimensions we actually handle
+        width, height = rect.dimensions()
+        center=Point(imageWidth//2, imageHeight//2)
+        x0 = (imageWidth  -  width)//2
+        y0 = (imageHeight - height)//2
+    rect += Point(x0,y0)  # Shift ROI using this (x0,y0) point
     result = rect.to_dict()
     return result
 
@@ -265,7 +267,7 @@ class Cycler:
         log.info(f"Loading metadata for image {filepath}")
         header_type = find_header_type(filepath)
         metadata = get_metadata(filepath, header_type)
-        roi = centered_roi(metadata, self.options.width, self.options.height)
+        roi = centered_roi(metadata, self.options.width, self.options.height, self.options.x0, self.options.y0)
         metadata['bayer'] = self.options.bayer if self.options.bayer else metadata['bayer']
         if not metadata['bayer']:
             raise UnknownBayerPatternError(f"Choose among {BAYER_PTN_LIST}")
