@@ -32,7 +32,7 @@ from azotea.dbase.tables import Table, VersionedTable
 
 PUB_COLUMN_NAMES = (
     # L = 1
-    'uuid'     # uuid[0:1]
+    'uuid',     # uuid[0:1]
     # L = 1
     'date_id', # date [1:2]
     # L = 1
@@ -44,7 +44,7 @@ PUB_COLUMN_NAMES = (
     # L = 9
     'model','bias','extension','header_type','bayer_pattern','width','length', 'x_pixsize', 'y_pixsize', # camera [16:25]
     # L = 6
-    'x1','y1','x2','y2','display_name','comment',                                              # roi [25:31]
+    'x1', 'y1', 'x2', 'y2' ,'display_name','comment',                                              # roi [25:31]
     # L = 11
     'name','directory','hash','iso','gain','exptime','focal_length','f_number', 'imagetype', 'flagged', 'session', # image [31:42]
     # L = 8
@@ -59,10 +59,11 @@ PUB_COLUMN_NAMES = (
 
 def slice_func(row):
     '''Slices a row into separate components for JSON publishing'''
+    #print(f"ROW  = {tuple(zip(row, range(len(row)) ))}")
     result = {
-        'uuid'           : dict(zip(PUB_COLUMN_NAMES[0:1],   row[0:1])),
-        'date'           : dict(zip(PUB_COLUMN_NAMES[1:2],   row[1:2])),
-        'time'           : dict(zip(PUB_COLUMN_NAMES[2:3],   row[2:3])),
+        'uuid'           : row[0:1][0], # the slice is a tuple
+        'date'           : row[1:2][0], # the slice is a tuple
+        'time'           : row[2:3][0], # the slice is a tuple
         'observer'       : dict(zip(PUB_COLUMN_NAMES[3:10],  row[3:10])),
         'location'       : dict(zip(PUB_COLUMN_NAMES[10:16], row[10:16])),
         'camera'         : dict(zip(PUB_COLUMN_NAMES[16:25], row[16:25])),
