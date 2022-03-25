@@ -201,6 +201,7 @@ class DatabaseService(Service):
             self.openPool()
             self.dao = DataAccesObject(self.pool, *levels)
             self.dao.version = version
+            self.dao.uuid = guid
             self.foreign_keys(True)
 
 

@@ -59,10 +59,11 @@ log  = Logger(namespace=NAMESPACE)
 
 class AboutDialog(tk.Toplevel):
 
-    def __init__(self, title, version, descr_path, ack_path, img_path, logos_list, *args, ncols=3, **kwargs):
+    def __init__(self, title, version, uuid, descr_path, ack_path, img_path, logos_list, *args, ncols=3, **kwargs):
         super().__init__(*args, **kwargs)
         self._title = title
         self._version = version
+        self._uuid = uuid
         self._descr_path = descr_path
         self._ack_path = ack_path
         self._img_path = img_path
@@ -89,7 +90,7 @@ class AboutDialog(tk.Toplevel):
         ri_frame = ttk.Frame(top_frame)
         ri_frame.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH, padx=5, pady=5)
 
-        text  = self._version
+        text  = f"{self._version}\nUUID: {self._uuid}"
         label = ttk.Label(ri_frame, text=text)
         label.pack(side=tk.TOP,  anchor=tk.W, expand=False, fill=tk.BOTH, padx=5, pady=5)
 
