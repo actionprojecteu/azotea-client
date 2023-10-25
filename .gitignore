@@ -131,9 +131,8 @@ dmypy.json
 # Other stuff
 *.db
 *.txt
-src/*.db
-src/*.bak
-src/*.csv
-src/*.sh
+*.csv
+*.sh
 images/
+csv/
 migracion.md
