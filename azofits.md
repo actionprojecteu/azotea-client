@@ -36,7 +36,7 @@ Each image adquistion software has its own convention and idiosyncrasies, so `az
 |`APTDIA`  | mm.   | Aperture diameter.
 |`XPIXSZ`  | um.   | Horizontal pixel size.
 |`YPIXSZ`  | um.   | Vertical pixel size.
-|`LOG-GAIN`| dB    | Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#note-3).
+|`LOG-GAIN`| 0.1 dB| Logaritmic gain. | See [Note 3](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#note-3).
 |`IMAGETYP`|       | Image type | See [Note 4](https://github.com/actionprojecteu/azotea-client/blob/main/azofits.md#note-3).
 
 ## Note 1:

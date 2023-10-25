@@ -31,13 +31,23 @@ from azotea.dbase.tables import Table, VersionedTable
 # ----------------
 
 PUB_COLUMN_NAMES = (
-    'date_id', # date [0:1]
-    'time_id', # time [1:2]
+    # L = 1
+    'uuid',     # uuid[0:1]
+    # L = 1
+    'date_id', # date [1:2]
+    # L = 1
+    'time_id', # time [2:3]
+    # L = 7
     'surname','family_name','acronym','affiliation','valid_since','valid_until','valid_state', # observer [3:10]
+    # L = 6
     'site_name','location','longitude','latitude', 'randomized', 'utc_offset',                 # location [10:16]
+    # L = 9
     'model','bias','extension','header_type','bayer_pattern','width','length', 'x_pixsize', 'y_pixsize', # camera [16:25]
-    'x1','y1','x2','y2','display_name','comment',                                              # roi [25:31]
+    # L = 6
+    'x1', 'y1', 'x2', 'y2' ,'display_name','comment',                                              # roi [25:31]
+    # L = 11
     'name','directory','hash','iso','gain','exptime','focal_length','f_number', 'imagetype', 'flagged', 'session', # image [31:42]
+    # L = 8
     'aver_signal_R','vari_signal_R','aver_signal_G1','vari_signal_G1',                         # sky_brightness [42:50]
     'aver_signal_G2','vari_signal_G2','aver_signal_B','vari_signal_B'
 )
@@ -49,9 +59,11 @@ PUB_COLUMN_NAMES = (
 
 def slice_func(row):
     '''Slices a row into separate components for JSON publishing'''
+    #print(f"ROW  = {tuple(zip(row, range(len(row)) ))}")
     result = {
-        'date'           : dict(zip(PUB_COLUMN_NAMES[0:1],   row[0:1])),
-        'time'           : dict(zip(PUB_COLUMN_NAMES[1:2],   row[1:2])),
+        'uuid'           : row[0:1][0], # the slice is a tuple
+        'date'           : row[1:2][0], # the slice is a tuple
+        'time'           : row[2:3][0], # the slice is a tuple
         'observer'       : dict(zip(PUB_COLUMN_NAMES[3:10],  row[3:10])),
         'location'       : dict(zip(PUB_COLUMN_NAMES[10:16], row[10:16])),
         'camera'         : dict(zip(PUB_COLUMN_NAMES[16:25], row[16:25])),
@@ -625,11 +637,12 @@ class SkyBrightness:
 
 
     def getAll(self, filter_dict):
-        '''Get all data for publishing to server. filter_dict contains "observer_id", offset" and "limit"'''
+        '''Get all data for publishing to server. filter_dict contains "observer_id", offset", "limit and "uuid"'''
 
         def _getAll(txn, filter_dict):
             sql = '''
             SELECT
+            :uuid,
             i.date_id, i.time_id,
             o.surname, o.family_name, o.acronym, o.affiliation, o.valid_since, o.valid_until, o.valid_state,
             l.site_name, l.location, l.longitude, l.latitude, l.randomized, l.utc_offset,

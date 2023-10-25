@@ -11,6 +11,7 @@
 
 
 import os
+import uuid
 import sqlite3
 import glob
 
@@ -72,6 +73,39 @@ def read_database_version(connection):
     cursor.execute(query)
     version = cursor.fetchone()[0]
     return version
+
+
+def write_database_uuid(connection):
+    guid = str(uuid.uuid4())
+    cursor = connection.cursor()
+    param = {'section': 'database','property':'uuid','value': guid}
+    cursor.execute(
+        '''
+        INSERT INTO config_t(section,property,value) 
+        VALUES(:section,:property,:value)
+        ''',
+        param
+    )
+    connection.commit()
+    return guid
+
+
+def make_database_uuid(connection):
+    cursor = connection.cursor()
+    query = 'SELECT value FROM config_t WHERE section = "database" AND property = "uuid";'
+    cursor.execute(query)
+    guid = cursor.fetchone()
+    if guid:
+        try:
+            uuid.UUID(guid[0])  # Validate UUID
+        except ValueError:
+            guid = write_database_uuid(connection)
+        else:
+            guid = guid[0]
+    else:
+        guid = write_database_uuid(connection)
+    return guid
+
 
 def read_debug_levels(connection):
     cursor = connection.cursor()
@@ -149,7 +183,13 @@ class DatabaseService(Service):
                 log.warn("Applying updates to data model from {f}", f=os.path.basename(sql_file))
         levels  = read_debug_levels(connection)
         version = read_database_version(connection)
-        log.warn("Starting Database Service on {database}, version = {version}", database=self.path, version=version)
+        guid    = make_database_uuid(connection)
+        log.warn("Starting {service} on {database}, version = {version}, UUID = {uuid}", 
+            database = self.path, 
+            version  = version,
+            service  = self.name,
+            uuid     = guid,
+        )
         pub.subscribe(self.quit,  'quit')
         # Remainder Service initialization
         super().startService()
@@ -161,6 +201,7 @@ class DatabaseService(Service):
             self.openPool()
             self.dao = DataAccesObject(self.pool, *levels)
             self.dao.version = version
+            self.dao.uuid = guid
             self.foreign_keys(True)
 
 

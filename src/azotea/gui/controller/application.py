@@ -85,7 +85,8 @@ class ApplicationController:
     def onDatabaseVersionReq(self):
         try:
             version = self.model.version
-            self.view.menuBar.doAbout(version)
+            uuid    = self.model.uuid
+            self.view.menuBar.doAbout(version, uuid)
         except Exception as e:
             log.failure('{e}',e=e)
             pub.sendMessage('quit', exit_code = 1)

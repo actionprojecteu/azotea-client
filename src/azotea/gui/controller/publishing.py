@@ -222,6 +222,8 @@ class PublishingController:
         page_size = self.page_size
         N = total // page_size
         N = N + 1 if (total % page_size) != 0 else N
+        temp = yield self.config.load('database','uuid')
+        filter_dict['uuid'] = temp['uuid']
         for page in range(N):
             filter_dict['limit']  = page_size
             filter_dict['offset'] = page * page_size
