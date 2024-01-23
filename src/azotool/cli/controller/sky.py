@@ -12,7 +12,8 @@
 import os
 import csv
 import math
-import random 
+import random
+import datetime
 
 # ---------------
 # Twisted imports
@@ -104,11 +105,15 @@ class SkyController:
             elif options.latest_month:
                 date['date_selection'] = DATE_SELECTION_LATEST_MONTH
             elif options.range:
-                if not options.from_date or not options.to_date:
-                    raise ValueError("Missing --from-date or --to-date")
+                if not options.from_date:
+                    raise ValueError("Missing --from-date")
+                if not options.to_date:
+                    now = datetime.datetime.now(datetime.timezone.utc)
+                    date['end_date'] = now.strftime(EXPORT_INTERNAL_DATE_FMT)
+                else:
+                    date['end_date']   = options.to_date.strftime(EXPORT_INTERNAL_DATE_FMT)
                 date['date_selection'] = DATE_SELECTION_DATE_RANGE
                 date['start_date'] = options.from_date.strftime(EXPORT_INTERNAL_DATE_FMT)
-                date['end_date']   = options.to_date.strftime(EXPORT_INTERNAL_DATE_FMT)
             else:
                 raise ValueError("This should never happen")
             yield self.doExport(date)
